@@ -1,0 +1,10 @@
+package-as: Shitlist
+
+manual-changelog: CHANGELOG.txt
+
+ignore:
+  - pkgmeta.yaml
+  - .release
+  
+move-folders:
+  Shitlist/Shitlist: Shitlist

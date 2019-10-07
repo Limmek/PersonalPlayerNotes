@@ -1,0 +1,9 @@
+## Interface: 11302
+## Title: Shitlist
+## Notes: Set a personal comment on players and adding it to player information tooltip window.
+## Author: Limmek @ Shazzrah
+## Version: 1.0.2
+## SavedVariables: ShitlistDB
+## X-Curse-Project-ID: 344967
+Config.lua
+Shitlist.lua
