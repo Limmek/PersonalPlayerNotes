@@ -1,9 +1,9 @@
-local _, config = ...;
+local _, config = ...
 
-Shitlist = CreateFrame('GameTooltip', 'Shitlist', UIParent, 'GameTooltipTemplate')
+Shitlist = CreateFrame('GameTooltip', 'Shitlist', UIParent, 'DialogBoxFrame')
 
-Shitlist:RegisterEvent("ADDON_LOADED"); -- Fired when saved variables are loaded
-Shitlist:RegisterEvent("PLAYER_LOGOUT"); -- Fired when about to log out
+Shitlist:RegisterEvent("ADDON_LOADED") -- Fired when saved variables are loaded
+Shitlist:RegisterEvent("PLAYER_LOGOUT") -- Fired when about to log out
 
 Shitlist:SetScript("OnEvent", function(self, event)
     if event == "ADDON_LOADED" then
@@ -16,11 +16,80 @@ Shitlist:SetScript("OnEvent", function(self, event)
         if _G.ShitlistDB["TooltipTitle"] ~= nil then
             config.TooltipTitle = _G.ShitlistDB["TooltipTitle"]
         end
+        if _G.ShitlistDB["AlertEnable"] ~= nil then
+            config.AlertEnable = _G.ShitlistDB["AlertEnable"]
+        end
+        if _G.ShitlistDB["Sound"] ~= nil then
+            config.Sound = _G.ShitlistDB["Sound"]
+        end
+        if _G.ShitlistDB["SoundID"] ~= nil then
+            config.SoundID = _G.ShitlistDB["SoundID"]
+        end
+        if _G.ShitlistDB["PartyAlertEnable"] ~= nil then
+            config.PartyAlertEnable = _G.ShitlistDB["PartyAlertEnable"]
+        end
+        if _G.ShitlistDB["IgnoreTime"] ~= nil then
+            config.IgnoreTime = _G.ShitlistDB["IgnoreTime"]
+        end
+        if _G.ShitlistDB["PartyAlertEnable"] ~= nil then
+            config.PartyAlertEnable = _G.ShitlistDB["PartyAlertEnable"]
+        end
+        if _G.ShitlistDB["TooltipTitleColor"] ~= nil then
+            config.TooltipTitleColor = _G.ShitlistDB["TooltipTitleColor"]
+        end
+        if _G.ShitlistDB["TooltipTitleColorID"] ~= nil then
+            config.TooltipTitleColorID = _G.ShitlistDB["TooltipTitleColorID"]
+        end
+        if _G.ShitlistDB["ReasonColor"] ~= nil then
+            config.ReasonColor = _G.ShitlistDB["ReasonColor"]
+        end
+        if _G.ShitlistDB["ReasonColorID"] ~= nil then
+            config.ReasonColorID = _G.ShitlistDB["ReasonColorID"]
+        end
+        
+        -- Set global settings values
+        SettingsTooltipTitleEditBox:SetText(config.TooltipTitle)
+        SettingsTooltipTitleEditBox:SetCursorPosition(0)
+        
+        UIDropDownMenu_Initialize(SettingsTooltipTitleColorDropDown, initializeColors)
+        UIDropDownMenu_SetSelectedID(SettingsTooltipTitleColorDropDown, config.TooltipTitleColorID)
+
+        SettingsSoundCheckBox:SetChecked(config.AlertEnable)
+        SettingsSoundEditBox:SetText(config.IgnoreTime)
+        SettingsSoundEditBox:SetCursorPosition(0)
+        
+        UIDropDownMenu_Initialize(SettingsSoundDropDown, initializeSounds)
+        UIDropDownMenu_SetSelectedID(SettingsSoundDropDown, config.SoundID)
+        
+        SettingsPartyCheckBox:SetChecked(config.PartyAlertEnable)
+        SettingsPartyEditBox:SetText(config.PartyIgnoreTime)
+        SettingsPartyEditBox:SetCursorPosition(0)
+
+        -- Reason values
+        UIDropDownMenu_Initialize(SettingsReasonDropDown, initializeReasons)
+        UIDropDownMenu_SetSelectedID(SettingsReasonDropDown, 1)
+        UIDropDownMenu_Initialize(SettingsReasonColorDropDown, initializeReasonColor)
+        UIDropDownMenu_SetSelectedID(SettingsReasonColorDropDown, config.ReasonColorID)
+
+        -- Listed Player values
+        UIDropDownMenu_Initialize(SettingsListedPlayerDropDown, initializePlayer)
+        UIDropDownMenu_SetSelectedID(SettingsListedPlayerDropDown, 1)
+
     elseif event == "PLAYER_LOGOUT" then
         --_G.ShitlistDB = config -- Save whole config to SavedVariables
         _G.ShitlistDB["TooltipTitle"] = config.TooltipTitle
         _G.ShitlistDB["Reasons"] = config.Reasons
         _G.ShitlistDB["ListedPlayers"] = config.ListedPlayers
+        _G.ShitlistDB["AlertEnable"] = config.AlertEnable
+        _G.ShitlistDB["Sound"] = config.Sound
+        _G.ShitlistDB["SoundID"] = config.SoundID
+        _G.ShitlistDB["PartyAlertEnable"] = config.PartyAlertEnable
+        _G.ShitlistDB["IgnoreTime"] = config.IgnoreTime
+        _G.ShitlistDB["PartyAlertEnable"] = config.PartyAlertEnable
+        _G.ShitlistDB["TooltipTitleColor"] = config.TooltipTitleColor
+        _G.ShitlistDB["TooltipTitleColorID"] = config.TooltipTitleColorID
+        _G.ShitlistDB["ReasonColor"] = config.ReasonColor
+        _G.ShitlistDB["ReasonColorID"] = config.ReasonColorID
     end
 end)
 
@@ -31,10 +100,33 @@ function ShowPlayerTooltip(self)
 		local name, realm = UnitName(unit)
 		name = name .. "-" .. (realm or GetRealmName())
 		if config.ListedPlayers[name] and type(next(config.ListedPlayers)) ~= "nil" then
-            self:AddLine(config.TooltipTitle, 1, 0, 0, true)
+            self:AddLine(config.TooltipTitle, config.Colors[config.TooltipTitleColor].red, config.Colors[config.TooltipTitleColor].green, config.Colors[config.TooltipTitleColor].blue, true)
             for i,value in ipairs(config.ListedPlayers[name]) do
-                self:AddLine(value, 1, 1, 1, true)
+                if i == 1 then 
+                    self:AddLine(value, config.Colors[config.ReasonColor].red, config.Colors[config.ReasonColor].green, config.Colors[config.ReasonColor].blue, true)
+                else
+                    self:AddLine(value, config.Colors[config.DefaultColor].red, config.Colors[config.DefaultColor].green, config.Colors[config.DefaultColor].blue, true)
+                end
             end
+            
+            -- Play sound efect
+            if config.AlertEnable and time() >= config.Start and config.AlertLastSentName ~= name then
+                --PlaySound(8959, "Master", forceNoDuplicates, runFinishCallback)
+                PlaySoundFile(config.Sound, config.SoundChannel)
+                config.Start = time() + config.IgnoreTime
+                config.AlertLastSentName = name
+            end
+
+            -- Send party message
+            if IsInGroup() and config.PartyAlertEnable and time() >= config.PartyStart and config.PartyAlertLastSentName ~= name then
+                SendChatMessage(config.TooltipTitle .. " " .. name, "PARTY", GetDefaultLanguage(unit))
+                for k,v in ipairs(config.ListedPlayers[name]) do
+                    SendChatMessage(v, "PARTY", GetDefaultLanguage(unit))
+                end
+                config.PartyStart = time() + config.PartyIgnoreTime
+                config.PartyAlertLastSentName = name
+            end
+
         end
 	end
 end
@@ -83,32 +175,32 @@ function Shitlist:CreateUI()
     shitlistUI:ClearAllPoints()
     shitlistUI:SetHeight(180)
     shitlistUI:SetWidth(320)
-    shitlistUI:SetPoint("CENTER");
+    shitlistUI:SetPoint("CENTER")
     shitlistUI:SetBackdrop({
         bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
         edgeFile = "Interface\\PVPFrame\\UI-Character-PVP-Highlight", -- this one is neat
         edgeSize = 16,
         insets = { left = 8, right = 6, top = 8, bottom = 8 },
     })
-    shitlistUI:SetBackdropBorderColor(getConfigColors("Dark_Blue")) -- darkblue
-    shitlistUI:SetMovable(true);
-    shitlistUI:EnableMouse(true);
-    shitlistUI:RegisterForDrag("LeftButton");
-    shitlistUI:SetScript("OnDragStart", shitlistUI.StartMoving);
-    shitlistUI:SetScript("OnDragStop", shitlistUI.StopMovingOrSizing);
+    shitlistUI:SetBackdropBorderColor(getConfigColors("Light_Blue")) -- darkblue
+    shitlistUI:SetMovable(true)
+    shitlistUI:EnableMouse(true)
+    shitlistUI:RegisterForDrag("LeftButton")
+    shitlistUI:SetScript("OnDragStart", shitlistUI.StartMoving)
+    shitlistUI:SetScript("OnDragStop", shitlistUI.StopMovingOrSizing)
 
-    local title = shitlistUI:CreateFontString(nil, "OVERLAY", "GameFontNormal");
-    --title:SetFontObject("GameFontHighlight");
-    title:SetPoint("CENTER", shitlistUI, "TOP", 0, -20);
+    local title = shitlistUI:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+    --title:SetFontObject("GameFontHighlight")
+    title:SetPoint("CENTER", shitlistUI, "TOP", 0, -20)
     title:SetFont("Interface\\AddOns\\Shitlist\\Fonts\\Inconsolata-Bold.ttf", 12)
     title:SetTextColor(getConfigColors("White"))
-    title:SetText("Add new player notice");
+    title:SetText("Add new player notice")
 
     -- Title
     playerText = shitlistUI:CreateFontString(nil, "BACKGROUND", "GameFontNormal")
     playerText:SetPoint("TOP", shitlistUI, 0, -35)
     playerText:SetFont("Interface\\AddOns\\Shitlist\\Fonts\\Inconsolata-Bold.ttf", 16)
-    playerText:SetTextColor(getConfigColors("Yellow"))
+    playerText:SetTextColor(getConfigColors("Gold"))
     playerText:SetText(name)
 
     -- Reasons drop-down menu
@@ -131,7 +223,7 @@ function Shitlist:CreateUI()
     end
 
     UIDropDownMenu_Initialize(reasons, initialize)
-    UIDropDownMenu_SetWidth(reasons, 160);
+    UIDropDownMenu_SetWidth(reasons, 160)
     UIDropDownMenu_SetButtonWidth(reasons, 184)
     UIDropDownMenu_SetSelectedID(reasons, 1)
     UIDropDownMenu_JustifyText(reasons, "LEFT")
@@ -147,7 +239,7 @@ function Shitlist:CreateUI()
 		tile = false, tileSize = 0, edgeSize = 8,
 		insets = { left = 2, right = 2, top = 2, bottom = 2 }
     })
-    noticeEditBox:SetBackdropBorderColor(getConfigColors("Dark_Blue"))
+    noticeEditBox:SetBackdropBorderColor(getConfigColors("Light_Blue"))
     noticeEditBox:SetMultiLine(false)
     noticeEditBox:SetMaxLetters(255)
     noticeEditBox:SetAutoFocus(false) -- dont automatically focus
@@ -155,12 +247,12 @@ function Shitlist:CreateUI()
     noticeEditBox:SetScript("OnEscapePressed", function(self) Shitlist:Toggle() end)
 	noticeEditBox:SetScript("OnEnterPressed", function(self) self:ClearFocus() end)
 
-    local saveBtn = CreateFrame("Button", nil, shitlistUI, "OptionsButtonTemplate");
-    saveBtn:SetPoint("CENTER", shitlistUI, "BOTTOM", -55, 35);
-    saveBtn:SetSize(100, 30);
-    saveBtn:SetText("Save");
-    saveBtn:SetNormalFontObject("GameFontNormal");
-    saveBtn:SetHighlightFontObject("GameFontHighlight");
+    local saveBtn = CreateFrame("Button", nil, shitlistUI, "OptionsButtonTemplate")
+    saveBtn:SetPoint("CENTER", shitlistUI, "BOTTOM", -55, 35)
+    saveBtn:SetSize(100, 30)
+    saveBtn:SetText("Save")
+    saveBtn:SetNormalFontObject("GameFontNormal")
+    saveBtn:SetHighlightFontObject("GameFontHighlight")
     saveBtn:SetScript("OnMouseDown", function(self, button)
         if button == "LeftButton" then
             local reason = reasons.Text:GetText()
@@ -172,12 +264,12 @@ function Shitlist:CreateUI()
         end
     end)
 
-    local cancelBtn = CreateFrame("Button", nil, shitlistUI, "OptionsButtonTemplate");
-    cancelBtn:SetPoint("CENTER", shitlistUI, "BOTTOM", 55, 35);
-    cancelBtn:SetSize(100, 30);
-    cancelBtn:SetText("Cancel");
-    cancelBtn:SetNormalFontObject(GameFontNormal);
-    cancelBtn:SetHighlightFontObject(GameFontHighlight);
+    local cancelBtn = CreateFrame("Button", nil, shitlistUI, "OptionsButtonTemplate")
+    cancelBtn:SetPoint("CENTER", shitlistUI, "BOTTOM", 55, 35)
+    cancelBtn:SetSize(100, 30)
+    cancelBtn:SetText("Cancel")
+    cancelBtn:SetNormalFontObject(GameFontNormal)
+    cancelBtn:SetHighlightFontObject(GameFontHighlight)
     cancelBtn:SetScript("OnMouseDown", function(self, button)
         if button == "LeftButton" then
             HideParentPanel(self)
@@ -194,456 +286,7 @@ function Shitlist:Reset()
 end
 
 function Shitlist:Toggle()
-    local shitlist = shitlistUI or Shitlist:CreateUI();
-    shitlist:SetShown(not shitlist:IsShown());
+    local shitlist = shitlistUI or Shitlist:CreateUI()
+    shitlist:SetShown(not shitlist:IsShown())
     playerText:SetText(name)
 end
-
--- Settings --
-function Shitlist:Settings()
-    MyAddon = {};
-    MyAddon.panel = CreateFrame( "Frame", "MyAddonPanel", UIParent );
-    -- Register in the Interface Addon Options GUI
-    -- Set the name for the Category for the Options Panel
-    MyAddon.panel.name = "Shitlist";
-    -- Add the panel to the Interface Options
-    InterfaceOptions_AddCategory(MyAddon.panel);
-    
-    -- Shitlist panel
-    -- Shitlist - General
-    -- Title
-    local title = MyAddon.panel:CreateFontString(nil, "OVERLAY", "GameFontNormal");
-    title:SetPoint("TOPLEFT", MyAddon.panel, 10, -10);
-    title:SetFont("Interface\\AddOns\\Shitlist\\Fonts\\Inconsolata-Bold.ttf", 18);
-    title:SetTextColor(getConfigColors("Yellow"))
-    title:SetText("Shitlist - General");
-
-    -- Version
-    local version = MyAddon.panel:CreateFontString(nil, "OVERLAY", "GameFontNormal");
-    version:SetPoint("BOTTOMRIGHT", MyAddon.panel, -5, 5);
-    version:SetFont("Interface\\AddOns\\Shitlist\\Fonts\\Inconsolata-Bold.ttf", 11);
-    version:SetTextColor(getConfigColors("White"))
-    version:SetText("Version: " .. GetAddOnMetadata("Shitlist", "Version"));
-
-    -- Tooltip settings
-    tooltipFrame = CreateFrame("Frame", "TooltipFrame", MyAddon.panel)
-    tooltipFrame:SetPoint("TOPLEFT", MyAddon.panel, 10, -35);
-    tooltipFrame:SetSize(250, 125)
-    tooltipFrame:SetBackdrop({
-		bgFile="Interface\\DialogFrame\\UI-DialogBox-Background",
-		edgeFile="Interface\\PVPFrame\\UI-Character-PVP-Highlight", 
-		tile = false, tileSize = 0, edgeSize = 8,
-		insets = { left = 2, right = 2, top = 2, bottom = 2 }
-    })
-    tooltipFrame:SetBackdropBorderColor(getConfigColors("Black"))
-    
-    -- Title
-    local tptTitle = tooltipFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal");
-    tptTitle:SetPoint("TOPLEFT", tooltipFrame, 10, -10);
-    tptTitle:SetFont("Interface\\AddOns\\Shitlist\\Fonts\\Inconsolata-Bold.ttf", 14);
-    tptTitle:SetText("Tooltip Title");
-    
-    -- Info
-    local tptInfo = tooltipFrame:CreateFontString(nil, "OVERLAY", "GameFontWhite");
-    tptInfo:SetPoint("TOPLEFT", tooltipFrame, 15, -30);
-    tptInfo:SetTextColor(getConfigColors("White"))
-    tptInfo:SetText("Set title in the Tooltip message. #Shitlist");
-
-    -- EditBox
-    tptEditBox = CreateFrame("EditBox", "TooltipTitleEditBox", tooltipFrame)
-    tptEditBox:SetPoint("TOPLEFT", 15, -50)
-    tptEditBox:SetSize(220, 30)
-    tptEditBox:SetTextInsets(10, 0, 0, 0) 
-    tptEditBox:SetBackdrop({
-		bgFile="Interface\\DialogFrame\\UI-DialogBox-Background",
-		edgeFile="Interface\\PVPFrame\\UI-Character-PVP-Highlight", 
-		tile = false, tileSize = 0, edgeSize = 8,
-		insets = { left = 2, right = 2, top = 2, bottom = 2 }
-    })
-    tptEditBox:SetBackdropBorderColor(getConfigColors("Dark_Blue"))
-    tptEditBox:SetMultiLine(false)
-    tptEditBox:SetMaxLetters(50)
-    tptEditBox:SetAutoFocus(false)
-    tptEditBox:SetFontObject(GameFontWhite)
-    tptEditBox:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
-	tptEditBox:SetScript("OnEnterPressed", function(self) self:ClearFocus() end)
-    tptEditBox:SetScript("OnMouseDown", function(self) self:SetText(config.TooltipTitle) end)
-    
-    -- Button save new reason
-    local tptSaveBtn = CreateFrame("Button", nil, tooltipFrame, "OptionsButtonTemplate");
-    tptSaveBtn:SetPoint("TOPLEFT", tooltipFrame, 85, -85)
-    tptSaveBtn:SetSize(80, 30);
-    tptSaveBtn:SetText("Save");
-    tptSaveBtn:SetNormalFontObject(GameFontNormal);
-    tptSaveBtn:SetHighlightFontObject(GameFontHighlight);
-    tptSaveBtn:SetScript("OnMouseDown", function(self, button)
-        if button == "LeftButton" then
-            config.TooltipTitle = tptEditBox:GetText();
-        end
-    end)
-    
-    
-    -- Shitlist Settings Reasons Frame
-    -- Make a child panel
-    MyAddon.reasonPanel = CreateFrame( "Frame", "ShitlistSettingsReasons", MyAddon.panel);
-    MyAddon.reasonPanel.name = "Reasons";
-    -- Specify childness of this panel (this puts it under the little red [+], instead of giving it a normal AddOn category)
-    MyAddon.reasonPanel.parent = MyAddon.panel.name;
-    -- Add the child to the Interface Options
-    InterfaceOptions_AddCategory(MyAddon.reasonPanel);
-    
-    -- Reasons tabb
-    local title = MyAddon.reasonPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal");
-    title:SetPoint("TOPLEFT", MyAddon.reasonPanel, 10, -10);
-    title:SetFont("Interface\\AddOns\\Shitlist\\Fonts\\Inconsolata-Bold.ttf", 18);
-    title:SetTextColor(getConfigColors("Yellow"))
-    title:SetText("Shitlist - Reasons");
-
-    reasonFrame = CreateFrame("Frame", "ReasonsFrame", MyAddon.reasonPanel)
-    reasonFrame:SetPoint("TOPLEFT", MyAddon.reasonPanel, 10, -35);
-    reasonFrame:SetSize(250, 160)
-    reasonFrame:SetBackdrop({
-		bgFile="Interface\\DialogFrame\\UI-DialogBox-Background",
-		edgeFile="Interface\\PVPFrame\\UI-Character-PVP-Highlight", 
-		tile = false, tileSize = 0, edgeSize = 8,
-		insets = { left = 2, right = 2, top = 2, bottom = 2 }
-    })
-    reasonFrame:SetBackdropBorderColor(getConfigColors("Black"))
-    
-    -- Title
-    local reasonTitle = reasonFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal");
-    reasonTitle:SetPoint("TOPLEFT", reasonFrame, 10, -10);
-    reasonTitle:SetFont("Interface\\AddOns\\Shitlist\\Fonts\\Inconsolata-Bold.ttf", 14);
-    reasonTitle:SetText("Reasons");
-
-    -- Info
-    local tptInfo = reasonFrame:CreateFontString(nil, "OVERLAY", "GameFontWhite");
-    tptInfo:SetPoint("TOPLEFT", reasonFrame, 15, -30);
-    tptInfo:SetTextColor(getConfigColors("White"))
-    tptInfo:SetText("Edit reasons");
-
-    local reasonDropDown = CreateFrame("Button", nil, reasonFrame, "UIDropDownMenuTemplate")
-    reasonDropDown:SetPoint("TOPLEFT", reasonFrame, 15, -50)
-
-    local function OnClick(self)
-        UIDropDownMenu_SetSelectedID(reasonDropDown, self:GetID())
-        reasonEditBox:SetText(self:GetText())
-    end
-
-    local function initialize(self)
-        local info = UIDropDownMenu_CreateInfo()
-        for k,v in pairs(config.Reasons) do
-            info = UIDropDownMenu_CreateInfo()
-            info.text = v
-            info.value = v
-            info.func = OnClick
-            UIDropDownMenu_AddButton(info)
-        end
-    end
-
-    UIDropDownMenu_Initialize(reasonDropDown, initialize)
-    UIDropDownMenu_SetWidth(reasonDropDown, 170);
-    UIDropDownMenu_SetButtonWidth(reasonDropDown, 195)
-    UIDropDownMenu_SetSelectedID(reasonDropDown, 1)
-    UIDropDownMenu_JustifyText(reasonDropDown, "LEFT")
-
-    -- Reason Text EditBox
-    reasonEditBox = CreateFrame("EditBox", "DescriptionEditBox", reasonFrame)
-    reasonEditBox:SetPoint("TOPLEFT", reasonFrame, 25, -85)
-    reasonEditBox:SetSize(200, 30)
-    reasonEditBox:SetTextInsets(10, 0, 0, 0) 
-    reasonEditBox:SetBackdrop({
-		bgFile="Interface\\DialogFrame\\UI-DialogBox-Background",
-		edgeFile="Interface\\PVPFrame\\UI-Character-PVP-Highlight", 
-		tile = false, tileSize = 0, edgeSize = 8,
-		insets = { left = 2, right = 2, top = 2, bottom = 2 }
-    })
-    reasonEditBox:SetBackdropBorderColor(getConfigColors("Dark_Blue"))
-    reasonEditBox:SetMultiLine(false)
-    reasonEditBox:SetMaxLetters(255)
-    reasonEditBox:SetAutoFocus(false) -- dont automatically focus
-    reasonEditBox:SetFontObject(GameFontNormal)
-    reasonEditBox:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
-	reasonEditBox:SetScript("OnEnterPressed", function(self) self:ClearFocus() end)
-
-    -- Button save new reason
-    local reasonAddBtn = CreateFrame("Button", nil, reasonFrame, "OptionsButtonTemplate");
-    reasonAddBtn:SetPoint("TOPLEFT", reasonFrame, 40, -120)
-    reasonAddBtn:SetSize(80, 30);
-    reasonAddBtn:SetText("Add");
-    reasonAddBtn:SetNormalFontObject(GameFontNormal);
-    reasonAddBtn:SetHighlightFontObject(GameFontHighlight);
-    reasonAddBtn:SetScript("OnMouseDown", function(self, button)
-        if button == "LeftButton" then
-            table.insert(config.Reasons, reasonEditBox:GetText())
-            reasonEditBox:SetText("")
-            UIDropDownMenu_Initialize(reasonDropDown, initialize)
-            UIDropDownMenu_SetSelectedID(reasonDropDown, 1)
-        end
-    end)
-    
-    -- Button remove reason
-    local reasonRemoveBtn = CreateFrame("Button", nil, reasonFrame, "OptionsButtonTemplate");
-    reasonRemoveBtn:SetPoint("TOPLEFT", reasonFrame, 130, -120)
-    reasonRemoveBtn:SetSize(80, 30);
-    reasonRemoveBtn:SetText("Remove");
-    reasonRemoveBtn:SetNormalFontObject(GameFontNormal);
-    reasonRemoveBtn:SetHighlightFontObject(GameFontHighlight);
-    reasonRemoveBtn:SetScript("OnMouseDown", function(self, button)
-        if button == "LeftButton" then
-            --config.Reasons[reasonEditBox:GetText()] = nil
-            for k,v in ipairs(config.Reasons) do
-                if reasonEditBox:GetText() == v then
-                    print("Removed Reason: " .. v)
-                    table.remove(config.Reasons, k)
-                    reasonEditBox:SetText("")
-                    UIDropDownMenu_Initialize(reasonDropDown, initialize)
-                    UIDropDownMenu_SetSelectedID(reasonDropDown, 1)
-                end
-            end
-        end
-    end)
-
-    -- Shitlist Settings Listed Players
-    -- Make a child panel
-    MyAddon.listedPlayersPanel = CreateFrame( "Frame", "ShitlistSettingsListedPlayers", MyAddon.panel);
-    MyAddon.listedPlayersPanel.name = "Listed Players";
-    -- Specify childness of this panel (this puts it under the little red [+], instead of giving it a normal AddOn category)
-    MyAddon.listedPlayersPanel.parent = MyAddon.panel.name;
-    -- Add the child to the Interface Options
-    InterfaceOptions_AddCategory(MyAddon.listedPlayersPanel);
-    
-    -- Listed Players tabb
-    local title = MyAddon.listedPlayersPanel:CreateFontString(nil, "OVERLAY", "GameFontNormal");
-    title:SetPoint("TOPLEFT", MyAddon.listedPlayersPanel, 10, -10);
-    title:SetFont("Interface\\AddOns\\Shitlist\\Fonts\\Inconsolata-Bold.ttf", 18);
-    title:SetTextColor(getConfigColors("Yellow"))
-    title:SetText("Shitlist - Listed Players");
-
-    listedPlayersFrame = CreateFrame("Frame", "ReasonsFrame", MyAddon.listedPlayersPanel)
-    listedPlayersFrame:SetPoint("TOPLEFT", MyAddon.listedPlayersPanel, 10, -35);
-    listedPlayersFrame:SetSize(250, 235)
-    listedPlayersFrame:SetBackdrop({
-		bgFile="Interface\\DialogFrame\\UI-DialogBox-Background",
-		edgeFile="Interface\\PVPFrame\\UI-Character-PVP-Highlight", 
-		tile = false, tileSize = 0, edgeSize = 8,
-		insets = { left = 2, right = 2, top = 2, bottom = 2 }
-    })
-    listedPlayersFrame:SetBackdropBorderColor(getConfigColors("Black"))
-    
-    -- Title
-    local title = listedPlayersFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal");
-    title:SetPoint("TOPLEFT", listedPlayersFrame, 10, -10);
-    title:SetFont("Interface\\AddOns\\Shitlist\\Fonts\\Inconsolata-Bold.ttf", 14);
-    title:SetText("Listed Players");
-
-    -- Info
-    local tptInfo = listedPlayersFrame:CreateFontString(nil, "OVERLAY", "GameFontWhite");
-    tptInfo:SetPoint("TOPLEFT", listedPlayersFrame, 15, -30);
-    tptInfo:SetTextColor(getConfigColors("White"))
-    tptInfo:SetText("Edit or Remove shitlisted players");
-
-    player = CreateFrame("Button", nil, listedPlayersFrame, "UIDropDownMenuTemplate")
-    player:SetPoint("TOPLEFT", listedPlayersFrame, 15, -50)
-
-    local function OnClick(self)
-        UIDropDownMenu_SetSelectedID(player, self:GetID())
-        playerEditBox:SetText(config.ListedPlayers[self:GetText()][2])    
-        local index={}
-        for k,v in pairs(config.Reasons) do
-            index[v]=k
-        end
-        local a = config.ListedPlayers[self:GetText()][1]
-        
-        UIDropDownMenu_Initialize(playerReason, initializeReason)
-        UIDropDownMenu_SetSelectedID(playerReason, index[a])        
-    end
-
-    function initializePlayer(self)
-        local info = UIDropDownMenu_CreateInfo()
-        for k,v in pairs(config.ListedPlayers) do
-            info = UIDropDownMenu_CreateInfo()
-            info.text = k
-            info.value = v
-            info.func = OnClick
-            UIDropDownMenu_AddButton(info)
-        end
-    end
-
-    UIDropDownMenu_Initialize(player, initializePlayer)
-    UIDropDownMenu_SetWidth(player, 170);
-    UIDropDownMenu_SetButtonWidth(player, 195)
-    UIDropDownMenu_SetSelectedID(player, 1)
-    UIDropDownMenu_JustifyText(player, "LEFT")
-
-    local playerReasonTitle = listedPlayersFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal");
-    playerReasonTitle:SetPoint("TOPLEFT", listedPlayersFrame, 35, -90);
-    playerReasonTitle:SetFont("Interface\\AddOns\\Shitlist\\Fonts\\Inconsolata-Bold.ttf", 13);
-    playerReasonTitle:SetText("Reason");
-
-    playerReason = CreateFrame("Button", nil, listedPlayersFrame, "UIDropDownMenuTemplate")
-    playerReason:SetPoint("TOPLEFT", listedPlayersFrame, 15, -105)
-
-    local function OnClick(self)
-        UIDropDownMenu_SetSelectedID(playerReason, self:GetID())
-    end
-
-    function initializeReason(self)
-        local info = UIDropDownMenu_CreateInfo()
-        for k,v in pairs(config.Reasons) do
-            info = UIDropDownMenu_CreateInfo()
-            info.text = v
-            info.value = v
-            info.func = OnClick
-            UIDropDownMenu_AddButton(info)
-        end
-    end
-
-    UIDropDownMenu_Initialize(playerReason, initializeReason)
-    UIDropDownMenu_SetWidth(playerReason, 170);
-    UIDropDownMenu_SetButtonWidth(playerReason, 195)
-    UIDropDownMenu_SetSelectedID(playerReason, 1)
-    UIDropDownMenu_JustifyText(playerReason, "LEFT")
-
-    local playerEditBoxTitle = listedPlayersFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal");
-    playerEditBoxTitle:SetPoint("TOPLEFT", listedPlayersFrame, 30, -145);
-    playerEditBoxTitle:SetFont("Interface\\AddOns\\Shitlist\\Fonts\\Inconsolata-Bold.ttf", 13);
-    playerEditBoxTitle:SetText("Description");
-
-    -- Info
-    local playerEditBoxInfo = listedPlayersFrame:CreateFontString(nil, "OVERLAY", "GameFontWhite");
-    playerEditBoxInfo:SetPoint("TOPRIGHT", listedPlayersFrame, -25, -145);
-    playerEditBoxInfo:SetFont("Interface\\AddOns\\Shitlist\\Fonts\\Inconsolata-Bold.ttf", 10);
-    playerEditBoxInfo:SetTextColor(getConfigColors("White"))
-    playerEditBoxInfo:SetText("Optional");
-
-    -- Player Description EditBox
-    playerEditBox = CreateFrame("EditBox", "PlayerDescriptionEditBox", listedPlayersFrame)
-    playerEditBox:SetPoint("TOPLEFT", listedPlayersFrame, 25, -160)
-    playerEditBox:SetSize(200, 30)
-    playerEditBox:SetTextInsets(10, 0, 0, 0) 
-    playerEditBox:SetBackdrop({
-        bgFile="Interface\\DialogFrame\\UI-DialogBox-Background",
-        edgeFile="Interface\\PVPFrame\\UI-Character-PVP-Highlight", 
-        tile = false, tileSize = 0, edgeSize = 8,
-        insets = { left = 2, right = 2, top = 2, bottom = 2 }
-    })
-    playerEditBox:SetBackdropBorderColor(getConfigColors("Dark_Blue"))
-    playerEditBox:SetMultiLine(false)
-    playerEditBox:SetMaxLetters(255)
-    playerEditBox:SetAutoFocus(false) -- dont automatically focus
-    playerEditBox:SetFontObject(GameFontWhite)
-    playerEditBox:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
-	playerEditBox:SetScript("OnEnterPressed", function(self) self:ClearFocus() end)
-
-    -- Button save player data
-    local playerSaveBtn = CreateFrame("Button", nil, listedPlayersFrame, "OptionsButtonTemplate");
-    playerSaveBtn:SetPoint("BOTTOMLEFT", listedPlayersFrame, 40, 10)
-    playerSaveBtn:SetSize(80, 30);
-    playerSaveBtn:SetText("Save");
-    playerSaveBtn:SetNormalFontObject(GameFontNormal);
-    playerSaveBtn:SetHighlightFontObject(GameFontHighlight);
-    playerSaveBtn:SetScript("OnMouseDown", function(self, button)
-        if button == "LeftButton" then
-            --table.insert(config.Reasons, reasonEditBox:GetText())
-            config.ListedPlayers[player.Text:GetText()] = {playerReason.Text:GetText()or"", playerEditBox:GetText()or""}
-            playerEditBox:SetText("")
-            UIDropDownMenu_Initialize(player, initializePlayer)
-            UIDropDownMenu_SetSelectedID(player, 1) 
-            UIDropDownMenu_Initialize(playerReason, initializeReason)
-            UIDropDownMenu_SetSelectedID(playerReason, 1) 
-        end
-    end)
-
-    -- Button remove player
-    local playerRemoveBtn = CreateFrame("Button", nil, listedPlayersFrame, "OptionsButtonTemplate");
-    playerRemoveBtn:SetPoint("BOTTOMLEFT", listedPlayersFrame, 130, 10)
-    playerRemoveBtn:SetSize(80, 30);
-    playerRemoveBtn:SetText("Remove");
-    playerRemoveBtn:SetNormalFontObject(GameFontNormal);
-    playerRemoveBtn:SetHighlightFontObject(GameFontHighlight);
-    playerRemoveBtn:SetScript("OnMouseDown", function(self, button)
-        if button == "LeftButton" then
-            for k,v in pairs(config.ListedPlayers) do
-                if player.Text:GetText() == k then
-                    --table.remove(config.ListedPlayers, UIDropDownMenu_GetSelectedID(player))
-                    config.ListedPlayers[k] = nil
-                    print("Removed player: " .. k)
-                    UIDropDownMenu_Initialize(player, initializePlayer)
-                    UIDropDownMenu_SetSelectedID(player, 1)
-                    UIDropDownMenu_Initialize(playerReason, initializeReason)
-                    UIDropDownMenu_SetSelectedID(playerReason, 1) 
-                    playerEditBox:SetText("")
-                    break;
-                end
-            end
-        end
-    end)
-
-    -- Add new player window
-    listedPlayersNewFrame = CreateFrame("Frame", "ListedPlayersNewPlayerFrame", MyAddon.listedPlayersPanel)
-    listedPlayersNewFrame:SetPoint("TOPLEFT", MyAddon.listedPlayersPanel, 10, -280);
-    listedPlayersNewFrame:SetSize(250, 130)
-    listedPlayersNewFrame:SetBackdrop({
-		bgFile="Interface\\DialogFrame\\UI-DialogBox-Background",
-		edgeFile="Interface\\PVPFrame\\UI-Character-PVP-Highlight", 
-		tile = false, tileSize = 0, edgeSize = 8,
-		insets = { left = 2, right = 2, top = 2, bottom = 2 }
-    })
-    listedPlayersNewFrame:SetBackdropBorderColor(getConfigColors("Black"))
-    
-    -- Title
-    local listedPlayerNewTitle = listedPlayersNewFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal");
-    listedPlayerNewTitle:SetPoint("TOPLEFT", listedPlayersNewFrame, 10, -10);
-    listedPlayerNewTitle:SetFont("Interface\\AddOns\\Shitlist\\Fonts\\Inconsolata-Bold.ttf", 14);
-    listedPlayerNewTitle:SetText("Add new player");
-
-    -- Info
-    local listedPlayerInfo = listedPlayersNewFrame:CreateFontString(nil, "OVERLAY", "GameFontWhite");
-    listedPlayerInfo:SetPoint("TOPLEFT", listedPlayersNewFrame, 15, -30);
-    listedPlayerInfo:SetTextColor(getConfigColors("White"))
-    listedPlayerInfo:SetText("name-realm");
-
-    -- Player Description EditBox
-    listedPlayerNewEditBox = CreateFrame("EditBox", "ListedPlayerNewEditBox", listedPlayersNewFrame)
-    listedPlayerNewEditBox:SetPoint("TOPLEFT", listedPlayersNewFrame, 25, -55)
-    listedPlayerNewEditBox:SetSize(200, 30)
-    listedPlayerNewEditBox:SetTextInsets(10, 0, 0, 0) 
-    listedPlayerNewEditBox:SetBackdrop({
-        bgFile="Interface\\DialogFrame\\UI-DialogBox-Background",
-        edgeFile="Interface\\PVPFrame\\UI-Character-PVP-Highlight", 
-        tile = false, tileSize = 0, edgeSize = 8,
-        insets = { left = 2, right = 2, top = 2, bottom = 2 }
-    })
-    listedPlayerNewEditBox:SetBackdropBorderColor(getConfigColors("Dark_Blue"))
-    listedPlayerNewEditBox:SetMultiLine(false)
-    listedPlayerNewEditBox:SetMaxLetters(255)
-    listedPlayerNewEditBox:SetAutoFocus(false) -- dont automatically focus
-    listedPlayerNewEditBox:SetFontObject(GameFontWhite)
-    listedPlayerNewEditBox:SetScript("OnEscapePressed", function(self) self:ClearFocus() end)
-    listedPlayerNewEditBox:SetScript("OnEnterPressed", function(self) self:ClearFocus() end)
-
-    -- Button save new player
-    local listedPLayersSaveBtn = CreateFrame("Button", nil, listedPlayersNewFrame, "OptionsButtonTemplate");
-    listedPLayersSaveBtn:SetPoint("BOTTOMLEFT", listedPlayersNewFrame, 75, 10)
-    listedPLayersSaveBtn:SetSize(100, 30);
-    listedPLayersSaveBtn:SetText("Save");
-    listedPLayersSaveBtn:SetNormalFontObject(GameFontNormal);
-    listedPLayersSaveBtn:SetHighlightFontObject(GameFontHighlight);
-    listedPLayersSaveBtn:SetScript("OnMouseDown", function(self, button)
-        if button == "LeftButton" then
-            --table.insert(config.Reasons, reasonEditBox:GetText())
-            config.ListedPlayers[listedPlayerNewEditBox:GetText()] = {playerReason.Text:GetText(), playerEditBox:GetText()}
-            print("Added player: " .. listedPlayerNewEditBox:GetText())
-            playerEditBox:SetText("")
-            listedPlayerNewEditBox:SetText("")
-            UIDropDownMenu_Initialize(player, initializePlayer)
-            UIDropDownMenu_SetSelectedID(player, 1) 
-            UIDropDownMenu_Initialize(playerReason, initializeReason)
-            UIDropDownMenu_SetSelectedID(playerReason, 1)
-        end
-    end)
-
-end
--- Create settings panel
-Shitlist:Settings()
