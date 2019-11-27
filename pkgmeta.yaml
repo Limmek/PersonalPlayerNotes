@@ -1,10 +1,13 @@
 package-as: Shitlist
 
-manual-changelog: CHANGELOG.txt
+manual-changelog:
+  filename: CHANGELOG.md
+  markup-type: markdown
 
+# Ignore takes place before folder's moving takes place
 ignore:
   - pkgmeta.yaml
-  - .release
+  - README.md
   
 move-folders:
   Shitlist/Shitlist: Shitlist

@@ -74,6 +74,7 @@ Shitlist:SetScript("OnEvent", function(self, event)
         -- Listed Player values
         UIDropDownMenu_Initialize(SettingsListedPlayerDropDown, initializePlayer)
         UIDropDownMenu_SetSelectedID(SettingsListedPlayerDropDown, 1)
+        SettingsListedPlayerDescriptionEditBox:SetCursorPosition(0)
 
     elseif event == "PLAYER_LOGOUT" then
         --_G.ShitlistDB = config -- Save whole config to SavedVariables

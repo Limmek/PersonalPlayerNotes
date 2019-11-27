@@ -21,7 +21,7 @@ TabbListedPlayersTitle:SetText("Shitlist - Listed Players") -- Add localization
 -- Listed Players settings
 local ListedPlayersFrame = CreateFrame("Frame", "SettingsListedPlayersFrame", ShitlistSettings.listedPlayersPanel)
 ListedPlayersFrame:SetPoint("TOPLEFT", ShitlistSettings.listedPlayersPanel, 10, -35)
-ListedPlayersFrame:SetSize(250, 295)
+ListedPlayersFrame:SetSize(250, 380)
 --ListedPlayersFrame:SetBackdrop(config.Backdrop)
 --ListedPlayersFrame:SetBackdropBorderColor(getConfigColors("Black"))
 
@@ -135,16 +135,19 @@ ListedPlayerEditBoxInfo:SetFont(config.Font, 11)
 ListedPlayerEditBoxInfo:SetText("Optional") -- Add localization
 
 -- Player Description EditBox
-local ListedPlayerDescriptionEditBox = CreateFrame("EditBox", "SettingsListedPlayerDescriptionEditBox", ListedPlayersFrame)
-ListedPlayerDescriptionEditBox:SetPoint("TOPLEFT", ListedPlayersFrame, 25, -195)
-ListedPlayerDescriptionEditBox:SetSize(200, 30)
-ListedPlayerDescriptionEditBox:SetTextInsets(10, 0, 0, 0) 
+local ListedPlayerDescriptionEditBoxFrame = CreateFrame("Frame", "SettingsListedPlayerDescriptionEditBoxFrame", ListedPlayersFrame)
+ListedPlayerDescriptionEditBoxFrame:SetPoint("TOPLEFT", ListedPlayersFrame, 25, -195)
+ListedPlayerDescriptionEditBoxFrame:SetSize(200, 120)
+
+local ListedPlayerDescriptionEditBox = CreateFrame("EditBox", "SettingsListedPlayerDescriptionEditBox", ListedPlayerDescriptionEditBoxFrame)
 ListedPlayerDescriptionEditBox:SetBackdrop(config.Backdrop)
 ListedPlayerDescriptionEditBox:SetBackdropBorderColor(getConfigColors("White"))
-ListedPlayerDescriptionEditBox:SetMultiLine(false)
+ListedPlayerDescriptionEditBox:SetTextInsets(10, 10, 10, 10)
 ListedPlayerDescriptionEditBox:SetMaxLetters(255)
-ListedPlayerDescriptionEditBox:SetAutoFocus(false) -- dont automatically focus
+ListedPlayerDescriptionEditBox:SetMultiLine(true)
+ListedPlayerDescriptionEditBox:SetAutoFocus(false)
 ListedPlayerDescriptionEditBox:SetFontObject(GameFontWhite)
+ListedPlayerDescriptionEditBox:SetAllPoints()
 ListedPlayerDescriptionEditBox:SetScript("OnEscapePressed", function(self)
     self:ClearFocus()
 end)
@@ -154,7 +157,7 @@ end)
 
 -- Button save player data
 local ListedPlayerSaveBtn = CreateFrame("Button", "SettingsListedPlayerSaveBtn", ListedPlayersFrame, "OptionsButtonTemplate")
-ListedPlayerSaveBtn:SetPoint("TOPLEFT", ListedPlayersFrame, 40, -230)
+ListedPlayerSaveBtn:SetPoint("BOTTOMLEFT", ListedPlayersFrame, 40, 15)
 ListedPlayerSaveBtn:SetSize(80, 30)
 ListedPlayerSaveBtn:SetText("Save") -- Add localization
 ListedPlayerSaveBtn:SetNormalFontObject(GameFontNormal)
@@ -179,7 +182,7 @@ end)
 
 -- Button remove player
 local ListedPlayerRemoveBtn = CreateFrame("Button", "SettingsListedPlayerRemoveBtn", ListedPlayersFrame, "OptionsButtonTemplate")
-ListedPlayerRemoveBtn:SetPoint("TOPLEFT", ListedPlayersFrame, 130, -230)
+ListedPlayerRemoveBtn:SetPoint("BOTTOMLEFT", ListedPlayersFrame, 130, 15)
 ListedPlayerRemoveBtn:SetSize(80, 30)
 ListedPlayerRemoveBtn:SetText("Remove") -- Add localization
 ListedPlayerRemoveBtn:SetNormalFontObject(GameFontNormal)

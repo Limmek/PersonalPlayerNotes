@@ -40,5 +40,6 @@ luac.out
 *.hex
 
 #Skip Release
+.release
 /.release/
 classictag.sh
