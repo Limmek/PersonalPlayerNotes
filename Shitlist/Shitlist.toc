@@ -4,6 +4,7 @@
 ## Author: Limmek @ Shazzrah
 ## Version: @project-version@
 ## SavedVariables: ShitlistDB
+## DefaultState: Enabled
 ## X-Curse-Project-ID: 344967
 Config.lua
 Shitlist.lua

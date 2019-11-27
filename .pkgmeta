@@ -6,7 +6,6 @@ manual-changelog:
 
 # Ignore takes place before folder's moving takes place
 ignore:
-  - pkgmeta.yaml
   - README.md
   
 move-folders:
