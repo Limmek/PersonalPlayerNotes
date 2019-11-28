@@ -2,6 +2,11 @@ globals = {
     "_G",
     "Shitlist",
     "ShitlistDB",
+    "ShitlistSettings",
+    "SettingsTooltipTitleEditBox",
+    "SettingsTooltipTitleColorDropDown",
+    "SettingsSoundCheckBox",
+    "SettingsSoundDropDown",
 }
 max_line_length = 2823 -- fixme
 ignore = {
