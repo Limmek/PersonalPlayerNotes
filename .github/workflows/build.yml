@@ -17,7 +17,7 @@ jobs:
         run: |
           sudo apt-get install luarocks
           luarocks install --local luacheck
-          exec /home/runner/.luarocks/bin/luacheck Shitlist/*.lua --no-color --config Shitlist/.luacheckrc -qq
+          exec /home/runner/.luarocks/bin/luacheck Shitlist/*.lua --no-color --config Shitlist/luaformat.cfg -q
 
       - name: Create Retail Package
         run: curl -s https://raw.githubusercontent.com/BigWigsMods/packager/master/release.sh | bash
