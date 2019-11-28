@@ -1,4 +1,13 @@
-max_line_length: false
-indent_width: 2
-continuation_indent_width: 2
-keep_simple_block_one_line: false
+globals = {
+    "_G",
+    "Shitlist",
+    "ShitlistDB",
+}
+max_line_length = 2823 -- fixme
+ignore = {
+    "211/_.*",
+    "212/_.*",
+    "11./^AGT.*", -- remove me
+    "431/^f$",
+}
+self=false
