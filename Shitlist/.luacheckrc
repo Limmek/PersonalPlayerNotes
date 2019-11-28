@@ -29,3 +29,4 @@ ignore = {
 	"542", -- An empty if branch
 }
 self=false
+global=false
