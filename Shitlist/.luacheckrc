@@ -3,12 +3,7 @@ globals = {
     "Shitlist",
     "ShitlistDB",
     "ShitlistSettings",
-    "SettingsTooltipTitleEditBox",
-    "SettingsTooltipTitleColorDropDown",
-    "SettingsSoundCheckBox",
-    "SettingsSoundDropDown",
     "GameTooltip",
-    "",
 }
 max_line_length = 2823 -- fixme
 ignore = {
@@ -27,6 +22,10 @@ ignore = {
 	"42.", -- Shadowing a local variable, an argument, a loop variable.
 	"43.", -- Shadowing an upvalue, an upvalue argument, an upvalue loop variable.
 	"542", -- An empty if branch
+	"611", -- A line consists of nothing but whitespace.
+	"612", -- A line contains trailing whitespace.
+	"613", -- Trailing whitespace in a string.
+	"614", -- Trailing whitespace in a comment.
 }
 self=false
 global=false
