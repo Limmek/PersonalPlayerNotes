@@ -4,9 +4,11 @@ manual-changelog:
   filename: CHANGELOG.md
   markup-type: markdown
 
+enable-nolib-creation: no
+
 # Ignore takes place before folder's moving takes place
 ignore:
   - README.md
-  
+
 move-folders:
   Shitlist/Shitlist: Shitlist

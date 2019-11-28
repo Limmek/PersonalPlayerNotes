@@ -5,6 +5,7 @@
 ## Version: @project-version@
 ## SavedVariables: ShitlistDB
 ## DefaultState: Enabled
+## LoadOnDemand: 0
 ## X-Curse-Project-ID: 344967
 Config.lua
 Shitlist.lua
