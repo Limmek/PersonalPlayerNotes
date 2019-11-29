@@ -1,4 +1,4 @@
-## Interface: 11302
+## Interface: 80200
 ## Title: Shitlist
 ## Notes: Set a personal comment on players and adding it to player information tooltip window.
 ## Author: Limmek @ Shazzrah
