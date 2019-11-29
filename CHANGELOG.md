@@ -14,6 +14,8 @@ CHANGELOG
 - Add new player now works properly.
 
 ###### 1.0.1
-- Github fix.
+- Fixed a issue with the player list, when the first player was removed the entire player list was cleared.
+- Add new player now works properly.
+
 ###### 1.0.0 
 - Release
