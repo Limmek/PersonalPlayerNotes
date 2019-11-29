@@ -20,14 +20,14 @@ jobs:
           exec /home/runner/.luarocks/bin/luacheck Shitlist/*.lua --no-color --config ./Shitlist/.luacheckrc -q
 
       - name: Create Retail Package
-        run: curl -s https://raw.githubusercontent.com/BigWigsMods/packager/master/release.sh | bash
+        run: curl -s https://raw.githubusercontent.com/BigWigsMods/packager/master/release.sh | bash -s -- -p 344967
         env:
           CF_API_KEY: ${{ secrets.CF_API_KEY }}
           GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
           WOWI_API_TOKEN: ${{ secrets.WOWI_API_TOKEN }}
 
       - name: Create Classic Package
-        run: curl -s https://raw.githubusercontent.com/BigWigsMods/packager/master/release.sh | bash -s -- -g 1.13.2
+        run: curl -s https://raw.githubusercontent.com/BigWigsMods/packager/master/release.sh | bash -s -- -p 344967 -g 1.13.2
         env:
           CF_API_KEY: ${{ secrets.CF_API_KEY }}
           GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
