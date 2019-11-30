@@ -20,10 +20,15 @@ jobs:
           exec /home/runner/.luarocks/bin/luacheck Shitlist/*.lua --no-color --config ./Shitlist/.luacheckrc -q
 
       # run release.sh with arguments
-      - name: Create Package
+      - name: Create Classic Package
         uses: BigWigsMods/packager@master
         with:
           args: release.sh -g 1.13.2 -p 344967
+
+      - name: Create BFA Package
+        uses: BigWigsMods/packager@master
+        with:
+          args: release.sh -p 344967
       
     env:
       CF_API_KEY: ${{ secrets.CF_API_KEY }}
