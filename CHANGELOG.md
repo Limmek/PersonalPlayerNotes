@@ -1,5 +1,8 @@
 CHANGELOG
 
+###### 1.0.5
+- Added to reatal.
+
 ###### 1.0.4
 - Settings - Listed Player improvements.
 
