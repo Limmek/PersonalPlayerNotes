@@ -253,3 +253,49 @@ end)
 PartyEditBox:SetScript("OnMouseDown", function(self) 
     self:SetText(config.PartyIgnoreTime)
 end)
+
+-----
+
+local PopupMenusFrame = CreateFrame("Frame", "SettingsPopupMenusFrame", ShitlistSettings.panel)
+PopupMenusFrame:SetPoint("TOPLEFT", ShitlistSettings.panel, 10, -AudioFrame:GetHeight()+-TooltipFrame:GetHeight()+-PartyFrame:GetHeight())
+PopupMenusFrame:SetSize(450, 100)
+
+-- Title
+local PopupMenusTitle = PopupMenusFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+PopupMenusTitle:SetPoint("TOPLEFT", PopupMenusFrame, 10, -10)
+PopupMenusTitle:SetFont(config.Font, 14)
+PopupMenusTitle:SetText("Menus") -- Add localization
+
+-- Info
+local PopupMenusInfo = PopupMenusFrame:CreateFontString("SettingsPopupMenusInfo", "OVERLAY", "GameFontWhite")
+PopupMenusInfo:SetPoint("TOPLEFT", PopupMenusFrame, 15, -30)
+PopupMenusInfo:SetTextColor(getConfigColors("White"))
+PopupMenusInfo:SetText("Add to popup menus") -- Add localization
+
+local TargetCheckBox = CreateFrame("CheckButton", "SettingsTargetCheckBox", PopupMenusFrame, "ChatConfigCheckButtonTemplate")
+TargetCheckBox:SetPoint("TOPLEFT", 30, -45)
+getglobal(TargetCheckBox:GetName().."Text"):SetText("Target"); -- Add localization
+TargetCheckBox.tooltip = "Add to player Target frame" -- Add localization
+TargetCheckBox:SetScript("OnClick", function(self)
+    if config.PopupMenus.target == false then 
+        config.PopupMenus.target = true
+        self:SetChecked(config.PopupMenus.target)
+    else
+        config.PopupMenus.target = false
+        self:SetChecked(config.PopupMenus.target)
+    end
+end)
+
+local ChatCheckBox = CreateFrame("CheckButton", "SettingsChatCheckBox", PopupMenusFrame, "ChatConfigCheckButtonTemplate")
+ChatCheckBox:SetPoint("TOPLEFT", 30, -60)
+getglobal(ChatCheckBox:GetName().."Text"):SetText("Chat"); -- Add localization
+ChatCheckBox.tooltip = "Add to player Chat frame" -- Add localization
+ChatCheckBox:SetScript("OnClick", function(self)
+    if config.PopupMenus.chat == false then 
+        config.PopupMenus.chat = true
+        self:SetChecked(config.PopupMenus.chat)
+    else
+        config.PopupMenus.chat = false
+        self:SetChecked(config.PopupMenus.chat)
+    end
+end)

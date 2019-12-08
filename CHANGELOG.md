@@ -1,5 +1,8 @@
 CHANGELOG
 
+###### 1.0.6
+- Added ability to add player from chat or target menu.
+
 ###### 1.0.5
 - Added to reatal.
 

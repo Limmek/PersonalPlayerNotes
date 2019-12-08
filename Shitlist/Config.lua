@@ -61,6 +61,13 @@ config.Backdrop = {
     insets = { left = 2, right = 2, top = 2, bottom = 2 }
 }
 
+config.Icon = "Interface\\TargetingFrame\\UI-RaidTargetingIcon_8.png"
+
+config.PopupMenus = {
+    ["target"] = true,
+    ["chat"] = true,
+}
+
 function getConfigColors(color)
     for k,v in pairs(config.Colors) do
         if color == k then

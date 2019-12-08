@@ -46,7 +46,10 @@ Shitlist:SetScript("OnEvent", function(self, event)
         if _G.ShitlistDB["ReasonColorID"] ~= nil then
             config.ReasonColorID = _G.ShitlistDB["ReasonColorID"]
         end
-        
+        if _G.ShitlistDB["PopupMenus"] ~= nil then
+            config.PopupMenus = _G.ShitlistDB["PopupMenus"]
+        end
+                
         -- Set global settings values
         SettingsTooltipTitleEditBox:SetText(config.TooltipTitle)
         SettingsTooltipTitleEditBox:SetCursorPosition(0)
@@ -64,6 +67,9 @@ Shitlist:SetScript("OnEvent", function(self, event)
         SettingsPartyCheckBox:SetChecked(config.PartyAlertEnable)
         SettingsPartyEditBox:SetText(config.PartyIgnoreTime)
         SettingsPartyEditBox:SetCursorPosition(0)
+
+        SettingsTargetCheckBox:SetChecked(config.PopupMenus.target)
+        SettingsChatCheckBox:SetChecked(config.PopupMenus.chat)
 
         -- Reason values
         UIDropDownMenu_Initialize(SettingsReasonDropDown, initializeReasons)
@@ -91,6 +97,7 @@ Shitlist:SetScript("OnEvent", function(self, event)
         _G.ShitlistDB["TooltipTitleColorID"] = config.TooltipTitleColorID
         _G.ShitlistDB["ReasonColor"] = config.ReasonColor
         _G.ShitlistDB["ReasonColorID"] = config.ReasonColorID
+        _G.ShitlistDB["PopupMenus"] = config.PopupMenus
     end
 end)
 
@@ -135,7 +142,7 @@ end
 GameTooltip:HookScript("OnTooltipSetUnit", ShowPlayerTooltip)
 
 -- Add to player context menu
-function ShitlistDropdownMenuButton(self)
+function ShitlistDropdownMenuButtonKlick(self)
     name = self.value
     if not config.ListedPlayers[name] then
         Shitlist:Toggle()
@@ -145,28 +152,36 @@ function ShitlistDropdownMenuButton(self)
     end
 end
 
-hooksecurefunc("UnitPopup_ShowMenu", function(self)
+function ShitlistDropdownMenuButton(name)
+    local info = UIDropDownMenu_CreateInfo()
+    info.owner = which
+    info.notCheckable = 1
+    info.func = ShitlistDropdownMenuButtonKlick 
+    if config.ListedPlayers[name] then
+        info.text = "Remove from Shitlist"
+        info.colorCode = "|cff00ff00"
+        info.value = name
+    else
+        info.text = "Add to Shitlist"
+        info.colorCode = "|cffff0000"
+        info.value = name
+        info.icon = config.Icon
+    end
+    UIDropDownMenu_AddButton(info)
+end
+
+hooksecurefunc("UnitPopup_ShowMenu", function(self, event)
     if (UIDROPDOWNMENU_MENU_LEVEL > 1) then
         return
     end
-    if UnitIsPlayer("target") and not UnitIsUnit("target", "player") then
+    if (config.PopupMenus.target and event ~= "FRIEND" and UnitIsPlayer("target") and not UnitIsUnit("target", "player")) then
         local name, realm = UnitName("target")
         name = name .. "-" .. (realm or GetRealmName())
-        local info = UIDropDownMenu_CreateInfo()
-        info.owner = which
-        info.notCheckable = 1
-        info.func = ShitlistDropdownMenuButton 
-        if config.ListedPlayers[name] then
-            info.text = "Remove from Shitlist"
-            info.colorCode = "|cff00ff00"
-            info.value = name
-        else
-            info.text = "Add to Shitlist"
-            info.colorCode = "|cffff0000"
-            info.value = name
-            info.icon = "Interface\\TargetingFrame\\UI-RaidTargetingIcon_8.png"
-        end   
-        UIDropDownMenu_AddButton(info)
+        ShitlistDropdownMenuButton(name)
+    end
+    if (config.PopupMenus.chat and event == "FRIEND" and not UnitIsUnit("target", "player")) then
+        local name = self.name .. "-" .. (self.realm or GetRealmName())
+        ShitlistDropdownMenuButton(name)
     end
 end)
 
