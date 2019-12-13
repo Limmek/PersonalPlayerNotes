@@ -63,6 +63,12 @@ config.Backdrop = {
 
 config.Icon = "Interface\\TargetingFrame\\UI-RaidTargetingIcon_8.png"
 
+config.MenuOptions = {
+    ["icon"] = true,
+    ["add_color"] = "|cffff0000",
+    ["remove_color"] = "|cff00ff00",
+}
+
 config.PopupMenus = {
     ["target"] = true,
     ["chat"] = true,

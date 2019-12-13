@@ -1,5 +1,9 @@
 CHANGELOG
 
+###### 1.0.7
+- Updated for 1.13.3
+- Settings Enable/Disable Menu icon
+
 ###### 1.0.6
 - Added ability to add player from chat or target menu.
 

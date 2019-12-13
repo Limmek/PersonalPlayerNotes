@@ -287,7 +287,7 @@ TargetCheckBox:SetScript("OnClick", function(self)
 end)
 
 local ChatCheckBox = CreateFrame("CheckButton", "SettingsChatCheckBox", PopupMenusFrame, "ChatConfigCheckButtonTemplate")
-ChatCheckBox:SetPoint("TOPLEFT", 30, -60)
+ChatCheckBox:SetPoint("TOPLEFT", 30, -65)
 getglobal(ChatCheckBox:GetName().."Text"):SetText("Chat"); -- Add localization
 ChatCheckBox.tooltip = "Add to player Chat frame" -- Add localization
 ChatCheckBox:SetScript("OnClick", function(self)
@@ -297,5 +297,25 @@ ChatCheckBox:SetScript("OnClick", function(self)
     else
         config.PopupMenus.chat = false
         self:SetChecked(config.PopupMenus.chat)
+    end
+end)
+
+-- Info
+local IconMenusInfo = PopupMenusFrame:CreateFontString("SettingsIconMenusInfo", "OVERLAY", "GameFontWhite")
+IconMenusInfo:SetPoint("TOPLEFT", PopupMenusFrame, 280, -30)
+IconMenusInfo:SetTextColor(getConfigColors("White"))
+IconMenusInfo:SetText("Menu options") -- Add localization
+
+local IconCheckBox = CreateFrame("CheckButton", "SettingsIconCheckBox", PopupMenusFrame, "ChatConfigCheckButtonTemplate")
+IconCheckBox:SetPoint("TOPLEFT", 280, -45)
+getglobal(IconCheckBox:GetName().."Text"):SetText("Icon"); -- Add localization
+IconCheckBox.tooltip = "Show icon in menu" -- Add localization
+IconCheckBox:SetScript("OnClick", function(self)
+    if config.MenuOptions.icon == false then 
+        config.MenuOptions.icon = true
+        self:SetChecked(config.MenuOptions.icon)
+    else
+        config.MenuOptions.icon = false
+        self:SetChecked(config.MenuOptions.icon)
     end
 end)

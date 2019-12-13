@@ -49,6 +49,9 @@ Shitlist:SetScript("OnEvent", function(self, event)
         if _G.ShitlistDB["PopupMenus"] ~= nil then
             config.PopupMenus = _G.ShitlistDB["PopupMenus"]
         end
+        if _G.ShitlistDB["MenuOptions"] ~= nil then
+            config.MenuOptions = _G.ShitlistDB["MenuOptions"]
+        end
                 
         -- Set global settings values
         SettingsTooltipTitleEditBox:SetText(config.TooltipTitle)
@@ -70,6 +73,8 @@ Shitlist:SetScript("OnEvent", function(self, event)
 
         SettingsTargetCheckBox:SetChecked(config.PopupMenus.target)
         SettingsChatCheckBox:SetChecked(config.PopupMenus.chat)
+
+        SettingsIconCheckBox:SetChecked(config.MenuOptions.icon)
 
         -- Reason values
         UIDropDownMenu_Initialize(SettingsReasonDropDown, initializeReasons)
@@ -98,6 +103,7 @@ Shitlist:SetScript("OnEvent", function(self, event)
         _G.ShitlistDB["ReasonColor"] = config.ReasonColor
         _G.ShitlistDB["ReasonColorID"] = config.ReasonColorID
         _G.ShitlistDB["PopupMenus"] = config.PopupMenus
+        _G.ShitlistDB["MenuOptions"] = config.MenuOptions
     end
 end)
 
@@ -159,13 +165,15 @@ function ShitlistDropdownMenuButton(name)
     info.func = ShitlistDropdownMenuButtonKlick 
     if config.ListedPlayers[name] then
         info.text = "Remove from Shitlist"
-        info.colorCode = "|cff00ff00"
+        info.colorCode = config.MenuOptions.remove_color
         info.value = name
     else
         info.text = "Add to Shitlist"
-        info.colorCode = "|cffff0000"
+        info.colorCode = config.MenuOptions.add_color
         info.value = name
-        info.icon = config.Icon
+        if config.MenuOptions.icon then
+            info.icon = config.Icon
+        end
     end
     UIDropDownMenu_AddButton(info)
 end
