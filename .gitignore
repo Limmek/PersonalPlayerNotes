@@ -42,5 +42,5 @@ luac.out
 #Skip Release
 .release
 /.release/
-classictag.sh
+luacheck.sh
 pushtag.sh

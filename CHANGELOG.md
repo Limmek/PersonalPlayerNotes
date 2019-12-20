@@ -1,5 +1,9 @@
 CHANGELOG
 
+###### 1.0.8
+- Added confirmation window when removing player.
+- UI improvements.
+
 ###### 1.0.7
 - Updated for 1.13.3
 - Settings Enable/Disable Menu icon

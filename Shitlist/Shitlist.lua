@@ -52,21 +52,21 @@ Shitlist:SetScript("OnEvent", function(self, event)
         if _G.ShitlistDB["MenuOptions"] ~= nil then
             config.MenuOptions = _G.ShitlistDB["MenuOptions"]
         end
-                
+
         -- Set global settings values
         SettingsTooltipTitleEditBox:SetText(config.TooltipTitle)
         SettingsTooltipTitleEditBox:SetCursorPosition(0)
-        
+
         UIDropDownMenu_Initialize(SettingsTooltipTitleColorDropDown, initializeColors)
         UIDropDownMenu_SetSelectedID(SettingsTooltipTitleColorDropDown, config.TooltipTitleColorID)
 
         SettingsSoundCheckBox:SetChecked(config.AlertEnable)
         SettingsSoundEditBox:SetText(config.IgnoreTime)
         SettingsSoundEditBox:SetCursorPosition(0)
-        
+
         UIDropDownMenu_Initialize(SettingsSoundDropDown, initializeSounds)
         UIDropDownMenu_SetSelectedID(SettingsSoundDropDown, config.SoundID)
-        
+
         SettingsPartyCheckBox:SetChecked(config.PartyAlertEnable)
         SettingsPartyEditBox:SetText(config.PartyIgnoreTime)
         SettingsPartyEditBox:SetCursorPosition(0)
@@ -116,13 +116,13 @@ function ShowPlayerTooltip(self)
 		if config.ListedPlayers[name] and type(next(config.ListedPlayers)) ~= "nil" then
             self:AddLine(config.TooltipTitle, config.Colors[config.TooltipTitleColor].red, config.Colors[config.TooltipTitleColor].green, config.Colors[config.TooltipTitleColor].blue, true)
             for i,value in ipairs(config.ListedPlayers[name]) do
-                if i == 1 then 
+                if i == 1 then
                     self:AddLine(value, config.Colors[config.ReasonColor].red, config.Colors[config.ReasonColor].green, config.Colors[config.ReasonColor].blue, true)
                 else
                     self:AddLine(value, config.Colors[config.DefaultColor].red, config.Colors[config.DefaultColor].green, config.Colors[config.DefaultColor].blue, true)
                 end
             end
-            
+
             -- Play sound efect
             if config.AlertEnable and time() >= config.Start and config.AlertLastSentName ~= name then
                 --PlaySound(8959, "Master", forceNoDuplicates, runFinishCallback)
@@ -153,9 +153,27 @@ function ShitlistDropdownMenuButtonKlick(self)
     if not config.ListedPlayers[name] then
         Shitlist:Toggle()
     else
-        print("Removed " .. name)
-        config.ListedPlayers[name] = nil
+        StaticPopupDialogs["CONFIRM_REMOVE_PLAYER"] = {
+            text = "Do you want to remove ".. name .."?",
+            button1 = "Yes",
+            button2 = "No",
+            OnAccept = function()
+                Remove_Player_Confirmation(name)
+            end,
+            timeout = 0,
+            whileDead = true,
+            hideOnEscape = true,
+            preferredIndex = 3,  -- avoid some UI taint, see http://www.wowace.com/announcements/how-to-avoid-some-ui-taint/
+        }
+        if name ~= nil and config.ListedPlayers[name] then
+            StaticPopup_Show ("CONFIRM_REMOVE_PLAYER")
+        end
     end
+end
+
+function Remove_Player_Confirmation(name)
+    print("Removed " .. name)
+    config.ListedPlayers[name] = nil
 end
 
 function ShitlistDropdownMenuButton(name)
@@ -206,7 +224,7 @@ function Shitlist:CreateUI()
         edgeSize = 16,
         insets = { left = 8, right = 6, top = 8, bottom = 8 },
     })
-    shitlistUI:SetBackdropBorderColor(getConfigColors("Light_Blue")) -- darkblue
+    shitlistUI:SetBackdropBorderColor(config.getConfigColors("White"))
     shitlistUI:SetMovable(true)
     shitlistUI:EnableMouse(true)
     shitlistUI:RegisterForDrag("LeftButton")
@@ -217,14 +235,14 @@ function Shitlist:CreateUI()
     --title:SetFontObject("GameFontHighlight")
     title:SetPoint("CENTER", shitlistUI, "TOP", 0, -20)
     title:SetFont("Interface\\AddOns\\Shitlist\\Fonts\\Inconsolata-Bold.ttf", 12)
-    title:SetTextColor(getConfigColors("White"))
+    title:SetTextColor(config.getConfigColors("White"))
     title:SetText("Add new player notice")
 
     -- Title
     playerText = shitlistUI:CreateFontString(nil, "BACKGROUND", "GameFontNormal")
     playerText:SetPoint("TOP", shitlistUI, 0, -35)
     playerText:SetFont("Interface\\AddOns\\Shitlist\\Fonts\\Inconsolata-Bold.ttf", 16)
-    playerText:SetTextColor(getConfigColors("Gold"))
+    playerText:SetTextColor(config.getConfigColors("Gold"))
     playerText:SetText(name)
 
     -- Reasons drop-down menu
@@ -259,11 +277,11 @@ function Shitlist:CreateUI()
     noticeEditBox:SetTextInsets(4, 0, 0, 0) 
     noticeEditBox:SetBackdrop({
 		bgFile="Interface\\DialogFrame\\UI-DialogBox-Background",
-		edgeFile="Interface\\PVPFrame\\UI-Character-PVP-Highlight", 
+		edgeFile="Interface\\PVPFrame\\UI-Character-PVP-Highlight",
 		tile = false, tileSize = 0, edgeSize = 8,
 		insets = { left = 2, right = 2, top = 2, bottom = 2 }
     })
-    noticeEditBox:SetBackdropBorderColor(getConfigColors("Light_Blue"))
+    noticeEditBox:SetBackdropBorderColor(config.getConfigColors("White"))
     noticeEditBox:SetMultiLine(false)
     noticeEditBox:SetMaxLetters(255)
     noticeEditBox:SetAutoFocus(false) -- dont automatically focus
