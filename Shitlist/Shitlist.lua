@@ -224,7 +224,7 @@ function Shitlist:CreateUI()
         edgeSize = 16,
         insets = { left = 8, right = 6, top = 8, bottom = 8 },
     })
-    shitlistUI:SetBackdropBorderColor(config.getConfigColors("White"))
+    shitlistUI:SetBackdropBorderColor(getConfigColors("White"))
     shitlistUI:SetMovable(true)
     shitlistUI:EnableMouse(true)
     shitlistUI:RegisterForDrag("LeftButton")
@@ -235,14 +235,14 @@ function Shitlist:CreateUI()
     --title:SetFontObject("GameFontHighlight")
     title:SetPoint("CENTER", shitlistUI, "TOP", 0, -20)
     title:SetFont("Interface\\AddOns\\Shitlist\\Fonts\\Inconsolata-Bold.ttf", 12)
-    title:SetTextColor(config.getConfigColors("White"))
+    title:SetTextColor(getConfigColors("White"))
     title:SetText("Add new player notice")
 
     -- Title
     playerText = shitlistUI:CreateFontString(nil, "BACKGROUND", "GameFontNormal")
     playerText:SetPoint("TOP", shitlistUI, 0, -35)
     playerText:SetFont("Interface\\AddOns\\Shitlist\\Fonts\\Inconsolata-Bold.ttf", 16)
-    playerText:SetTextColor(config.getConfigColors("Gold"))
+    playerText:SetTextColor(getConfigColors("Gold"))
     playerText:SetText(name)
 
     -- Reasons drop-down menu
@@ -281,7 +281,7 @@ function Shitlist:CreateUI()
 		tile = false, tileSize = 0, edgeSize = 8,
 		insets = { left = 2, right = 2, top = 2, bottom = 2 }
     })
-    noticeEditBox:SetBackdropBorderColor(config.getConfigColors("White"))
+    noticeEditBox:SetBackdropBorderColor(getConfigColors("White"))
     noticeEditBox:SetMultiLine(false)
     noticeEditBox:SetMaxLetters(255)
     noticeEditBox:SetAutoFocus(false) -- dont automatically focus
