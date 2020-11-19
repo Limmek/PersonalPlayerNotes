@@ -1,6 +1,6 @@
 CHANGELOG
 
-###### 1.0.9
+###### 1.0.10
 - Fixed to work with retail version 9.0.2
 
 ###### 1.0.9

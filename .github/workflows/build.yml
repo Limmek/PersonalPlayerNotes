@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # pull the repository (required)
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
 
       # install and run Luacheck
       - name: Install and run Luacheck
@@ -28,7 +28,7 @@ jobs:
       - name: Create Retail Package
         uses: BigWigsMods/packager@master
         with:
-          args: release.sh -p 344967
+          args: release.sh -p -g 9.0.2 344967
       
     env:
       CF_API_KEY: ${{ secrets.CF_API_KEY }}
