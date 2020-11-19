@@ -19,11 +19,11 @@ TabbListedPlayersTitle:SetTextColor(getConfigColors("Gold"))
 TabbListedPlayersTitle:SetText("Shitlist - Listed Players") -- Add localization
 
 -- Listed Players settings
-local ListedPlayersFrame = CreateFrame("Frame", "SettingsListedPlayersFrame", ShitlistSettings.listedPlayersPanel)
+local ListedPlayersFrame = CreateFrame("Frame", "SettingsListedPlayersFrame", ShitlistSettings.listedPlayersPanel, BackdropTemplateMixin and "BackdropTemplate")
 ListedPlayersFrame:SetPoint("TOPLEFT", ShitlistSettings.listedPlayersPanel, 10, -35)
 ListedPlayersFrame:SetSize(250, 380)
---ListedPlayersFrame:SetBackdrop(config.Backdrop)
---ListedPlayersFrame:SetBackdropBorderColor(getConfigColors("Black"))
+ListedPlayersFrame:SetBackdrop(config.Backdrop)
+ListedPlayersFrame:SetBackdropBorderColor(getConfigColors("Black"))
 
 -- Title
 local ListedPlayerTitle = ListedPlayersFrame:CreateFontString("SettingsListedPlayerTitle", "OVERLAY", "GameFontNormal")
@@ -40,6 +40,7 @@ ListedPlayerInfo:SetText("Edit or Remove a player") -- Add localization
 -- Listed player
 local ListedPlayerDropDown = CreateFrame("Button", "SettingsListedPlayerDropDown", ListedPlayersFrame, "UIDropDownMenuTemplate")
 ListedPlayerDropDown:SetPoint("TOPLEFT", ListedPlayersFrame, 15, -50)
+--ListedPlayerDropDown:info.hasArrow = false;
 
 local function OnClick(self)
     UIDropDownMenu_SetSelectedID(ListedPlayerDropDown, self:GetID())
@@ -74,7 +75,7 @@ UIDropDownMenu_JustifyText(ListedPlayerDropDown, "LEFT")
 
 
 -- Player
-local ListedPlayerEditBox = CreateFrame("EditBox", "SettingsListedPlayerEditBox", ListedPlayersFrame)
+local ListedPlayerEditBox = CreateFrame("EditBox", "SettingsListedPlayerEditBox", ListedPlayersFrame, BackdropTemplateMixin and "BackdropTemplate")
 ListedPlayerEditBox:SetPoint("TOPLEFT", ListedPlayersFrame, 25, -85)
 ListedPlayerEditBox:SetSize(200, 30)
 ListedPlayerEditBox:SetTextInsets(10, 0, 0, 0) 
@@ -139,7 +140,7 @@ local ListedPlayerDescriptionEditBoxFrame = CreateFrame("Frame", "SettingsListed
 ListedPlayerDescriptionEditBoxFrame:SetPoint("TOPLEFT", ListedPlayersFrame, 25, -195)
 ListedPlayerDescriptionEditBoxFrame:SetSize(200, 120)
 
-local ListedPlayerDescriptionEditBox = CreateFrame("EditBox", "SettingsListedPlayerDescriptionEditBox", ListedPlayerDescriptionEditBoxFrame)
+local ListedPlayerDescriptionEditBox = CreateFrame("EditBox", "SettingsListedPlayerDescriptionEditBox", ListedPlayerDescriptionEditBoxFrame, BackdropTemplateMixin and "BackdropTemplate")
 ListedPlayerDescriptionEditBox:SetBackdrop(config.Backdrop)
 ListedPlayerDescriptionEditBox:SetBackdropBorderColor(getConfigColors("White"))
 ListedPlayerDescriptionEditBox:SetTextInsets(10, 10, 10, 10)

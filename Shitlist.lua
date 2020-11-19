@@ -213,7 +213,7 @@ end)
 
 -- Shitlist UI
 function Shitlist:CreateUI()
-    shitlistUI = CreateFrame("Frame", "ShitlistUI", UIParent)
+    shitlistUI = CreateFrame("Frame", "ShitlistUI", UIParent, BackdropTemplateMixin and "BackdropTemplate")
     shitlistUI:ClearAllPoints()
     shitlistUI:SetHeight(180)
     shitlistUI:SetWidth(320)
@@ -271,10 +271,10 @@ function Shitlist:CreateUI()
     UIDropDownMenu_JustifyText(reasons, "LEFT")
 
     -- EditBox
-    noticeEditBox = CreateFrame("EditBox", "TooltipTitleEditBox", shitlistUI)
+    noticeEditBox = CreateFrame("EditBox", "TooltipTitleEditBox", shitlistUI, BackdropTemplateMixin and "BackdropTemplate")
     noticeEditBox:SetPoint("CENTER", 0, -15)
     noticeEditBox:SetSize(250, 30)
-    noticeEditBox:SetTextInsets(4, 0, 0, 0) 
+    noticeEditBox:SetTextInsets(4, 0, 0, 0)
     noticeEditBox:SetBackdrop({
 		bgFile="Interface\\DialogFrame\\UI-DialogBox-Background",
 		edgeFile="Interface\\PVPFrame\\UI-Character-PVP-Highlight",

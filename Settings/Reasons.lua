@@ -96,7 +96,7 @@ UIDropDownMenu_SetSelectedID(ReasonColorDropDown, 1)
 UIDropDownMenu_JustifyText(ReasonColorDropDown, "LEFT")
 
 -- Reason Text EditBox
-local ReasonEditBox = CreateFrame("EditBox", "SettingsReasonEditBox", ReasonFrame)
+local ReasonEditBox = CreateFrame("EditBox", "SettingsReasonEditBox", ReasonFrame, BackdropTemplateMixin and "BackdropTemplate")
 ReasonEditBox:SetPoint("TOPLEFT", ReasonFrame, 25, -85)
 ReasonEditBox:SetSize(200, 30)
 ReasonEditBox:SetTextInsets(10, 0, 0, 0) 

@@ -77,7 +77,7 @@ config.PopupMenus = {
 function getConfigColors(color)
     for k,v in pairs(config.Colors) do
         if color == k then
-            return v.red, v.green, v.blue
+            return v.red, v.green, v.blue, v.alpha
         end
     end
     return 1, 1, 1, 1

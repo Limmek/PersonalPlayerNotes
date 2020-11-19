@@ -45,7 +45,7 @@ TooltipInfo:SetTextColor(getConfigColors("White"))
 TooltipInfo:SetText("Set title in the Tooltip message. #Shitlist") -- Add localization
 
 -- Tooltip text
-local TooltipTitleEditBox = CreateFrame("EditBox", "SettingsTooltipTitleEditBox", TooltipFrame)
+local TooltipTitleEditBox = CreateFrame("EditBox", "SettingsTooltipTitleEditBox", TooltipFrame,BackdropTemplateMixin and "BackdropTemplate")
 TooltipTitleEditBox:SetPoint("TOPLEFT", 15, -50)
 TooltipTitleEditBox:SetSize(200, 30)
 TooltipTitleEditBox:SetTextInsets(10, 0, 0, 0) 
@@ -141,7 +141,7 @@ SoundEditBoxInfo:SetTextColor(getConfigColors("White"))
 SoundEditBoxInfo:SetText("Sleep for x seconds") -- Add localization
 
 -- Ignore time
-local SoundEditBox = CreateFrame("EditBox", "SettingsSoundEditBox", AudioFrame)
+local SoundEditBox = CreateFrame("EditBox", "SettingsSoundEditBox", AudioFrame, BackdropTemplateMixin and "BackdropTemplate")
 SoundEditBox:SetPoint("TOPLEFT", 280, -90)
 SoundEditBox:SetSize(80, 30)
 SoundEditBox:SetTextInsets(10, 0, 0, 0) 
@@ -232,7 +232,7 @@ PartyEditBoxInfo:SetTextColor(getConfigColors("White"))
 PartyEditBoxInfo:SetText("Sleep for x seconds") -- Add localization
 
 -- Ignore time
-local PartyEditBox = CreateFrame("EditBox", "SettingsPartyEditBox", PartyFrame)
+local PartyEditBox = CreateFrame("EditBox", "SettingsPartyEditBox", PartyFrame, BackdropTemplateMixin and "BackdropTemplate")
 PartyEditBox:SetPoint("TOPLEFT", 280, -90)
 PartyEditBox:SetSize(80, 30)
 PartyEditBox:SetTextInsets(10, 0, 0, 0) 
