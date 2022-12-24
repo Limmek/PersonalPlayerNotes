@@ -1,17 +1,15 @@
-#@retail@
-## Interface: 90002
-#@end-retail@
-#@non-retail@
-## Interface: 11305
-#@end-non-retail@
+## Interface: 100002
+## Interface-Wrath: 30400
+## Interface-Classic: 11403
 ## Title: Shitlist
 ## Notes: Set a personal comment on players and adding it to player information tooltip window.
-## Author: Limmek @ Shazzrah
+## Author: Limmek
 ## Version: @project-version@
 ## SavedVariables: ShitlistDB
-## DefaultState: Enabled
-## LoadOnDemand: 0
+## DefaultState: enabled
+## X-Category: Miscellaneous
 ## X-Curse-Project-ID: 344967
+
 Config.lua
 Shitlist.lua
 

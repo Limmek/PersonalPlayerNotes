@@ -6,9 +6,12 @@ manual-changelog:
 
 enable-nolib-creation: no
 
+enable-toc-creation: yes
+
 # Ignore takes place before folder's moving takes place
 ignore:
   - README.md
+  - luaformat.cfg
 
 move-folders:
   Shitlist/Shitlist: Shitlist

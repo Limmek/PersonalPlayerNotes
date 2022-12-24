@@ -57,8 +57,10 @@ Shitlist:SetScript("OnEvent", function(self, event)
         SettingsTooltipTitleEditBox:SetText(config.TooltipTitle)
         SettingsTooltipTitleEditBox:SetCursorPosition(0)
 
-        UIDropDownMenu_Initialize(SettingsTooltipTitleColorDropDown, initializeColors)
-        UIDropDownMenu_SetSelectedID(SettingsTooltipTitleColorDropDown, config.TooltipTitleColorID)
+        UIDropDownMenu_Initialize(SettingsTooltipTitleColorDropDown,
+                                  initializeColors)
+        UIDropDownMenu_SetSelectedID(SettingsTooltipTitleColorDropDown,
+                                     config.TooltipTitleColorID)
 
         SettingsSoundCheckBox:SetChecked(config.AlertEnable)
         SettingsSoundEditBox:SetText(config.IgnoreTime)
@@ -79,8 +81,10 @@ Shitlist:SetScript("OnEvent", function(self, event)
         -- Reason values
         UIDropDownMenu_Initialize(SettingsReasonDropDown, initializeReasons)
         UIDropDownMenu_SetSelectedID(SettingsReasonDropDown, 1)
-        UIDropDownMenu_Initialize(SettingsReasonColorDropDown, initializeReasonColor)
-        UIDropDownMenu_SetSelectedID(SettingsReasonColorDropDown, config.ReasonColorID)
+        UIDropDownMenu_Initialize(SettingsReasonColorDropDown,
+                                  initializeReasonColor)
+        UIDropDownMenu_SetSelectedID(SettingsReasonColorDropDown,
+                                     config.ReasonColorID)
 
         -- Listed Player values
         UIDropDownMenu_Initialize(SettingsListedPlayerDropDown, initializePlayer)
@@ -88,7 +92,7 @@ Shitlist:SetScript("OnEvent", function(self, event)
         SettingsListedPlayerDescriptionEditBox:SetCursorPosition(0)
 
     elseif event == "PLAYER_LOGOUT" then
-        --_G.ShitlistDB = config -- Save whole config to SavedVariables
+        -- _G.ShitlistDB = config -- Save whole config to SavedVariables
         _G.ShitlistDB["TooltipTitle"] = config.TooltipTitle
         _G.ShitlistDB["Reasons"] = config.Reasons
         _G.ShitlistDB["ListedPlayers"] = config.ListedPlayers
@@ -109,32 +113,43 @@ end)
 
 -- Add info to tooltip
 function ShowPlayerTooltip(self)
-	local name, unit = self:GetUnit()
-	if UnitIsPlayer(unit) and not UnitIsUnit(unit, "player") then
-		local name, realm = UnitName(unit)
-		name = name .. "-" .. (realm or GetRealmName())
-		if config.ListedPlayers[name] and type(next(config.ListedPlayers)) ~= "nil" then
-            self:AddLine(config.TooltipTitle, config.Colors[config.TooltipTitleColor].red, config.Colors[config.TooltipTitleColor].green, config.Colors[config.TooltipTitleColor].blue, true)
-            for i,value in ipairs(config.ListedPlayers[name]) do
+    local name, unit = self:GetUnit()
+    if UnitIsPlayer(unit) and not UnitIsUnit(unit, "player") then
+        local name, realm = UnitName(unit)
+        name = name .. "-" .. (realm or GetRealmName())
+        if config.ListedPlayers[name] and type(next(config.ListedPlayers)) ~=
+            "nil" then
+            self:AddLine(config.TooltipTitle,
+                         config.Colors[config.TooltipTitleColor].red,
+                         config.Colors[config.TooltipTitleColor].green,
+                         config.Colors[config.TooltipTitleColor].blue, true)
+            for i, value in ipairs(config.ListedPlayers[name]) do
                 if i == 1 then
-                    self:AddLine(value, config.Colors[config.ReasonColor].red, config.Colors[config.ReasonColor].green, config.Colors[config.ReasonColor].blue, true)
+                    self:AddLine(value, config.Colors[config.ReasonColor].red,
+                                 config.Colors[config.ReasonColor].green,
+                                 config.Colors[config.ReasonColor].blue, true)
                 else
-                    self:AddLine(value, config.Colors[config.DefaultColor].red, config.Colors[config.DefaultColor].green, config.Colors[config.DefaultColor].blue, true)
+                    self:AddLine(value, config.Colors[config.DefaultColor].red,
+                                 config.Colors[config.DefaultColor].green,
+                                 config.Colors[config.DefaultColor].blue, true)
                 end
             end
 
             -- Play sound efect
-            if config.AlertEnable and time() >= config.Start and config.AlertLastSentName ~= name then
-                --PlaySound(8959, "Master", forceNoDuplicates, runFinishCallback)
+            if config.AlertEnable and time() >= config.Start and
+                config.AlertLastSentName ~= name then
+                -- PlaySound(8959, "Master", forceNoDuplicates, runFinishCallback)
                 PlaySoundFile(config.Sound, config.SoundChannel)
                 config.Start = time() + config.IgnoreTime
                 config.AlertLastSentName = name
             end
 
             -- Send party message
-            if IsInGroup() and config.PartyAlertEnable and time() >= config.PartyStart and config.PartyAlertLastSentName ~= name then
-                SendChatMessage(config.TooltipTitle .. " " .. name, "PARTY", GetDefaultLanguage(unit))
-                for k,v in ipairs(config.ListedPlayers[name]) do
+            if IsInGroup() and config.PartyAlertEnable and time() >=
+                config.PartyStart and config.PartyAlertLastSentName ~= name then
+                SendChatMessage(config.TooltipTitle .. " " .. name, "PARTY",
+                                GetDefaultLanguage(unit))
+                for k, v in ipairs(config.ListedPlayers[name]) do
                     SendChatMessage(v, "PARTY", GetDefaultLanguage(unit))
                 end
                 config.PartyStart = time() + config.PartyIgnoreTime
@@ -142,10 +157,11 @@ function ShowPlayerTooltip(self)
             end
 
         end
-	end
+    end
 end
 
-GameTooltip:HookScript("OnTooltipSetUnit", ShowPlayerTooltip)
+TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit,
+                                        ShowPlayerTooltip)
 
 -- Add to player context menu
 function ShitlistDropdownMenuButtonKlick(self)
@@ -154,19 +170,17 @@ function ShitlistDropdownMenuButtonKlick(self)
         Shitlist:Toggle()
     else
         StaticPopupDialogs["CONFIRM_REMOVE_PLAYER"] = {
-            text = "Do you want to remove ".. name .."?",
+            text = "Do you want to remove " .. name .. "?",
             button1 = "Yes",
             button2 = "No",
-            OnAccept = function()
-                Remove_Player_Confirmation(name)
-            end,
+            OnAccept = function() Remove_Player_Confirmation(name) end,
             timeout = 0,
             whileDead = true,
             hideOnEscape = true,
-            preferredIndex = 3,  -- avoid some UI taint, see http://www.wowace.com/announcements/how-to-avoid-some-ui-taint/
+            preferredIndex = 3
         }
         if name ~= nil and config.ListedPlayers[name] then
-            StaticPopup_Show ("CONFIRM_REMOVE_PLAYER")
+            StaticPopup_Show("CONFIRM_REMOVE_PLAYER")
         end
     end
 end
@@ -180,7 +194,7 @@ function ShitlistDropdownMenuButton(name)
     local info = UIDropDownMenu_CreateInfo()
     info.owner = which
     info.notCheckable = 1
-    info.func = ShitlistDropdownMenuButtonKlick 
+    info.func = ShitlistDropdownMenuButtonKlick
     if config.ListedPlayers[name] then
         info.text = "Remove from Shitlist"
         info.colorCode = config.MenuOptions.remove_color
@@ -189,23 +203,21 @@ function ShitlistDropdownMenuButton(name)
         info.text = "Add to Shitlist"
         info.colorCode = config.MenuOptions.add_color
         info.value = name
-        if config.MenuOptions.icon then
-            info.icon = config.Icon
-        end
+        if config.MenuOptions.icon then info.icon = config.Icon end
     end
     UIDropDownMenu_AddButton(info)
 end
 
 hooksecurefunc("UnitPopup_ShowMenu", function(self, event)
-    if (UIDROPDOWNMENU_MENU_LEVEL > 1) then
-        return
-    end
-    if (config.PopupMenus.target and event ~= "FRIEND" and UnitIsPlayer("target") and not UnitIsUnit("target", "player")) then
+    if (UIDROPDOWNMENU_MENU_LEVEL > 1) then return end
+    if (config.PopupMenus.target and event ~= "FRIEND" and
+        UnitIsPlayer("target") and not UnitIsUnit("target", "player")) then
         local name, realm = UnitName("target")
         name = name .. "-" .. (realm or GetRealmName())
         ShitlistDropdownMenuButton(name)
     end
-    if (config.PopupMenus.chat and event == "FRIEND" and not UnitIsUnit("target", "player")) then
+    if (config.PopupMenus.chat and event == "FRIEND" and
+        not UnitIsUnit("target", "player")) then
         local name = self.name .. "-" .. (self.realm or GetRealmName())
         ShitlistDropdownMenuButton(name)
     end
@@ -213,17 +225,14 @@ end)
 
 -- Shitlist UI
 function Shitlist:CreateUI()
-    shitlistUI = CreateFrame("Frame", "ShitlistUI", UIParent, BackdropTemplateMixin and "BackdropTemplate")
+    shitlistUI =
+        CreateFrame("Frame", "ShitlistUI", UIParent, "BackdropTemplate")
     shitlistUI:ClearAllPoints()
     shitlistUI:SetHeight(180)
     shitlistUI:SetWidth(320)
     shitlistUI:SetPoint("CENTER")
-    shitlistUI:SetBackdrop({
-        bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
-        edgeFile = "Interface\\PVPFrame\\UI-Character-PVP-Highlight", -- this one is neat
-        edgeSize = 16,
-        insets = { left = 8, right = 6, top = 8, bottom = 8 },
-    })
+    shitlistUI:SetBackdrop(config.Backdrop)
+    shitlistUI:SetBackdropColor(getConfigColors("Black"))
     shitlistUI:SetBackdropBorderColor(getConfigColors("White"))
     shitlistUI:SetMovable(true)
     shitlistUI:EnableMouse(true)
@@ -232,16 +241,18 @@ function Shitlist:CreateUI()
     shitlistUI:SetScript("OnDragStop", shitlistUI.StopMovingOrSizing)
 
     local title = shitlistUI:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    --title:SetFontObject("GameFontHighlight")
+    -- title:SetFontObject("GameFontHighlight")
     title:SetPoint("CENTER", shitlistUI, "TOP", 0, -20)
     title:SetFont("Interface\\AddOns\\Shitlist\\Fonts\\Inconsolata-Bold.ttf", 12)
     title:SetTextColor(getConfigColors("White"))
     title:SetText("Add new player notice")
 
     -- Title
-    playerText = shitlistUI:CreateFontString(nil, "BACKGROUND", "GameFontNormal")
+    playerText =
+        shitlistUI:CreateFontString(nil, "BACKGROUND", "GameFontNormal")
     playerText:SetPoint("TOP", shitlistUI, 0, -35)
-    playerText:SetFont("Interface\\AddOns\\Shitlist\\Fonts\\Inconsolata-Bold.ttf", 16)
+    playerText:SetFont(
+        "Interface\\AddOns\\Shitlist\\Fonts\\Inconsolata-Bold.ttf", 16)
     playerText:SetTextColor(getConfigColors("Gold"))
     playerText:SetText(name)
 
@@ -255,7 +266,7 @@ function Shitlist:CreateUI()
 
     local function initialize(self)
         local info = UIDropDownMenu_CreateInfo()
-        for k,v in pairs(config.Reasons) do
+        for k, v in pairs(config.Reasons) do
             info = UIDropDownMenu_CreateInfo()
             info.text = v
             info.value = v
@@ -271,25 +282,25 @@ function Shitlist:CreateUI()
     UIDropDownMenu_JustifyText(reasons, "LEFT")
 
     -- EditBox
-    noticeEditBox = CreateFrame("EditBox", "TooltipTitleEditBox", shitlistUI, BackdropTemplateMixin and "BackdropTemplate")
+    noticeEditBox = CreateFrame("EditBox", "TooltipTitleEditBox", shitlistUI,
+                                "BackdropTemplate")
     noticeEditBox:SetPoint("CENTER", 0, -15)
     noticeEditBox:SetSize(250, 30)
     noticeEditBox:SetTextInsets(4, 0, 0, 0)
-    noticeEditBox:SetBackdrop({
-		bgFile="Interface\\DialogFrame\\UI-DialogBox-Background",
-		edgeFile="Interface\\PVPFrame\\UI-Character-PVP-Highlight",
-		tile = false, tileSize = 0, edgeSize = 8,
-		insets = { left = 2, right = 2, top = 2, bottom = 2 }
-    })
-    noticeEditBox:SetBackdropBorderColor(getConfigColors("White"))
+    noticeEditBox:SetBackdrop(config.Backdrop)
+    noticeEditBox:SetBackdropColor(getConfigColors("Grey"))
+    noticeEditBox:SetBackdropBorderColor(getConfigColors("Gold"))
     noticeEditBox:SetMultiLine(false)
     noticeEditBox:SetMaxLetters(255)
     noticeEditBox:SetAutoFocus(false) -- dont automatically focus
     noticeEditBox:SetFontObject(GameFontWhite)
-    noticeEditBox:SetScript("OnEscapePressed", function(self) Shitlist:Toggle() end)
-	noticeEditBox:SetScript("OnEnterPressed", function(self) self:ClearFocus() end)
+    noticeEditBox:SetScript("OnEscapePressed",
+                            function(self) Shitlist:Toggle() end)
+    noticeEditBox:SetScript("OnEnterPressed",
+                            function(self) self:ClearFocus() end)
 
-    local saveBtn = CreateFrame("Button", nil, shitlistUI, "OptionsButtonTemplate")
+    local saveBtn = CreateFrame("Button", nil, shitlistUI,
+                                "UIPanelButtonTemplate")
     saveBtn:SetPoint("CENTER", shitlistUI, "BOTTOM", -55, 35)
     saveBtn:SetSize(100, 30)
     saveBtn:SetText("Save")
@@ -306,12 +317,13 @@ function Shitlist:CreateUI()
         end
     end)
 
-    local cancelBtn = CreateFrame("Button", nil, shitlistUI, "OptionsButtonTemplate")
+    local cancelBtn = CreateFrame("Button", nil, shitlistUI,
+                                  "UIPanelButtonTemplate")
     cancelBtn:SetPoint("CENTER", shitlistUI, "BOTTOM", 55, 35)
     cancelBtn:SetSize(100, 30)
     cancelBtn:SetText("Cancel")
-    cancelBtn:SetNormalFontObject(GameFontNormal)
-    cancelBtn:SetHighlightFontObject(GameFontHighlight)
+    cancelBtn:SetNormalFontObject("GameFontNormal")
+    cancelBtn:SetHighlightFontObject("GameFontHighlight")
     cancelBtn:SetScript("OnMouseDown", function(self, button)
         if button == "LeftButton" then
             HideParentPanel(self)
