@@ -1,5 +1,5 @@
-[![Check formating](https://github.com/Limmek/Shitlist/actions/workflows/formating.yml/badge.svg?branch=master&event=push)](https://github.com/Limmek/Shitlist/actions/workflows/formating.yml)
-[![Package and release](https://github.com/Limmek/Shitlist/actions/workflows/release.yml/badge.svg?branch=master&event=release)](https://github.com/Limmek/Shitlist/actions/workflows/release.yml)
+[![Check formating](https://github.com/Limmek/Shitlist/actions/workflows/formating.yml/badge.svg)](https://github.com/Limmek/Shitlist/actions/workflows/formating.yml)
+[![Package and release](https://github.com/Limmek/Shitlist/actions/workflows/release.yml/badge.svg)](https://github.com/Limmek/Shitlist/actions/workflows/release.yml)
 # Shitlist
 Are you tired of getting in groups with players you have had a bad experience with before and want a reminder of it.
 Or do you and your friends or guild keep a list of good/bad players and keep the names write down on a piece of paper or in text file?
