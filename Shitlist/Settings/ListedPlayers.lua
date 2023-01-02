@@ -203,13 +203,14 @@ ListedPlayerSaveBtn:SetScript("OnMouseDown", function(self, button)
                 SettingsListedPlayerReasonDropDown.Text:GetText(),
                 SettingsListedPlayerDescriptionEditBox:GetText()
             }
-            print("Added player: " .. SettingsListedPlayerEditBox:GetText()) -- Add localization
+            print("Edited player: " .. SettingsListedPlayerEditBox:GetText()) -- Add localization
         else
-            config.ListedPlayers[SettingsListedPlayerDropDown.Text:GetText()] =
+            config.ListedPlayers[SettingsListedPlayerEditBox:GetText()] =
                 {
-                    SettingsListedPlayerReasonDropDown.Text:GetText() or "",
-                    SettingsListedPlayerDescriptionEditBox:GetText() or ""
+                    SettingsListedPlayerReasonDropDown.Text:GetText(),
+                    SettingsListedPlayerDescriptionEditBox:GetText()
                 }
+            print("Added player: " .. SettingsListedPlayerEditBox:GetText()) -- Add localization
         end
 
         SettingsListedPlayerEditBox:SetText("")
