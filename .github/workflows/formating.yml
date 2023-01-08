@@ -17,8 +17,8 @@ defaults:
 # a workflow is built up as jobs, and within these jobs are steps
 jobs:
 
-  # "release" is a job, you can name it anything you want
-  release:
+  # "luacheck" is a job, you can name it anything you want
+  luacheck:
 
     # we can run our steps on pretty much anything, but the "ubuntu-latest" image is a safe bet
     runs-on: ubuntu-latest
