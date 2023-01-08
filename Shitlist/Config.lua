@@ -52,8 +52,8 @@ config.Colors = {
 config.Font = "Interface\\AddOns\\Shitlist\\Fonts\\Inconsolata-Bold.ttf"
 
 config.Backdrop = {
-    bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
-    edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+    bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+	edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
     tile = false,
     tileEdge = true,
     tileSize = 0,

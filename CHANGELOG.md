@@ -1,9 +1,12 @@
 # Changelog
 
-**1.1.1**
+### 1.1.2
+- Changed config Backdrop
+
+### 1.1.1
 - Fixed a issue in settings where Listed Players not saved new players correctly.
 
-**1.1.0**
+### 1.1.0
 - Updated to work with
   * *Retail* 10.0.2
   * *Wrath of the Lich King* 3.4.0
