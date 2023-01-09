@@ -160,8 +160,14 @@ function ShowPlayerTooltip(self)
     end
 end
 
-TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit,
-                                        ShowPlayerTooltip)
+if TooltipDataProcessor then
+    -- Retail 10.0.2
+    -- https://wowpedia.fandom.com/wiki/Patch_10.0.2/API_changes#Tooltip_Changes
+    TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, ShowPlayerTooltip)
+else
+    -- Backwards compatibility WOTLK, Classic
+	GameTooltip:HookScript("OnTooltipSetUnit", ShowPlayerTooltip)
+end
 
 -- Add to player context menu
 function ShitlistDropdownMenuButtonKlick(self)

@@ -2,6 +2,7 @@
 
 ### 1.1.2
 - Changed config Backdrop
+- Fixed Classic and WOTLK backwards compatibility.
 
 ### 1.1.1
 - Fixed a issue in settings where Listed Players not saved new players correctly.
