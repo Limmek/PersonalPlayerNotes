@@ -22,7 +22,7 @@ jobs:
         uses: actions/checkout@v3
       
       - name: test
-        run: cd ./Shitlist
+        run: cd Shitlist
       
       - name: Update TOC Interface version
         uses: p3lim/toc-interface-updater@v2
