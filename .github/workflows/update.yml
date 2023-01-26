@@ -2,7 +2,7 @@ name: Update Interface version(s)
 
 on:
   schedule:
-    - cron: 0 12 * * *
+    - cron: '0 12 * * *'
   push:
 
 defaults:
@@ -23,11 +23,9 @@ jobs:
 
       - name: Update TOC Interface version
         uses: p3lim/toc-interface-updater@v2
-        with:
-          base: retail
 
       - name: Create pull request
-        uses: peter-evans/create-pull-request@v4
+        uses: peter-evans/create-pull-request@v3
         with:
           title: Update Interface version
           #body: 
