@@ -4,13 +4,17 @@ on:
   schedule:
     - cron: 0 12 * * *
   push:
-  
+
+defaults:
+  run:
+    working-directory: ./Shitlist
+
 jobs:
   run:
     runs-on: ubuntu-latest
     steps:
       - name: Clone project
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Update TOC Interface version
         uses: p3lim/toc-interface-updater@v2
