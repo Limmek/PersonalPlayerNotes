@@ -5,9 +5,9 @@ on:
   schedule:
     - cron: "0 12 * * *"
 
-defaults:
-  run:
-    working-directory: ./Shitlist
+#defaults:
+#  run:
+#    working-directory: ./Shitlist
 
 jobs:
   run:
@@ -24,7 +24,6 @@ jobs:
       - name: test
         run: |
           ls -l
-          pause
       
       - name: Update TOC Interface version
         uses: p3lim/toc-interface-updater@v2
