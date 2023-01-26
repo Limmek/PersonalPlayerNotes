@@ -5,9 +5,9 @@ on:
   schedule:
     - cron: "0 12 * * *"
 
-#defaults:
-#  run:
-#    working-directory: ./Shitlist
+defaults:
+  run:
+    working-directory: ./Shitlist
 
 jobs:
   run:
@@ -27,8 +27,8 @@ jobs:
       
       - name: Update TOC Interface version
         uses: p3lim/toc-interface-updater@v2
-        #with:
-        #  base: retail # this is default
+        with:
+          base: Mainline # this is default
 
       - name: Create pull request
         uses: peter-evans/create-pull-request@v4
