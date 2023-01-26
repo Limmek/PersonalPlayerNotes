@@ -3,7 +3,7 @@ name: Update Interface version(s)
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 12 * * *"
+    - cron: "0 20 * * 2"
 
 defaults:
   run:
@@ -23,8 +23,6 @@ jobs:
       
       - name: Update TOC Interface version
         uses: p3lim/toc-interface-updater@v2
-        with:
-          base: mainline # this is default
 
       - name: Create pull request
         uses: peter-evans/create-pull-request@v4
