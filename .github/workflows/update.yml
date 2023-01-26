@@ -12,16 +12,19 @@ defaults:
 jobs:
   run:
     runs-on: ubuntu-latest
+    env:
+      CF_API_KEY: ${{ secrets.CF_API_KEY }}
+      WOWI_API_TOKEN: ${{ secrets.WOWI_API_TOKEN }}
+      GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+
     steps:
       - name: Clone project
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
       - name: Update TOC Interface version
         uses: p3lim/toc-interface-updater@v2
         with:
-          base: mainline # this is default
+          base: retail
 
       - name: Create pull request
         uses: peter-evans/create-pull-request@v4
