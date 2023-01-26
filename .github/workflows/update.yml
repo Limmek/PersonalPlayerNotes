@@ -3,7 +3,8 @@ name: Update Interface version(s)
 on:
   schedule:
     - cron: 0 12 * * *
-
+  push:
+  
 jobs:
   run:
     runs-on: ubuntu-latest
