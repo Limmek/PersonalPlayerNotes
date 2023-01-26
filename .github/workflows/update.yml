@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: Clone project
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Update TOC Interface version
         uses: p3lim/toc-interface-updater@v2
@@ -22,9 +24,10 @@ jobs:
           base: mainline # this is default
 
       - name: Create pull request
-        uses: peter-evans/create-pull-request@v3
+        uses: peter-evans/create-pull-request@v4
         with:
           title: Update Interface version
+          #body: 
           commit-message: Update Interface version
           branch: interface-version
           delete-branch: true
