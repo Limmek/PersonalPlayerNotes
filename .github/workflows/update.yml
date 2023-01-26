@@ -23,9 +23,8 @@ jobs:
 
       - name: Update TOC Interface version
         uses: p3lim/toc-interface-updater@v2
-        with:
-          working-directory: ./Shitlist
-          base: retail # this is default
+        #with:
+        #  base: retail # this is default
 
       - name: Create pull request
         uses: peter-evans/create-pull-request@v4
