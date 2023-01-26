@@ -7,7 +7,7 @@ on:
 
 defaults:
   run:
-    working-directory: ./Shitlist/
+    working-directory: ./Shitlist
 
 jobs:
   run:
