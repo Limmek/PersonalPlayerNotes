@@ -28,7 +28,7 @@ jobs:
       - name: Update TOC Interface version
         uses: p3lim/toc-interface-updater@v2
         with:
-          base: Mainline # this is default
+          base: mainline # this is default
 
       - name: Create pull request
         uses: peter-evans/create-pull-request@v4
