@@ -20,7 +20,10 @@ jobs:
     steps:
       - name: Clone project
         uses: actions/checkout@v3
-
+      
+      - name: test
+        run: cd ./Shitlist
+      
       - name: Update TOC Interface version
         uses: p3lim/toc-interface-updater@v2
         #with:
