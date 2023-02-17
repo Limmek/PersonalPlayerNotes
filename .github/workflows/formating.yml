@@ -39,4 +39,4 @@ jobs:
         uses: nebularg/actions-luacheck@v1
         with:
           args: "--no-color -q"
-          config: .luacheckrc
+          config: https://raw.githubusercontent.com/Limmek/Shitlist/master/.luacheckrc
