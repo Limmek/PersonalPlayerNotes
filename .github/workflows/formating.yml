@@ -26,16 +26,17 @@ jobs:
       - name: Clone project
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # gets entire git history, needed for automatic changelogs
+          fetch-depth: 0
 
-      # install and run Luacheck
-      - name: Install and run Luacheckrc
-        run: |
-          sudo apt-get install luarocks
-          luarocks install --local luacheck
-          exec /home/runner/.luarocks/bin/luacheck *.lua --no-color --config .luacheckrc -q
+#       # install and run Luacheck
+#       - name: Install and run Luacheckrc
+#         run: |
+#           sudo apt-get install luarocks
+#           luarocks install --local luacheck
+#           exec /home/runner/.luarocks/bin/luacheck *.lua --no-color --config .luacheckrc -q
 
       - name: Install and run Luacheck
         uses: nebularg/actions-luacheck@v1
         with:
           args: "--no-color -q"
+          config: .luacheckrc
