@@ -3,7 +3,7 @@ name: Update Interface version(s)
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 20 * * 2"
+    - cron: "0 * * * *"
 
 defaults:
   run:
