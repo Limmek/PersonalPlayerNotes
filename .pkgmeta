@@ -12,6 +12,7 @@ ignore:
   - .vscode
   - .github
   - .pkgmeta
+  - Libs/libs.txt
 
 required-dependencies:
 
