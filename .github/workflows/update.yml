@@ -5,10 +5,6 @@ on:
   schedule:
     - cron: "0 * * * *"
 
-defaults:
-  run:
-    working-directory: ./Shitlist
-
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -16,7 +12,7 @@ jobs:
       - name: Clone project
         uses: actions/checkout@v3
       
-      - name: Update TOC Interface version
+      - name: Update TOC Interface version retail
         uses: p3lim/toc-interface-updater@v2
 
       - name: Create pull request
@@ -24,6 +20,10 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           title: Update Interface version
+          commit-message: Update Interface version
+          committer: GitHub <noreply@github.com>
+          author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
+          signoff: false
           branch: bump-version
           delete-branch: true
           assignees: Limmek
