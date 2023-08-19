@@ -2,18 +2,11 @@ name: Package and release
 
 on:
   workflow_dispatch:
-#  push:
-#    tags:
-#      - "**"
+  push:
+    tags:
+      - "**"
 
-defaults:
-  run:
-    working-directory: ./Shitlist
-
-# a workflow is built up as jobs, and within these jobs are steps
 jobs:
-
-  # "release" is a job, you can name it anything you want
   release:
     runs-on: ubuntu-latest
 
@@ -30,4 +23,4 @@ jobs:
       - name: Package and release
         uses: BigWigsMods/packager@v2
         with:
-          args: -S -w 0 -a 0 -p 0
+          args: -S -w 0 -a 0 -p 0 -m .pkgmeta -d
