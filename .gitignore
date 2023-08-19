@@ -56,5 +56,5 @@ luac.out
 *.bat
 
 # Addon dependencies
-!Libs
 Libs/*
+!Libs/libs.txt
