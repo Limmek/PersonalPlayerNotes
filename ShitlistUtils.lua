@@ -56,14 +56,3 @@ function Shitlist:AceGUIDefaults()
     aceGUI:Hide()
     return aceGUI
 end
-
-function Shitlist:AddToContextMenu_EasyMenu()
-    local options = {
-        { text = "Guild",    notCheckable = true, func = function() print("Option Guild selected") end },
-        { text = "Party",    notCheckable = true, func = function() print("Option Party selected") end },
-        { text = "Instance", notCheckable = true, func = function() print("Option Instance selected") end },
-        { text = "Raid",     notCheckable = true, func = function() print("Option Raid selected") end },
-    }
-
-    _G.EasyMenu(options, self.contextMenu, "cursor", 0, 0, "MENU")
-end

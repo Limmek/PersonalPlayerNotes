@@ -63,48 +63,12 @@ function Shitlist:OnEnable()
     if not self:IsHooked("UnitPopup_ShowMenu") then
         self:SecureHook("UnitPopup_ShowMenu", self.UnitPopup_ShowMenu)
     end
-    -- if not self:IsHooked("UnitPopup_ShowMenu") then
-    --     self:SecureHook("UnitPopup_ShowMenu", self.AddContextMenuOptions)
-    -- end
-    --self:SecureHook(UIDropDownMenu, "UnitPopup_ShowMenu", self.AddContextMenuOptions)
 
     if (TooltipDataProcessor) then
         TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, self.GameTooltip)
     else
         if not self:IsHooked("OnTooltipSetUnit") then
             self:SecureHook("OnTooltipSetUnit", self.GameTooltip)
-        end
-    end
-end
-
-function Shitlist:AddContextMenuOptions()
-    -- Add the "Shitlist" menu option to level 1 only
-    if UIDROPDOWNMENU_MENU_LEVEL == 1 then
-        local menu = UIDropDownMenu_CreateInfo()
-        menu.text = "Shitlist"
-        menu.notCheckable = true
-        menu.hasArrow = true
-        menu.value = "Shitlist"
-        UIDropDownMenu_AddButton(menu, UIDROPDOWNMENU_MENU_LEVEL, UIParent)
-    end
-
-    -- Only add options if the parent menu selection is "Shitlist"
-    if UIDROPDOWNMENU_MENU_VALUE ~= "Shitlist" then
-        return
-    end
-
-    -- Define custom options for the context menu
-    local options = {
-        { text = "Guild",    notCheckable = true, func = function() print("Option Guild selected") end },
-        { text = "Party",    notCheckable = true, func = function() print("Option Party selected") end },
-        { text = "Instance", notCheckable = true, func = function() print("Option Instance selected") end },
-        { text = "Raid",     notCheckable = true, func = function() print("Option Raid selected") end },
-    }
-
-    -- Add each option to the context menu if it is not disabled
-    for _, option in ipairs(options) do
-        if not option.disabled then
-            UIDropDownMenu_AddButton(option, UIDROPDOWNMENU_MENU_LEVEL, self.contextMenu)
         end
     end
 end

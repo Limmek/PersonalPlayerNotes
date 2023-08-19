@@ -1,8 +1,6 @@
 package-as: Shitlist
 
-# manual-changelog:
-#   filename: CHANGELOG.md
-#   markup-type: markdown
+manual-changelog: changelog.txt
 
 enable-nolib-creation: no
 
@@ -13,7 +11,7 @@ ignore:
   - .luacheckrc
   - .vscode
   - .github
-  - README.md
+  - .pkgmeta
 
 required-dependencies:
 
