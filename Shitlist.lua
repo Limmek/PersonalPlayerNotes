@@ -8,7 +8,6 @@ local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
 local LibDataBroker = LibStub("LibDataBroker-1.1")
 local LibDBIcon = LibStub("LibDBIcon-1.0")
-local LibUIDropDownMenu = LibStub("LibUIDropDownMenu-4.0")
 
 function Shitlist:OnInitialize()
     self:PrintDebug("Initializeing...")
@@ -49,9 +48,6 @@ function Shitlist:OnInitialize()
 
     self:GetOldConfigData()
     self:RefreshConfig()
-
-    -- create the context menu frame
-    self.contextMenu = LibUIDropDownMenu:Create_UIDropDownMenu("MyDropDownMenu", UIParent)
 end
 
 function Shitlist:OnEnable()
@@ -64,12 +60,12 @@ function Shitlist:OnEnable()
         self:SecureHook("UnitPopup_ShowMenu", self.UnitPopup_ShowMenu)
     end
 
+    -- Retail 10.0.2 https://wowpedia.fandom.com/wiki/Patch_10.0.2/API_changes#Tooltip_Changes
     if (TooltipDataProcessor) then
         TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, self.GameTooltip)
     else
-        if not self:IsHooked("OnTooltipSetUnit") then
-            self:SecureHook("OnTooltipSetUnit", self.GameTooltip)
-        end
+        -- Backwards compatibility WOTLK, Classic
+	    GameTooltip:HookScript("OnTooltipSetUnit", self.GameTooltip)
     end
 end
 
@@ -105,6 +101,10 @@ function Shitlist:GetOldConfigData()
 
         for key, value in pairs(oldListedPlayers) do
             local name, realm = key:match("([^-]+)-([^-]+)")
+
+            if not name then name = "None" end
+            if not realm then realm = "None" end
+
             if not newPlayers[name .. "-" .. realm] then
                 local reason = value[1]
                 local description = value[2]
