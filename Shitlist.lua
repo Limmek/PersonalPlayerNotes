@@ -10,7 +10,7 @@ local LibDataBroker = LibStub("LibDataBroker-1.1")
 local LibDBIcon = LibStub("LibDBIcon-1.0")
 
 function Shitlist:OnInitialize()
-    self:Print("Initializeing...")
+    self:PrintDebug("Initializeing...")
 
     -- uses the "Default" profile instead of character-specific profiles
     -- https://www.wowace.com/projects/ace3/pages/api/ace-db-3-0
@@ -71,7 +71,7 @@ function Shitlist:OnEnable()
 end
 
 function Shitlist:OnDisable()
-    self:Print("OnDisable()")
+    self:PrintDebug("OnDisable()")
 end
 
 function Shitlist:RefreshConfig()
@@ -103,7 +103,6 @@ function Shitlist:GetOldConfigData()
 
         for key, value in pairs(oldListedPlayers) do
             local name, realm = key:match("([^-]+)-([^-]+)")
-            -- self:Print("Found old player:", name .. "-" .. realm)
             if name and realm then
                 if not newPlayers[name .. "-" .. realm] then
                     local reason = value[1]
@@ -155,7 +154,7 @@ end
 function Shitlist:UnitPopup_ShowMenu(target, unit)
     local name, realm = self.name, GetRealmName()
     local listedPlayer = Shitlist:GetListedPlayer(name, realm)
-    Shitlist:Print("UnitPopup_ShowMenu:", name, realm, listedPlayer or nil)
+    Shitlist:PrintDebug("UnitPopup_ShowMenu:", name, realm, listedPlayer or nil)
 
     -- Check if this is the root level of the dropdown menu
     if UIDROPDOWNMENU_MENU_LEVEL == 1 and UnitIsPlayer(unit) and target ~= "SELF" then
@@ -293,18 +292,21 @@ end
 function Shitlist:GameTooltip()
     local name, unit = self:GetUnit()
 
-    if (not unit) then return end
+    if (unit and not UnitIsPlayer(unit)) then return end
+
     local _name, realm = _G.UnitName(unit)
     name, realm = _name or name, _G.GetRealmName() or realm
 
-    if (not UnitIsPlayer(unit)) then return end
-    Shitlist:Print("GameTooltip:", name, realm)
-    local listedPlayer = Shitlist:GetListedPlayer(tostring(name), realm)
+    Shitlist:PrintDebug("GameTooltip:", name, realm)
 
+    local listedPlayer = Shitlist:GetListedPlayer(tostring(name), realm)
     if (not listedPlayer) then return end
+
     local reason = Shitlist:GetReasons()[listedPlayer.reason]
     local _reason = reason.reason
-    Shitlist:Print("GameTooltip:", listedPlayer, _reason)
+
+    Shitlist:PrintDebug("GameTooltip:", listedPlayer, _reason)
+
     if (_reason == "None") then _reason = "" end
 
     -- Tooltip
@@ -320,7 +322,7 @@ function Shitlist:GameTooltip()
     if (listedPlayer.alert and alert.enabled and not alert.last[name]) then
         if (reason.alert and alert.enabled and not alert.last[name]) then
             alert.last[name] = time + alert.delay
-            Shitlist:Print("ALERT: ", name, alert.last[name])
+            Shitlist:PrintDebug("ALERT: ", name, alert.last[name])
             Shitlist:ScheduleTimer("TimerFeedback", alert.delay, name)
             Shitlist:PlayAlert()
         end
@@ -328,12 +330,12 @@ function Shitlist:GameTooltip()
 end
 
 function Shitlist:TimerFeedback(name)
-    Shitlist:Print("ALERT:", name, "removed.")
+    Shitlist:PrintDebug("ALERT:", name, "removed.")
     Shitlist.db.profile.alert.last[name] = nil
 end
 
 function Shitlist:MiniMapIcon()
-    self:Print("MiniMapIcon()")
+    self:PrintDebug("MiniMapIcon()")
     -- Create minimap launcher
     -- https://github.com/tekkub/libdatabroker-1-1/wiki/How-to-provide-a-dataobject
     return LibDataBroker:NewDataObject(addonName, {
@@ -371,13 +373,13 @@ function Shitlist:MiniMapIcon()
 end
 
 function Shitlist:ToggleMiniMapIcon()
-    self:Print("ToggleMiniMapIcon()")
+    self:PrintDebug("ToggleMiniMapIcon()")
     self.db.profile.minimap.hide = not self.db.profile.minimap.hide
     self:RefreshConfig()
 end
 
 function Shitlist:ToggleDebug()
     self.db.profile.debug = not self.db.profile.debug
-    self:Print("Debug=", self.db.profile.debug)
+    self:PrintDebug("Debug=", self.db.profile.debug)
     self:RefreshConfig()
 end
