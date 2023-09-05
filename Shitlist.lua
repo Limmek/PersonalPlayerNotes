@@ -92,9 +92,10 @@ function Shitlist:GetOldConfigData()
     local oldListedPlayers = _G.ShitlistDB.ListedPlayers
     local reasons = self:GetReasons()
     local listedPlayers = self:GetListedPlayers()
-
+    local newPlayers = {}
+    
+    -- Check old listed player list
     if oldListedPlayers != nil then
-        local newPlayers = {}
         for _, player in pairs(listedPlayers) do
             newPlayers[player.name .. "-" .. player.realm] = true
         end
@@ -102,11 +103,11 @@ function Shitlist:GetOldConfigData()
         for key, value in pairs(oldListedPlayers) do
             local name, realm = key:match("([^-]+)-([^-]+)")
 
-            if not newPlayers[name .. "-" .. realm] then
+            if not newPlayers[name .. "-" .. realm] and name and realm then
                 local reason = value[1]
                 local description = value[2]
 
-                -- find or create a new reason
+                -- Check if the reason exist already and get it's id.
                 local reasonId = nil
                 for _, r in ipairs(reasons) do
                     if r.reason == reason then
@@ -114,6 +115,7 @@ function Shitlist:GetOldConfigData()
                         break
                     end
                 end
+		-- If the reason do not exist add it to the reason data.
                 if not reasonId then
                     reasonId = #reasons + 1
                     reasons[reasonId] = {
@@ -124,7 +126,7 @@ function Shitlist:GetOldConfigData()
                     }
                 end
 
-                -- add the old player to the new listed players
+                -- Add the old player to the new listed players
                 listedPlayers[#listedPlayers + 1] = {
                     id = #listedPlayers + 1,
                     name = name,
