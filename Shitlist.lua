@@ -65,7 +65,7 @@ function Shitlist:OnEnable()
         TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, self.GameTooltip)
     else
         -- Backwards compatibility WOTLK, Classic
-	    GameTooltip:HookScript("OnTooltipSetUnit", self.GameTooltip)
+        GameTooltip:HookScript("OnTooltipSetUnit", self.GameTooltip)
     end
 end
 
@@ -93,9 +93,9 @@ function Shitlist:GetOldConfigData()
     local reasons = self:GetReasons()
     local listedPlayers = self:GetListedPlayers()
     local newPlayers = {}
-    
+
     -- Check old listed player list
-    if oldListedPlayers != nil then
+    if oldListedPlayers ~= nil then
         for _, player in pairs(listedPlayers) do
             newPlayers[player.name .. "-" .. player.realm] = true
         end
