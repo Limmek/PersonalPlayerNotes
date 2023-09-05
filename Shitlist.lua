@@ -102,44 +102,45 @@ function Shitlist:GetOldConfigData()
 
         for key, value in pairs(oldListedPlayers) do
             local name, realm = key:match("([^-]+)-([^-]+)")
+            if name and realm then
+                if not newPlayers[name .. "-" .. realm] then
+                    local reason = value[1]
+                    local description = value[2]
 
-            if not newPlayers[name .. "-" .. realm] and name and realm then
-                local reason = value[1]
-                local description = value[2]
-
-                -- Check if the reason exist already and get it's id.
-                local reasonId = nil
-                for _, r in ipairs(reasons) do
-                    if r.reason == reason then
-                        reasonId = r.id
-                        break
+                    -- Check if the reason exist already and get it's id.
+                    local reasonId = nil
+                    for _, r in ipairs(reasons) do
+                        if r.reason == reason then
+                            reasonId = r.id
+                            break
+                        end
                     end
-                end
-		-- If the reason do not exist add it to the reason data.
-                if not reasonId then
-                    reasonId = #reasons + 1
-                    reasons[reasonId] = {
-                        id = reasonId,
-                        reason = reason,
+                    -- If the reason do not exist add it to the reason data.
+                    if not reasonId then
+                        reasonId = #reasons + 1
+                        reasons[reasonId] = {
+                            id = reasonId,
+                            reason = reason,
+                            color = { r = 1, g = 1, b = 1 },
+                            alert = true,
+                        }
+                    end
+
+                    -- Add the old player to the new listed players
+                    listedPlayers[#listedPlayers + 1] = {
+                        id = #listedPlayers + 1,
+                        name = name,
+                        realm = realm,
+                        reason = reasonId,
+                        description = description,
                         color = { r = 1, g = 1, b = 1 },
                         alert = true,
                     }
+
+                    self:Print("Added old player:", name .. "-" .. realm)
+                else
+                    self:Print("Found duplicate:", name .. "-" .. realm)
                 end
-
-                -- Add the old player to the new listed players
-                listedPlayers[#listedPlayers + 1] = {
-                    id = #listedPlayers + 1,
-                    name = name,
-                    realm = realm,
-                    reason = reasonId,
-                    description = description,
-                    color = { r = 1, g = 1, b = 1 },
-                    alert = true,
-                }
-
-                self:Print("Added old player:", name .. "-" .. realm)
-            else
-                self:Print("Found duplicate:", name .. "-" .. realm)
             end
         end
 
