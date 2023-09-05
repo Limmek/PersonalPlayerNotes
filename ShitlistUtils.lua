@@ -40,12 +40,6 @@ function Shitlist:Print(...)
     return print(L["SHITLIST_PRINT"], ...)
 end
 
-function Shitlist:PrintDebug(...)
-    if (self.db and self.db.profile.debug) then
-        return print(L["SHITLIST_DEBUG"], ...)
-    end
-end
-
 function Shitlist:AceGUIDefaults()
     local aceGUI = LibStub("AceGUI-3.0"):Create("Frame")
     aceGUI:SetCallback("OnClose", function(widget) aceGUI:Release() end)
