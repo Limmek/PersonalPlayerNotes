@@ -93,7 +93,7 @@ function Shitlist:GetOldConfigData()
     local reasons = self:GetReasons()
     local listedPlayers = self:GetListedPlayers()
 
-    if oldListedPlayers then
+    if oldListedPlayers != nil then
         local newPlayers = {}
         for _, player in pairs(listedPlayers) do
             newPlayers[player.name .. "-" .. player.realm] = true
@@ -101,9 +101,6 @@ function Shitlist:GetOldConfigData()
 
         for key, value in pairs(oldListedPlayers) do
             local name, realm = key:match("([^-]+)-([^-]+)")
-
-            if not name then name = "None" end
-            if not realm then realm = "None" end
 
             if not newPlayers[name .. "-" .. realm] then
                 local reason = value[1]
