@@ -75,7 +75,7 @@ function Shitlist:OnDisable()
 end
 
 function Shitlist:RefreshConfig()
-    self:Print("Reloading config...")
+    self:PrintDebug("Reloading config...")
 
     self.db.profile.alert.last = {}
 
@@ -87,6 +87,9 @@ function Shitlist:RefreshConfig()
 end
 
 function Shitlist:GetOldConfigData()
+    if _G.ShitlistDB.ListedPlayers == nil and _G.ShitlistDB.Reasons == nil then
+        return
+    end
     self:Print("Checking for old player data.")
 
     local oldReasons = _G.ShitlistDB.Reasons
@@ -167,7 +170,7 @@ function Shitlist:UnitPopup_ShowMenu(target, unit)
             }, UIDROPDOWNMENU_MENU_LEVEL)
         else
             UIDropDownMenu_AddButton({
-                text = L["SHITLIST_POPUP_ADD_PLAYER"],
+                text = L["SHITLIST_POPUP_ADD"],
                 notCheckable = true,
                 icon = "Interface\\AddOns\\" .. addonName .. "\\Icon\\shitlist.png",
                 value = { name, realm },
@@ -207,7 +210,7 @@ function Shitlist:AddToContextMenu(player)
     UIDropDownMenu_AddButton(menuItem, UIDROPDOWNMENU_MENU_LEVEL)
 
     menuItem = UIDropDownMenu_CreateInfo()
-    menuItem.text = "Edit Player"
+    menuItem.text = L["SHITLIST_POPUP_EDIT"]
     menuItem.notCheckable = true
     menuItem.hasArrow = false
     menuItem.value = player
@@ -231,7 +234,7 @@ function Shitlist:AddToContextMenu(player)
     UIDropDownMenu_AddButton(menuItem, UIDROPDOWNMENU_MENU_LEVEL)
 
     menuItem = UIDropDownMenu_CreateInfo()
-    menuItem.text = "Announcement"
+    menuItem.text = L["SHITLIST_POPUP_ANNOUNCEMENT"]
     menuItem.notCheckable = true
     menuItem.isTitle = true
     local a = Shitlist.db.profile.announcement

@@ -90,9 +90,9 @@ L["SHITLIST_LISTED_PLAYER_COLOR"] = "Color";
 L["SHITLIST_LISTED_PLAYER_ALERT_ENABLED"] = "Alert"
 L["SHITLIST_LISTED_PLAYER_ALERT_ENABLED_DESC"] = ""
 
-L["SHITLIST_POPUP_ADD_PLAYER"] = "Add to Shitlist";
-L["SHITLIST_POPUP_REMOVE_PLAYER"] = "Remove from Shitlist";
-L["SHITLIST_POPUP_EDIT_PLAYER"] = "Edit Player";
+L["SHITLIST_POPUP_ADD"] = "Add to Shitlist";
+L["SHITLIST_POPUP_EDIT"] = "Edit Player";
+L["SHITLIST_POPUP_ANNOUNCEMENT"] = "Announcement";
 
 L["SHITLIST_MINIMAP_TOOLTIP_TITLE"] = "Shitlist\n\n"
 L["SHITLIST_MINIMAP_TOOLTIP_LEFT_CLICK"] = "|cffff8c00Left Click|cffffffff to open Blizzard options."
