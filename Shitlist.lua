@@ -164,30 +164,23 @@ function Shitlist:UnitPopup_ShowMenu(target, unit)
                 notCheckable = true,
                 hasArrow = true,
                 keepShownOnClick = true,
-                --value = listedPlayer,
-                -- menuList = function()
-                --     Shitlist:AddToContextMenu()
-                --     UIDropDownMenu_Initialize(UIDROPDOWNMENU_MENU_LEVEL)
-                -- end,
-                -- func = function()
-                --     return
-                -- end,
-                --arg1 = self,
             }, UIDROPDOWNMENU_MENU_LEVEL)
         else
             UIDropDownMenu_AddButton({
                 text = L["SHITLIST_POPUP_ADD_PLAYER"],
                 notCheckable = true,
                 icon = "Interface\\AddOns\\" .. addonName .. "\\Icon\\shitlist.png",
-                value = Shitlist:NewListedPlayer(name, realm),
-                func = function(self)
-                    Shitlist.db.profile.listedPlayer.id = self.value.id
-                    Shitlist.db.profile.listedPlayer.name = self.value.name
-                    Shitlist.db.profile.listedPlayer.realm = self.value.realm
-                    Shitlist.db.profile.listedPlayer.reason = self.value.reason
-                    Shitlist.db.profile.listedPlayer.description = self.value.description
-                    Shitlist.db.profile.listedPlayer.color = self.value.color
-                    Shitlist.db.profile.listedPlayer.alert = self.value.alert
+                value = { name, realm },
+                func = function()
+                    Shitlist:Print("Adding new player: " .. name .. "-" .. realm)
+                    local new_player = Shitlist:NewListedPlayer(name, realm)
+                    Shitlist.db.profile.listedPlayer.id = new_player.id
+                    Shitlist.db.profile.listedPlayer.name = new_player.name
+                    Shitlist.db.profile.listedPlayer.realm = new_player.realm
+                    Shitlist.db.profile.listedPlayer.reason = new_player.reason
+                    Shitlist.db.profile.listedPlayer.description = new_player.description
+                    Shitlist.db.profile.listedPlayer.color = new_player.color
+                    Shitlist.db.profile.listedPlayer.alert = new_player.alert
 
                     AceConfigDialog:CloseAll()
                     local AceGUI = Shitlist:AceGUIDefaults()
