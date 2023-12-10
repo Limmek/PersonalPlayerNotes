@@ -1,6 +1,6 @@
-[![Check formating](https://github.com/Limmek/Shitlist/actions/workflows/formating.yml/badge.svg)](https://github.com/Limmek/Shitlist/actions/workflows/formating.yml)
-[![Package and release](https://github.com/Limmek/Shitlist/actions/workflows/release.yml/badge.svg)](https://github.com/Limmek/Shitlist/actions/workflows/release.yml)
-
+[![Check formating](https://github.com/Limmek/Shitlist/actions/workflows/luacheck.yml/badge.svg)](https://github.com/Limmek/Shitlist/actions/workflows/luacheck.yml)
+[![Interface versions](https://github.com/Limmek/Shitlist/actions/workflows/interface-version.yml/badge.svg)](https://github.com/Limmek/Shitlist/actions/workflows/interface-version.yml)
+[![Package and release](https://github.com/Limmek/Shitlist/actions/workflows/build.yml/badge.svg)](https://github.com/Limmek/Shitlist/actions/workflows/build.yml)
 # Shitlist
 
 Tired of encountering players who've made your gaming experiences less enjoyable? Whether remembering the heroes or the not-so-great allies, #Shitlist is the solution. This WoW addon lets you create reasons on players, tracking the good, the bad, and everything in between.
