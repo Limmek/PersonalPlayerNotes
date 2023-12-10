@@ -1,29 +1,34 @@
 [![Check formating](https://github.com/Limmek/Shitlist/actions/workflows/formating.yml/badge.svg)](https://github.com/Limmek/Shitlist/actions/workflows/formating.yml)
 [![Package and release](https://github.com/Limmek/Shitlist/actions/workflows/release.yml/badge.svg)](https://github.com/Limmek/Shitlist/actions/workflows/release.yml)
+
 # Shitlist
-Are you tired of getting in groups with players you have had a bad experience with before and want a reminder of it.
-Or do you and your friends or guild keep a list of good/bad players and keep the names write down on a piece of paper or in text file?
 
-Then this is the addon for you, **#Shitlist** will let you set a note on a player from a list of pre set messages and a optional text.
-The player note will then be displayed on the player information tooltip.
+Tired of encountering players who've made your gaming experiences less enjoyable? Whether remembering the heroes or the not-so-great allies, #Shitlist is the solution. This WoW addon lets you create reasons on players, tracking the good, the bad, and everything in between.
 
-##### **How to use?**
+## Features to Enhance Your Gaming Experience
 
-_Right click on the targeted player frame you want to set a note on and you will have a option add or remove from Shitlist._
+- **Player Reason Tracking**: Assign custom reasons, alerts, and colors to players, conveniently displayed on tooltips.
+- **Personalized Player Notes**: Craft colored notes with alerts and preset reasons to tailor your gaming experiences.
+- **Effortless Player Management**: Easily add, edit, or remove players and their associated reasons, even if they're offline or not your current target.
+- **Accessible Minimap Icon**: Swiftly access Shitlist options, reasons, and listed players through the minimap icon for seamless on-the-go management.
+- **Alert System**: Set up sound alerts for listed players, ensuring you're promptly informed when encountering them.
 
-##### **How to edit pre set message (Reason)?**
+## How to Utilize
 
-_To add a pre set message (Reason) go to **Interface Options -&gt; Addons -&gt; Shitlist -&gt; Reasons**._
+- **Adding/Editing Players**: Right-click a player to add or remove them from the #Shitlist. Alternatively, navigate to **Interface Options -> Addons -> Shitlist -> Listed Players** for comprehensive player management.
+- **Customizing Reasons**: Modify preset reasons by visiting **Interface Options -> Addons -> Shitlist -> Reasons**.
 
-##### **Can i edit or remove a player if i do not have it as target or if the player is offline?**
+## Versatile Applications
 
-_Yes in **Interface Options -&gt; Addons -&gt; Shitlist -&gt; Listed Players** you can add/edit and remove players and their reason/comment._
+This addon proves invaluable across various in-game scenarios:
 
-##### **When this Add-on is useful?** 
+- **Questing**: Recall helpful or troublesome players encountered during quests.
+- **Raids & Dungeons**: Track valuable teammates or identify those causing issues.
+- **World & PvP**: Easily identify players during intense battles or tricky situations.
+- **Preventing Hassles**: Avoid repeated encounters with troublesome players.
+- **Blacklisting Capability**: Use #Shitlist as a blacklist, steering clear of unwanted interactions.
 
-_Literally on any part of the game that includes Questing, Raids & Dungeons, World & PvP, getting corpse camped or a player steel a item and leave the party.
-This is very useful if you want to blacklist some or just to put a note to be remind of something about that player._
+## Download & Contribution
 
-##### **Can i use this addon to blacklist people?**
-
-_Yes, you can._
+- **Download Now**: [Get the addon](https://github.com/Limmek/Shitlist/releases)
+- **Contribute to Development**: Join the open-source community! Contribute and suggest enhancements [here](https://github.com/Limmek/Shitlist).

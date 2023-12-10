@@ -1,0 +1,10 @@
+{
+    "recommendations": [
+        "stylelint.vscode-stylelint",
+        "sumneko.lua",
+        "rog2.luacheck",
+        "ketho.wow-api",
+        "stanzilla.vscode-wow-toc",
+        "file-icons.file-icons"
+    ]
+}

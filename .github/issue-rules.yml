@@ -1,0 +1,6 @@
+nomatches:
+- contains: "Which version of WeakAuras are you using?" # Checks the entire issue for a substring match.
+  addLabels: ["\U0001F41B Bug"]
+
+- contains: "Is your feature request related to a problem? Please describe."
+  addLabels: ["\U0001F3A8 Feature Request"]
