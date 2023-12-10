@@ -19,6 +19,9 @@ exclude_files = {
 }
 
 ignore = {
+    "111", -- Setting an undefined global variable.
+    "112", -- Mutating an undefined global variable.
+    "113", -- Accessing an undefined global variable.
     "211", -- Unused local variable
     "212", -- Unused argument
     "213", -- Unused loop variable
