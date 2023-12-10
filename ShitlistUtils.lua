@@ -1,49 +1,36 @@
-local addonName = ...
-local L = LibStub("AceLocale-3.0"):GetLocale(addonName, true)
+local shitlist = ...
+local L = LibStub("AceLocale-3.0"):GetLocale(shitlist, true)
 
 function Shitlist:GetVersion()
-    return tostring(GetAddOnMetadata(addonName, "Version")) or L["SHITLIST_NA"];
+    return tostring(GetAddOnMetadata(shitlist, "Version")) or L["SHITLIST_NA"];
 end
 
 function Shitlist:GetTitle()
-    return GetAddOnMetadata(addonName, "Title") or L["SHITLIST_NA"];
+    return GetAddOnMetadata(shitlist, "Title") or L["SHITLIST_NA"];
 end
 
 function Shitlist:GetAuthor()
-    return GetAddOnMetadata(addonName, "Author") or L["SHITLIST_NA"];
+    return GetAddOnMetadata(shitlist, "Author") or L["SHITLIST_NA"];
 end
 
 function Shitlist:GetNotes()
-    return GetAddOnMetadata(addonName, "Notes") or L["SHITLIST_NA"];
+    return GetAddOnMetadata(shitlist, "Notes") or L["SHITLIST_NA"];
 end
 
 function Shitlist:GetLocalizations()
-    return GetAddOnMetadata(addonName, "X-Localizations") or L["SHITLIST_NA"];
+    return GetAddOnMetadata(shitlist, "X-Localizations") or L["SHITLIST_NA"];
 end
 
 function Shitlist:GetCategory()
-    return GetAddOnMetadata(addonName, "X-Category") or L["SHITLIST_NA"];
+    return GetAddOnMetadata(shitlist, "X-Category") or L["SHITLIST_NA"];
 end
 
 function Shitlist:GetWebsite()
-    return GetAddOnMetadata(addonName, "X-Website") or L["SHITLIST_NA"];
+    return GetAddOnMetadata(shitlist, "X-Website") or L["SHITLIST_NA"];
 end
 
 function Shitlist:GetLicense()
-    return GetAddOnMetadata(addonName, "X-License") or L["SHITLIST_NA"];
-end
-
-function Shitlist:Print(...)
-    if (self.db and self.db.profile.debug) then
-        return print(L["SHITLIST_DEBUG"], ...)
-    end
-    return print(L["SHITLIST_PRINT"], ...)
-end
-
-function Shitlist:PrintDebug(...)
-    if (self.db and self.db.profile.debug) then
-        return print(L["SHITLIST_DEBUG"], ...)
-    end
+    return GetAddOnMetadata(shitlist, "X-License") or L["SHITLIST_NA"];
 end
 
 function Shitlist:AceGUIDefaults()
@@ -56,3 +43,19 @@ function Shitlist:AceGUIDefaults()
     aceGUI:Hide()
     return aceGUI
 end
+
+function Shitlist:Print(...)
+    if (self.db and self.db.profile.debug) then
+        return print(L["SHITLIST_DEBUG"], ...)
+    end
+    return print(L["SHITLIST_PRINT"], ...)
+end
+
+--@debug@
+function Shitlist:PrintDebug(...)
+    if (self.db and self.db.profile.debug) then
+        self:Print(...)
+    end
+end
+
+--@end-debug@

@@ -1,10 +1,11 @@
-local addonName = ...
-local L = LibStub("AceLocale-3.0"):GetLocale(addonName, true)
+local shitlist = ...
+local L = LibStub("AceLocale-3.0"):GetLocale(shitlist, true)
 
 Shitlist.defaults = {
     profile = {
+        icon = "Interface\\AddOns\\" .. shitlist .. "\\Images\\shitlist.png",
         debug = false,
-        minimap = { hide = false, minimapPos = 245 },
+        minimap = { hide = false, minimapPos = 240 },
         announcement = { delay = 10, guild = true, party = true, raid = true, instance = true },
         alert = {
             delay = 10,
@@ -49,15 +50,15 @@ Shitlist.options = {
     Info = {
         type = "group",
         order = 0,
-        name = Shitlist:GetTitle(), --L["SHITLIST_MENU_TITLE"],
+        name = L["SHITLIST_MENU_TITLE"],
         inline = true,
+        cmdHidden = true,
         args = {
             Notes = {
                 order = 1,
                 type = "description",
                 fontSize = "medium",
-                name = "" .. Shitlist:GetNotes() .. "\n\n\n",
-                cmdHidden = true,
+                name = Shitlist:GetNotes() .. "\n\n\n",
             },
             Commands = {
                 name = L["SHITLIST_INFO_COMMANDS_TITLE"],
@@ -66,11 +67,29 @@ Shitlist.options = {
                 type = "group",
                 inline = true,
                 args = {
-                    minimap = {
+                    options = {
                         order = 1,
                         type = "description",
                         fontSize = "medium",
-                        name = L["SHITLIST_INFO_COMMANDS"],
+                        name = L["SHITLIST_INFO_COMMANDS_2"],
+                    },
+                    reasons = {
+                        order = 2,
+                        type = "description",
+                        fontSize = "medium",
+                        name = L["SHITLIST_INFO_COMMANDS_3"],
+                    },
+                    players = {
+                        order = 3,
+                        type = "description",
+                        fontSize = "medium",
+                        name = L["SHITLIST_INFO_COMMANDS_4"],
+                    },
+                    minimap = {
+                        order = 4,
+                        type = "description",
+                        fontSize = "medium",
+                        name = L["SHITLIST_INFO_COMMANDS_5"],
                     },
                 },
             },
@@ -79,7 +98,6 @@ Shitlist.options = {
                 order = 3,
                 type = "group",
                 inline = true,
-                cmdHidden = true,
                 args = {
                     version = {
                         type = "description",
@@ -198,38 +216,28 @@ Shitlist.options = {
                         order = 1,
                         name = L["SHITLIST_SETTINGS_ANNOUNCEMENT_GUILD"],
                         desc = L["SHITLIST_SETTINGS_ANNOUNCEMENT_GUILD_DESC"],
-                        width = 0.65
+                        width = 0.5
                     },
                     party = {
                         type = "toggle",
                         order = 2,
                         name = L["SHITLIST_SETTINGS_ANNOUNCEMENT_PARY"],
                         desc = L["SHITLIST_SETTINGS_ANNOUNCEMENT_PARY_DESC"],
-                        width = 0.65
+                        width = 0.5
                     },
                     raid = {
                         type = "toggle",
                         order = 3,
                         name = L["SHITLIST_SETTINGS_ANNOUNCEMENT_RAID"],
                         desc = L["SHITLIST_SETTINGS_ANNOUNCEMENT_RAID_DESC"],
-                        width = 0.65
+                        width = 0.5
                     },
                     instance = {
                         type = "toggle",
                         order = 4,
                         name = L["SHITLIST_SETTINGS_ANNOUNCEMENT_INSTANCE"],
                         desc = L["SHITLIST_SETTINGS_ANNOUNCEMENT_INSTANCE_DESC"],
-                        width = 0.75
-                    },
-                    delay = {
-                        type = "range",
-                        order = 5,
-                        min = 1,
-                        max = 60,
-                        step = 1,
-                        name = L["SHITLIST_SETTINGS_ANNOUNCEMENT_DELAY"],
-                        desc = L["SHITLIST_SETTINGS_ANNOUNCEMENT_DELAY_DESC"],
-                        width = 0.8
+                        width = 0.65
                     }
                 }
             },
@@ -252,7 +260,7 @@ Shitlist.options = {
                         order = 1,
                         name = L["SHITLIST_SETTINGS_ALERT_ENABLED"],
                         desc = L["SHITLIST_SETTINGS_ALERT_ENABLED_DESC"],
-                        width = 1.5
+                        width = 0.5
                     },
                     sounds = {
                         type = "select",
@@ -262,9 +270,9 @@ Shitlist.options = {
                         values = function()
                             return Shitlist.db.profile.alert.sounds
                         end,
-                        width = 1.2,
-                        set = "SetSound",
-                        get = "GetSound",
+                        width = 1,
+                        set = "SetAlertSoundEffect",
+                        get = "GetAlertSoundEffect",
                     },
                     delay = {
                         type = "range",
@@ -274,7 +282,7 @@ Shitlist.options = {
                         step = 1,
                         name = L["SHITLIST_SETTINGS_ALERT_DELAY"],
                         desc = L["SHITLIST_SETTINGS_ALERT_DELAY_DESC"],
-                        width = 0.8
+                        width = 1
                     }
                 }
             }
@@ -296,7 +304,7 @@ Shitlist.options = {
             id = {
                 type = "select",
                 order = 1,
-                width = "double",
+                width = 1.6,
                 name = L["SHITLIST_REASONS"],
                 values = function()
                     local _return = {}
@@ -311,7 +319,7 @@ Shitlist.options = {
             remove = {
                 type = "execute",
                 order = 2,
-                width = 0.8,
+                width = 1,
                 cmdHidden = true,
                 name = L["SHITLIST_REASON_REMOVE"],
                 confirm = function()
@@ -329,13 +337,14 @@ Shitlist.options = {
                 type = "input",
                 order = 3,
                 name = L["SHITLIST_REASON"],
-                width = "double",
+                width = 2.6,
                 get = "GetReason",
                 set = "SetReason",
             },
             color = {
                 type = "color",
                 order = 4,
+                width = 1.5,
                 name = L["SHITLIST_REASON_COLOR"],
                 hasAlpha = false,
                 get = "GetReasonColor",
@@ -344,9 +353,9 @@ Shitlist.options = {
             alert = {
                 type = "toggle",
                 order = 5,
+                width = 1,
                 name = L["SHITLIST_REASON_ALERT_ENABLED"],
                 desc = L["SHITLIST_REASON_ALERT_ENABLED_DESC"],
-                width = 1.5,
                 get = "GetReasonAlert",
                 set = "SetReasonAlert",
             },
@@ -362,7 +371,7 @@ Shitlist.options = {
             id = {
                 type = "select",
                 order = 1,
-                width = "double",
+                width = 1.6,
                 name = L["SHITLIST_LISTED_PLAYERS"],
                 values = function()
                     local _return = {}
@@ -377,7 +386,7 @@ Shitlist.options = {
             remove = {
                 type = "execute",
                 order = 2,
-                width = 0.8,
+                width = 1,
                 cmdHidden = true,
                 name = L["SHITLIST_LISTED_PLAYER_REMOVE"],
                 confirm = function()
@@ -391,7 +400,7 @@ Shitlist.options = {
                 type = "input",
                 order = 3,
                 name = L["SHITLIST_LISTED_PLAYER_NAME"],
-                width = 1.2,
+                width = 1.25,
                 get = "GetListedPlayerName",
                 set = "SetListedPlayerName",
             },
@@ -399,14 +408,14 @@ Shitlist.options = {
                 type = "input",
                 order = 4,
                 name = L["SHITLIST_LISTED_PLAYER_REALM"],
-                width = 1.2,
+                width = 1.25,
                 get = "GetListedPlayerRealm",
                 set = "SetListedPlayerRealm",
             },
             reason = {
                 type = "select",
                 order = 5,
-                width = 2.4,
+                width = 2.6,
                 name = L["SHITLIST_LISTED_PLAYER_REASON"],
                 values = function()
                     local _return = {}
@@ -422,14 +431,14 @@ Shitlist.options = {
                 type = "input",
                 order = 6,
                 name = L["SHITLIST_LISTED_PLAYER_DESCRIPTION"],
-                width = 2.4,
+                width = 2.6,
                 get = "GetListedPlayerSelectedDescription",
                 set = "SetListedPlayerSelectedDescription",
             },
             color = {
                 type = "color",
                 order = 7,
-                width = 0.8,
+                width = 1.5,
                 name = L["SHITLIST_LISTED_PLAYER_COLOR"],
                 hasAlpha = false,
                 get = "GetListedPlayerColor",
@@ -438,11 +447,14 @@ Shitlist.options = {
             alert = {
                 type = "toggle",
                 order = 8,
+                width = 1,
                 name = L["SHITLIST_LISTED_PLAYER_ALERT_ENABLED"],
                 desc = L["SHITLIST_LISTED_PLAYER_ALERT_ENABLED_DESC"],
-                width = 1.5,
                 get = "GetListedPlayerAlert",
                 set = "SetListedPlayerAlert",
+                disabled = function()
+                    return not Shitlist.db.profile.reasons[Shitlist.db.profile.listedPlayer.reason].alert
+                end,
             },
         }
     }
@@ -571,7 +583,7 @@ end
 
 function Shitlist:GetListedPlayer(name, realm)
     for index, value in pairs(self.db.profile.listedPlayers) do
-        if (name == value.name and realm == value.realm) then
+        if (tostring(name) == value.name and tostring(realm) == value.realm) then
             return self.db.profile.listedPlayers[index]
         end
     end
@@ -708,19 +720,19 @@ end
 
 --#endregion
 
-function Shitlist:GetSound(info)
+function Shitlist:GetAlertSoundEffect(info)
     return self.db.profile.alert.sound
 end
 
-function Shitlist:SetSound(info, value)
-    self:PlayAlert(value)
+function Shitlist:SetAlertSoundEffect(info, value)
+    self:PlayAlertEffect(value)
     self.db.profile.alert.sound = value
 end
 
-function Shitlist:PlayAlert(value, channel)
-    _G.PlaySoundFile(
+function Shitlist:PlayAlertEffect(effect, channel)
+    PlaySoundFile(
         "Interface\\AddOns\\" ..
-        addonName .. "\\Sounds\\" .. Shitlist.db.profile.alert.sounds[value or self:GetSound()] .. ".ogg",
+        shitlist .. "\\Sounds\\" .. Shitlist.db.profile.alert.sounds[effect or self:GetAlertSoundEffect()] .. ".ogg",
         channel or "master"
     )
 end

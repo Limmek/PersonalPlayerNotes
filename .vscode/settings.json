@@ -1,26 +1,22 @@
 {
-	"Lua.diagnostics.enable": true,
 	"luacheck.useLuacheck": true,
-	"Lua.completion.callSnippet": "Both",
-	"Lua.diagnostics.disable": [
-		"lowercase-global",
-		"undefined-field",
-		"unused-local",
-		"param-type-mismatch",
-		"missing-fields"
-	],
+	"editor.wordWrapColumn": 133,
 	"editor.rulers": [
-		80,
-		120,
 		132
 	],
-	"editor.wordWrapColumn": 133,
-	"editor.defaultFormatter": "Ketho.wow-api",
 	"editor.wordWrap": "off",
+	"editor.defaultFormatter": "Ketho.wow-api",
+	"Lua.diagnostics.enable": true,
 	"Lua.runtime.version": "Lua 5.1",
-	"[xml]": {
-		"editor.defaultFormatter": "DotJoshJohnson.xml"
-	},
+	"Lua.completion.callSnippet": "Both",
+	"Lua.diagnostics.disable": [
+		"undefined-field",
+		"unused-local",
+		"missing-fields",
+		"inject-field",
+		"need-check-nil",
+		"duplicate-set-field"
+	],
 	"Lua.diagnostics.globals": [
 		"UnitIsPlayer",
 		"RegisterChatCommand",
@@ -116,6 +112,13 @@
 		"TooltipBackdropTemplateMixin",
 		"GameMenuFrame",
 		"UIDROPDOWNMENU_INIT_MENU",
-		"UIDROPDOWNMENU_MENU_VALUE"
+		"UIDROPDOWNMENU_MENU_VALUE",
+		"GetText",
+		"UIDropDownMenu_GetSelectedName",
+		"tostring",
+		"SendChatMessage",
+		"ipairs",
+		"UnitFullName",
+		"PlaySoundFile"
 	],
 }

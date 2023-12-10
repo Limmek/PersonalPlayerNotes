@@ -1,4 +1,4 @@
-## Interface: 100200
+## Interface: 11500
 ## Title : Shitlist
 ## Notes: Set a personal comment on players and adding it to player information tooltip window.
 ## Author: Limmek
@@ -12,7 +12,6 @@
 ## X-Localizations: enUS
 ## X-Website: https://github.com/Limmek/Shitlist
 ## X-License: MIT
-## IconTexture: Interface\AddOns\Shitlist\Images\shitlist.png
 
 embeds.xml
 

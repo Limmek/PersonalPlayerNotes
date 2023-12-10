@@ -1,0 +1,42 @@
+name: Update TOC Interface version(s)
+
+on:
+  workflow_dispatch:
+  workflow_run:
+      workflows: ['Luacheck']
+      types:
+        - completed
+  #schedule:
+    #- cron: "0 * * * *"
+
+jobs:
+  run:
+    name: TOCcheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone project
+        uses: actions/checkout@v3
+      
+      - name: Checking Vanilla
+        uses: p3lim/toc-interface-updater@v3
+        with:
+          flavor: classic_era
+          future: false
+
+      - name: Checking Wrath
+        uses: p3lim/toc-interface-updater@v3
+        with:
+          flavor: classic
+          future: false
+
+      - name: Checking Retail
+        uses: p3lim/toc-interface-updater@v3
+        with:
+          flavor: retail
+          future: false
+      
+      - name: Commit changes
+        uses: EndBug/add-and-commit@v9
+        with:
+          message: 'Update TOC interface version(s)'
+          add: '.'

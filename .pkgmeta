@@ -1,10 +1,12 @@
 package-as: Shitlist
 
-manual-changelog: changelog.txt
+manual-changelog:
+  filename: changelog.txt
+  markup-type: plain
 
 enable-nolib-creation: no
 
-enable-toc-creation: yes
+enable-toc-creation: no
 
 ignore:
   - .gitignore

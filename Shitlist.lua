@@ -1,8 +1,7 @@
-local addonName = ...
-Shitlist = LibStub("AceAddon-3.0"):NewAddon(addonName, "AceConsole-3.0", "AceEvent-3.0", "AceHook-3.0", "AceTimer-3.0"
+local shitlist = ...
+Shitlist = LibStub("AceAddon-3.0"):NewAddon(shitlist, "AceConsole-3.0", "AceEvent-3.0", "AceHook-3.0", "AceTimer-3.0"
 , "AceSerializer-3.0")
-
-local L = LibStub("AceLocale-3.0"):GetLocale(addonName, true)
+local L = LibStub("AceLocale-3.0"):GetLocale(shitlist, true)
 local AceConfig = LibStub("AceConfig-3.0")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
@@ -10,8 +9,6 @@ local LibDataBroker = LibStub("LibDataBroker-1.1")
 local LibDBIcon = LibStub("LibDBIcon-1.0")
 
 function Shitlist:OnInitialize()
-    self:PrintDebug("Initializeing...")
-
     -- uses the "Default" profile instead of character-specific profiles
     -- https://www.wowace.com/projects/ace3/pages/api/ace-db-3-0
     self.db = LibStub("AceDB-3.0"):New("ShitlistDB", self.defaults, true)
@@ -22,39 +19,38 @@ function Shitlist:OnInitialize()
 
     -- registers an options table and adds it to the Blizzard options window
     -- https://www.wowace.com/projects/ace3/pages/api/ace-config-3-0
-    AceConfig:RegisterOptionsTable("ShitlistSettings Info", self.options.Info, { "shitlist" })
-    AceConfigDialog:AddToBlizOptions("ShitlistSettings Info", addonName)
+    AceConfig:RegisterOptionsTable("ShitlistSettings Info", self.options.Info)
+    AceConfigDialog:AddToBlizOptions("ShitlistSettings Info", shitlist)
 
-    AceConfig:RegisterOptionsTable("ShitlistSettings Options", self.options.Settings, { "slopt" })
-    AceConfigDialog:AddToBlizOptions("ShitlistSettings Options", L["SHITLIST_MENU_SETTINGS"], addonName)
+    AceConfig:RegisterOptionsTable("ShitlistSettings Options", self.options.Settings, { "slo" })
+    AceConfigDialog:AddToBlizOptions("ShitlistSettings Options", L["SHITLIST_MENU_SETTINGS"], shitlist)
 
     AceConfig:RegisterOptionsTable("ShitlistSettings Reasons", self.options.Reasons, { "slr" })
-    AceConfigDialog:AddToBlizOptions("ShitlistSettings Reasons", L["SHITLIST_MENU_REASONS"], addonName)
+    AceConfigDialog:AddToBlizOptions("ShitlistSettings Reasons", L["SHITLIST_MENU_REASONS"], shitlist)
 
-    AceConfig:RegisterOptionsTable("ShitlistSettings Listed_Players", self.options.ListedPlayers, { "sllp" })
-    AceConfigDialog:AddToBlizOptions("ShitlistSettings Listed_Players", L["SHITLIST_MENU_LISTED_PLAYERS"], addonName)
+    AceConfig:RegisterOptionsTable("ShitlistSettings Listed_Players", self.options.ListedPlayers, { "slp" })
+    AceConfigDialog:AddToBlizOptions("ShitlistSettings Listed_Players", L["SHITLIST_MENU_LISTED_PLAYERS"], shitlist)
 
     -- adds a child options table, in this case our profiles panel
     local profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
-    AceConfig:RegisterOptionsTable("ShitlistSettings Profiles", profiles, { "slp" })
-    AceConfigDialog:AddToBlizOptions("ShitlistSettings Profiles", L["SHITLIST_MENU_PROFILES"], addonName)
+    AceConfig:RegisterOptionsTable("ShitlistSettings Profiles", profiles)
+    AceConfigDialog:AddToBlizOptions("ShitlistSettings Profiles", L["SHITLIST_MENU_PROFILES"], shitlist)
 
-    LibDBIcon:Register(addonName, self:MiniMapIcon(), self.db.profile.minimap)
+    LibDBIcon:Register(shitlist, self:MiniMapIcon(), self.db.profile.minimap)
 
     -- https://www.wowace.com/projects/ace3/pages/api/ace-console-3-0
-    self:RegisterChatCommand("slminimap", "ToggleMiniMapIcon")
+    self:RegisterChatCommand("slm", "ToggleMiniMapIcon")
     self:RegisterChatCommand("sldebug", "ToggleDebug")
-    self:RegisterChatCommand("sltest", "Test")
 
     self:GetOldConfigData()
     self:RefreshConfig()
 end
 
 function Shitlist:OnEnable()
-    self:Print("Loading...")
-    self:Print(
-        "Found " .. #self:GetReasons() .. " Reasons and " .. #self:GetListedPlayers() .. " Players in database."
-    )
+    self:Print(L["SHITLIST_CONFIG_LOADING"])
+    self:Print(L["SHITLIST_CONFIG_VERSION"], _G["ORANGE_FONT_COLOR_CODE"], self:GetVersion())
+    self:Print(L["SHITLIST_CONFIG_REASONS"], _G["GREEN_FONT_COLOR_CODE"], #self:GetReasons())
+    self:Print(L["SHITLIST_CONFIG_LISTEDPLAYERS"], _G["GREEN_FONT_COLOR_CODE"], #self:GetListedPlayers())
 
     if not self:IsHooked("UnitPopup_ShowMenu") then
         self:SecureHook("UnitPopup_ShowMenu", self.UnitPopup_ShowMenu)
@@ -67,30 +63,34 @@ function Shitlist:OnEnable()
         -- Backwards compatibility WOTLK, Classic
         GameTooltip:HookScript("OnTooltipSetUnit", self.GameTooltip)
     end
-    self:Print("Done!")
+    self:Print(L["SHITLIST_CONFIG_LOADED"])
 end
 
 function Shitlist:OnDisable()
-    self:PrintDebug("OnDisable()")
+    self:Print(L["SHITLIST_DISABLE"])
 end
 
 function Shitlist:RefreshConfig()
-    self:PrintDebug("Reloading config...")
-
     self.db.profile.alert.last = {}
 
     if self.db.profile.minimap.hide then
-        LibDBIcon:Hide(addonName)
+        LibDBIcon:Hide(shitlist)
     else
-        LibDBIcon:Show(addonName)
+        LibDBIcon:Show(shitlist)
     end
+
+    --@debug@
+    self:PrintDebug(L["SHITLIST_CONFIG_REFRESH"])
+    self:PrintDebug("Debug:", _G["GREEN_FONT_COLOR_CODE"], self.db.profile.debug)
+    self:PrintDebug("Mini Map Icon:", _G["GREEN_FONT_COLOR_CODE"], not self.db.profile.minimap.hide)
+    --@end-debug@
 end
 
 function Shitlist:GetOldConfigData()
     if _G.ShitlistDB.ListedPlayers == nil and _G.ShitlistDB.Reasons == nil then
         return
     end
-    self:Print("Checking for old player data.")
+    self:Print(L["SHITLIST_CONFIG_CHECK_OLD_DATA"])
 
     local oldReasons = _G.ShitlistDB.Reasons
     local oldListedPlayers = _G.ShitlistDB.ListedPlayers
@@ -141,9 +141,9 @@ function Shitlist:GetOldConfigData()
                         alert = true,
                     }
 
-                    self:Print("Added old player:", name .. "-" .. realm)
+                    self:Print(L["SHITLIST_CONFIG_ADDED_OLD_DATA"], name .. "-" .. realm)
                 else
-                    self:Print("Found duplicate:", name .. "-" .. realm)
+                    self:Print(L["SHITLIST_CONFIG_DUPLICATE_DATA"], name .. "-" .. realm)
                 end
             end
         end
@@ -154,16 +154,15 @@ function Shitlist:GetOldConfigData()
     end
 end
 
-function Shitlist:UnitPopup_ShowMenu(target, unit)
+function Shitlist:UnitPopup_ShowMenu(target, unit, menuList)
     local name, realm = self.name, GetRealmName()
     local listedPlayer = Shitlist:GetListedPlayer(name, realm)
-    Shitlist:PrintDebug("UnitPopup_ShowMenu:", name, realm, listedPlayer or nil)
 
     -- Check if this is the root level of the dropdown menu
     if UIDROPDOWNMENU_MENU_LEVEL == 1 and UnitIsPlayer(unit) and target ~= "SELF" then
         if (listedPlayer) then
             UIDropDownMenu_AddButton({
-                text = L["SHITLIST"],
+                text = shitlist,
                 notCheckable = true,
                 hasArrow = true,
                 keepShownOnClick = true,
@@ -172,10 +171,10 @@ function Shitlist:UnitPopup_ShowMenu(target, unit)
             UIDropDownMenu_AddButton({
                 text = L["SHITLIST_POPUP_ADD"],
                 notCheckable = true,
-                icon = "Interface\\AddOns\\" .. addonName .. "\\Icon\\shitlist.png",
+                icon = Shitlist.db.profile.icon,
                 value = { name, realm },
                 func = function()
-                    Shitlist:Print("Adding new player: " .. name .. "-" .. realm)
+                    Shitlist:Print(L["SHITLIST_POPUP_NEW_ADDED"], name, realm)
                     local new_player = Shitlist:NewListedPlayer(name, realm)
                     Shitlist.db.profile.listedPlayer.id = new_player.id
                     Shitlist.db.profile.listedPlayer.name = new_player.name
@@ -188,25 +187,25 @@ function Shitlist:UnitPopup_ShowMenu(target, unit)
                     AceConfigDialog:CloseAll()
                     local AceGUI = Shitlist:AceGUIDefaults()
                     AceGUI:SetTitle(L["SHITLIST_LISTED_PLAYERS_TITLE"])
-                    AceConfigDialog:SetDefaultSize("ShitlistSettings Listed_Players", 600, 300)
+                    AceConfigDialog:SetDefaultSize("ShitlistSettings Listed_Players", 500, 300)
                     AceConfigDialog:Open("ShitlistSettings Listed_Players")
                 end,
             }, UIDROPDOWNMENU_MENU_LEVEL)
         end
-    elseif UIDROPDOWNMENU_MENU_LEVEL == 2 and UIDROPDOWNMENU_MENU_VALUE == L["SHITLIST"] then
-        Shitlist:AddToContextMenu(listedPlayer)
+    elseif UIDROPDOWNMENU_MENU_VALUE == shitlist then
+        Shitlist:AddSubMenu(listedPlayer)
     end
 end
 
-function Shitlist:AddToContextMenu(player)
+function Shitlist:AddSubMenu(player)
     local menuItem = UIDropDownMenu_CreateInfo()
-    menuItem.text = L["SHITLIST"]
+    menuItem.text = shitlist
     menuItem.notCheckable = true
     menuItem.keepShownOnClick = true
     menuItem.hasArrow = false
     menuItem.isTitle = true
     menuItem.disabled = true
-    menuItem.icon = "Interface\\AddOns\\" .. addonName .. "\\Icon\\shitlist.png"
+    menuItem.icon = Shitlist.db.profile.icon
     UIDropDownMenu_AddButton(menuItem, UIDROPDOWNMENU_MENU_LEVEL)
 
     menuItem = UIDropDownMenu_CreateInfo()
@@ -227,7 +226,7 @@ function Shitlist:AddToContextMenu(player)
             AceConfigDialog:CloseAll()
             local AceGUI = Shitlist:AceGUIDefaults()
             AceGUI:SetTitle(L["SHITLIST_LISTED_PLAYERS_TITLE"])
-            AceConfigDialog:SetDefaultSize("ShitlistSettings Listed_Players", 600, 300)
+            AceConfigDialog:SetDefaultSize("ShitlistSettings Listed_Players", 500, 300)
             AceConfigDialog:Open("ShitlistSettings Listed_Players")
         end
     end
@@ -243,12 +242,12 @@ function Shitlist:AddToContextMenu(player)
     end
 
     local function _SendChatMessage(chat)
-        _G.SendChatMessage("Player: " .. player.name .. "-" .. player.realm, chat, nil, nil)
+        SendChatMessage(L["SHITLIST_CHAT_PLAYER"] .. player.name .. "-" .. player.realm, chat, nil, nil)
         if self.db.profile.reasons[player.reason].reason ~= "None" then
-            _G.SendChatMessage("Reason: " .. self.db.profile.reasons[player.reason].reason, chat, nil, nil)
+            SendChatMessage(L["SHITLIST_CHAT_REASON"] .. self.db.profile.reasons[player.reason].reason, chat, nil, nil)
         end
         if player.description ~= "" then
-            _G.SendChatMessage("Description: " .. player.description, chat, nil, nil)
+            SendChatMessage(L["SHITLIST_CHAT_DESCRIPTION"] .. player.description, chat, nil, nil)
         end
     end
     local options = {
@@ -280,102 +279,113 @@ function Shitlist:AddToContextMenu(player)
 
     for _, option in ipairs(options) do
         if not option.disabled then
-            _G.UIDropDownMenu_AddButton(option, _G.UIDROPDOWNMENU_MENU_LEVEL)
+            UIDropDownMenu_AddButton(option, UIDROPDOWNMENU_MENU_LEVEL)
         end
     end
 end
 
 function Shitlist:GameTooltip()
-    local name, unit = self:GetUnit()
+    local _name, unit = self:GetUnit()
+    if not (unit and UnitIsPlayer(unit)) then return end
 
-    if (unit and not UnitIsPlayer(unit)) then return end
+    local name, realm = UnitFullName(unit)
+    if (_name ~= name) then return end
 
-    local _name, realm = _G.UnitName(unit)
-    name, realm = _name or name, _G.GetRealmName() or realm
+    if (realm == nil) then realm = GetRealmName() end
 
-    Shitlist:PrintDebug("GameTooltip:", name, realm)
-
-    local listedPlayer = Shitlist:GetListedPlayer(tostring(name), realm)
+    local listedPlayer = Shitlist:GetListedPlayer(name, realm)
     if (not listedPlayer) then return end
 
     local reason = Shitlist:GetReasons()[listedPlayer.reason]
-    local _reason = reason.reason
+    local _reason = reason
+    local _listedPlayer = listedPlayer
 
-    Shitlist:PrintDebug("GameTooltip:", listedPlayer, _reason)
-
-    if (_reason == "None") then _reason = "" end
+    --@debug@
+    Shitlist:PrintDebug("|cffff0000<GameTooltip>|cffffffff Playername:", name, "Realm:", realm, "Reason:", _reason
+        .reason,
+        "Note:", _listedPlayer.description)
+    --@end-debug@
 
     -- Tooltip
-    self:AddLine("\n")
-    self:AddDoubleLine(_reason, L["SHITLIST"], reason.color.r or 1, reason.color.g or 1, reason.color.b or 1,
-        1.0, 0.82, 0.0)
-    self:AddLine(listedPlayer.description, listedPlayer.color.r or 1, listedPlayer.color.g or 1,
-        listedPlayer.color.b or 1, false)
+    if not (_reason.reason == "None" and _listedPlayer.description == "") then
+        self:AddLine("\n")
+        self:AddDoubleLine(_reason.reason:gsub("None", ""), "|T" .. Shitlist.db.profile.icon .. ":0|t",
+            _reason.color.r or 1, _reason.color.g or 1, _reason.color.b or 1)
+        self:AddLine(_listedPlayer.description, _listedPlayer.color.r or 1, _listedPlayer.color.g or 1,
+            _listedPlayer.color.b or 1, false)
+    end
 
     -- Alert
     local time = time()
     local alert = Shitlist.db.profile.alert
-    if (listedPlayer.alert and alert.enabled and not alert.last[name]) then
-        if (reason.alert and alert.enabled and not alert.last[name]) then
+    if (alert.enabled and reason.alert) then
+        if (listedPlayer.alert and not alert.last[name]) then
             alert.last[name] = time + alert.delay
-            Shitlist:PrintDebug("ALERT: ", name, alert.last[name])
-            Shitlist:ScheduleTimer("TimerFeedback", alert.delay, name)
-            Shitlist:PlayAlert()
+            Shitlist:ScheduleTimer("AlertDelayTimer", alert.delay, name)
+            Shitlist:PlayAlertEffect()
+            --@debug@
+            Shitlist:PrintDebug("|cffff0000<ALERT>|cffffffff Sound effect disabled for player", name, "for", alert.delay,
+                "seconds.")
+            --@end-debug@
         end
     end
 end
 
-function Shitlist:TimerFeedback(name)
-    Shitlist:PrintDebug("ALERT:", name, "removed.")
+-- Called within ScheduleTimer and fires when timer ends.
+function Shitlist:AlertDelayTimer(name)
+    --@debug@
+    Shitlist:PrintDebug("|cffff0000<ALERT>|cffffffff Sound effect is now enabled for player", name)
+    --@end-debug@
     Shitlist.db.profile.alert.last[name] = nil
 end
 
 function Shitlist:MiniMapIcon()
-    self:PrintDebug("MiniMapIcon()")
     -- Create minimap launcher
     -- https://github.com/tekkub/libdatabroker-1-1/wiki/How-to-provide-a-dataobject
-    return LibDataBroker:NewDataObject(addonName, {
+    return LibDataBroker:NewDataObject(shitlist, {
         type = "launcher",
-        text = L["SHITLIST"],
-        --icon = "Interface\\TargetingFrame\\UI-RaidTargetingIcon_8.png",
-        icon = "Interface\\AddOns\\" .. addonName .. "\\Icon\\shitlist.png",
+        text = shitlist,
+        icon = Shitlist.db.profile.icon,
         OnClick = function(clickedframe, button)
+            AceConfigDialog:Close("ShitlistSettings Options")
             AceConfigDialog:CloseAll()
             local AceGUI = Shitlist:AceGUIDefaults()
-            if button == "LeftButton" then
-                InterfaceOptionsFrame_OpenToCategory(addonName)
-            elseif not (IsControlKeyDown() or IsShiftKeyDown()) and button == "RightButton" then
-                AceGUI:SetTitle(L["SHITLIST_SETTINGS_TITLE"])
-                AceConfigDialog:SetDefaultSize("ShitlistSettings Options", 700, 400)
-                AceConfigDialog:Open("ShitlistSettings Options")
-            elseif IsControlKeyDown() and button == "RightButton" then
-                AceGUI:SetTitle(L["SHITLIST_REASONS_TITLE"])
-                AceConfigDialog:SetDefaultSize("ShitlistSettings Reasons", 550, 200)
-                AceConfigDialog:Open("ShitlistSettings Reasons")
-            elseif IsShiftKeyDown() and button == "RightButton" then
-                AceGUI:SetTitle(L["SHITLIST_LISTED_PLAYERS_TITLE"])
-                AceConfigDialog:SetDefaultSize("ShitlistSettings Listed_Players", 600, 300)
-                AceConfigDialog:Open("ShitlistSettings Listed_Players")
+            if button == "RightButton" then
+                InterfaceOptionsFrame_OpenToCategory(shitlist)
+            elseif button == "LeftButton" then
+                if IsShiftKeyDown() then
+                    AceGUI:SetTitle(L["SHITLIST_REASONS_TITLE"])
+                    AceConfigDialog:SetDefaultSize("ShitlistSettings Reasons", 500, 200)
+                    AceConfigDialog:Open("ShitlistSettings Reasons")
+                elseif IsControlKeyDown() then
+                    AceGUI:SetTitle(L["SHITLIST_LISTED_PLAYERS_TITLE"])
+                    AceConfigDialog:SetDefaultSize("ShitlistSettings Listed_Players", 500, 300)
+                    AceConfigDialog:Open("ShitlistSettings Listed_Players")
+                else
+                    AceGUI:SetTitle(L["SHITLIST_SETTINGS_TITLE"])
+                    AceConfigDialog:SetDefaultSize("ShitlistSettings Options", 500, 350)
+                    AceConfigDialog:Open("ShitlistSettings Options")
+                end
             end
         end,
         OnTooltipShow = function(tooltip)
-            tooltip:SetText(L["SHITLIST_MINIMAP_TOOLTIP_TITLE"])
-            tooltip:AddLine(L["SHITLIST_MINIMAP_TOOLTIP_LEFT_CLICK"])
+            tooltip:AddDoubleLine("|T" .. Shitlist.db.profile.icon .. ":0|t " .. L["SHITLIST_MINIMAP_TOOLTIP_TITLE"],
+                Shitlist:GetVersion())
+            tooltip:AddLine("\n")
             tooltip:AddLine(L["SHITLIST_MINIMAP_TOOLTIP_RIGHT_CLICK"])
-            tooltip:AddLine(L["SHITLIST_MINIMAP_TOOLTIP_SHIFT_RIGHT_CLICK"])
-            tooltip:AddLine(L["SHITLIST_MINIMAP_TOOLTIP_CTRL_RIGHT_CLICK"])
+            tooltip:AddLine(L["SHITLIST_MINIMAP_TOOLTIP_LEFT_CLICK"])
+            tooltip:AddLine(L["SHITLIST_MINIMAP_TOOLTIP_SHIFT_LEFT_CLICK"])
+            tooltip:AddLine(L["SHITLIST_MINIMAP_TOOLTIP_CTRL_LEFT_CLICK"])
         end,
     })
 end
 
 function Shitlist:ToggleMiniMapIcon()
-    self:PrintDebug("ToggleMiniMapIcon()")
     self.db.profile.minimap.hide = not self.db.profile.minimap.hide
     self:RefreshConfig()
 end
 
 function Shitlist:ToggleDebug()
     self.db.profile.debug = not self.db.profile.debug
-    self:PrintDebug("Debug=", self.db.profile.debug)
     self:RefreshConfig()
 end

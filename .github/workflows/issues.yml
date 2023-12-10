@@ -1,0 +1,18 @@
+name: Issue Template Check
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  auto_close_issues:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: "Automatically close issues that don't follow the issue template"
+        uses: damccorm/tag-ur-it@master
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          configuration-path: "./.github/issue-rules.yml"
