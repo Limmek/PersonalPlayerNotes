@@ -7,16 +7,17 @@ Tired of encountering players who've made your gaming experiences less enjoyable
 
 ## Features to Enhance Your Gaming Experience
 
-- **Player Reason Tracking**: Assign custom reasons, alerts, and colors to players, conveniently displayed on tooltips.
-- **Personalized Player Notes**: Craft colored notes with alerts and preset reasons to tailor your gaming experiences.
+- **Player Note Tracking**: Reasons and player notes are conveniently displayed on tooltips.
+- **Personalized Player Notes**: Craft colored notes and preset reason with alert effect to tailor your gaming experiences.
 - **Effortless Player Management**: Easily add, edit, or remove players and their associated reasons, even if they're offline or not your current target.
 - **Accessible Minimap Icon**: Swiftly access Shitlist options, reasons, and listed players through the minimap icon for seamless on-the-go management.
-- **Alert System**: Set up sound alerts for listed players, ensuring you're promptly informed when encountering them.
+- **Alert System**: Set up sound alerts for listed players or specific reasons, ensuring you're promptly informed when encountering them.
 
 ## How to Utilize
 
-- **Adding/Editing Players**: Right-click a player to add or remove them from the #Shitlist. Alternatively, navigate to **Interface Options -> Addons -> Shitlist -> Listed Players** for comprehensive player management.
+- **Options**: Navigate to **Interface Options -> Addons -> Shitlist -> Options** or access if from the **Minimap Icon**.
 - **Customizing Reasons**: Modify preset reasons by visiting **Interface Options -> Addons -> Shitlist -> Reasons**.
+- **Adding/Editing Players**: Right-click a player to add or remove them from the #Shitlist. Alternatively, Modify listed players by visiting **Interface Options -> Addons -> Shitlist -> Listed Players** for comprehensive player management.
 
 ## Versatile Applications
 
@@ -30,5 +31,4 @@ This addon proves invaluable across various in-game scenarios:
 
 ## Download & Contribution
 
-- **Download Now**: [Get the addon](https://github.com/Limmek/Shitlist/releases)
-- **Contribute to Development**: Join the open-source community! Contribute and suggest enhancements [here](https://github.com/Limmek/Shitlist).
+- **Download Now**: Latest release can be found on [Github](https://github.com/Limmek/Shitlist/releases) or [Curse Forge](https://www.curseforge.com/wow/addons/shitlist)
