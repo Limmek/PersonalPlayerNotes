@@ -1,0 +1,18 @@
+# The name of the label to apply when an issue does not have all tasks checked
+labelName: "⏱ Awaiting Response"
+
+# The color of the label in hex format (without #)
+#labelColor:
+
+# The text of the comment to add to the issue in addition to the label
+commentText: "Thanks for opening an issue. I see you haven't provided all of the information in the list. Please update the issue to include more information by filling out the template."
+
+# Whether or not to ensure all checkboxes are checked
+checkCheckboxes: false
+
+# Keywords to look for in the body of the issue
+keywords:
+  - version
+  - Retail
+  - Classic
+  - Wotlk
