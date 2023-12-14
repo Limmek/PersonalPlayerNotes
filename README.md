@@ -3,7 +3,7 @@
 [![Package and release](https://github.com/Limmek/Shitlist/actions/workflows/build.yml/badge.svg)](https://github.com/Limmek/Shitlist/actions/workflows/build.yml)
 # Shitlist
 
-Tired of encountering players who've made your gaming experiences less enjoyable? Whether remembering the heroes or the not-so-great allies, #Shitlist is the solution. This WoW addon lets you create reasons on players, tracking the good, the bad, and everything in between.
+Tired of encountering players who've made your gaming experiences less enjoyable? Whether remembering the heroes or the not-so-great allies, **#Shitlist** is the solution. This WoW addon lets you create different preset reasons and personalized comments on players, tracking the good, the bad, and everything in between.
 
 ## Features to Enhance Your Gaming Experience
 
@@ -15,9 +15,9 @@ Tired of encountering players who've made your gaming experiences less enjoyable
 
 ## How to Utilize
 
-- **Options**: Navigate to **Interface Options -> Addons -> Shitlist -> Options** or access if from the **Minimap Icon**.
-- **Customizing Reasons**: Modify preset reasons by visiting **Interface Options -> Addons -> Shitlist -> Reasons**.
-- **Adding/Editing Players**: Right-click a player to add or remove them from the #Shitlist. Alternatively, Modify listed players by visiting **Interface Options -> Addons -> Shitlist -> Listed Players** for comprehensive player management.
+- **Options**: Navigate to **Interface Options -&gt; Addons -&gt; Shitlist -&gt; Options** or access if from the **Minimap Icon**.
+- **Customizing Reasons**: Modify preset reasons by visiting **Interface Options -&gt; Addons -&gt; Shitlist -&gt; Reasons**.
+- **Adding/Editing Players**: Right-click a player to add or remove them from the #Shitlist. Alternatively, Modify listed players by visiting **Interface Options -&gt; Addons -&gt; Shitlist -&gt; Listed Players** for comprehensive player management.
 
 ## Versatile Applications
 
