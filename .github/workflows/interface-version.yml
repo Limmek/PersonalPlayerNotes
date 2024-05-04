@@ -2,15 +2,15 @@ name: Update TOC Interface version(s)
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - master
+  # push:
+  #   branches:
+  #     - master
   # workflow_run:
   #     workflows: ['Luacheck']
   #     types:
   #       - completed
-  #schedule:
-    #- cron: "0 * * * *"
+  # schedule:
+  #   - cron: 0 12 * * *
 
 jobs:
   run:
@@ -36,7 +36,7 @@ jobs:
         uses: p3lim/toc-interface-updater@v3
         with:
           flavor: retail
-          future: false
+          future: true
       
       - name: Commit changes
         uses: EndBug/add-and-commit@v9
