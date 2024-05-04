@@ -2,10 +2,13 @@ name: Update TOC Interface version(s)
 
 on:
   workflow_dispatch:
-  workflow_run:
-      workflows: ['Luacheck']
-      types:
-        - completed
+  push:
+    branches:
+      - master
+  # workflow_run:
+  #     workflows: ['Luacheck']
+  #     types:
+  #       - completed
   #schedule:
     #- cron: "0 * * * *"
 
