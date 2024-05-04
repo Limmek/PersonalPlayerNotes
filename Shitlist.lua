@@ -155,11 +155,29 @@ function Shitlist:GetOldConfigData()
 end
 
 function Shitlist:UnitPopup_ShowMenu(target, unit, menuList)
+    --@debug@
+    Shitlist:PrintDebug("Unit: ", unit, ", Target: ", target)
+    --@end-debug@
+    if target == "SELF" then
+        return
+    end
+    if not (UnitIsPlayer(unit) or (unit == nil and target == "FRIEND" or target == "COMMUNITIES_GUILD_MEMBER")) then
+        return
+    end
+
     local name, realm = self.name, GetRealmName()
+    if unit ~= nil then
+        name, realm = UnitName(unit)
+        if realm == nil then realm = GetRealmName() end
+    end
     local listedPlayer = Shitlist:GetListedPlayer(name, realm)
 
+    --@debug@
+    Shitlist:PrintDebug("Name: ", name, ", Realm: ", realm)
+    --@end-debug@
+
     -- Check if this is the root level of the dropdown menu
-    if UIDROPDOWNMENU_MENU_LEVEL == 1 and UnitIsPlayer(unit) and target ~= "SELF" then
+    if UIDROPDOWNMENU_MENU_LEVEL == 1 then
         if (listedPlayer) then
             UIDropDownMenu_AddButton({
                 text = shitlist,
@@ -193,93 +211,93 @@ function Shitlist:UnitPopup_ShowMenu(target, unit, menuList)
             }, UIDROPDOWNMENU_MENU_LEVEL)
         end
     elseif UIDROPDOWNMENU_MENU_VALUE == shitlist then
-        Shitlist:AddSubMenu(listedPlayer)
-    end
-end
-
-function Shitlist:AddSubMenu(player)
-    local menuItem = UIDropDownMenu_CreateInfo()
-    menuItem.text = shitlist
-    menuItem.notCheckable = true
-    menuItem.keepShownOnClick = true
-    menuItem.hasArrow = false
-    menuItem.isTitle = true
-    menuItem.disabled = true
-    menuItem.icon = Shitlist.db.profile.icon
-    UIDropDownMenu_AddButton(menuItem, UIDROPDOWNMENU_MENU_LEVEL)
-
-    menuItem = UIDropDownMenu_CreateInfo()
-    menuItem.text = L["SHITLIST_POPUP_EDIT"]
-    menuItem.notCheckable = true
-    menuItem.hasArrow = false
-    menuItem.value = player
-    menuItem.func = function()
-        if (player) then
-            Shitlist.db.profile.listedPlayer.id = player.id
-            Shitlist.db.profile.listedPlayer.name = player.name
-            Shitlist.db.profile.listedPlayer.realm = player.realm
-            Shitlist.db.profile.listedPlayer.reason = player.reason
-            Shitlist.db.profile.listedPlayer.description = player.description
-            Shitlist.db.profile.listedPlayer.color = player.color
-            Shitlist.db.profile.listedPlayer.alert = player.alert
-
-            AceConfigDialog:CloseAll()
-            local AceGUI = Shitlist:AceGUIDefaults()
-            AceGUI:SetTitle(L["SHITLIST_LISTED_PLAYERS_TITLE"])
-            AceConfigDialog:SetDefaultSize("ShitlistSettings Listed_Players", 500, 300)
-            AceConfigDialog:Open("ShitlistSettings Listed_Players")
-        end
-    end
-    UIDropDownMenu_AddButton(menuItem, UIDROPDOWNMENU_MENU_LEVEL)
-
-    menuItem = UIDropDownMenu_CreateInfo()
-    menuItem.text = L["SHITLIST_POPUP_ANNOUNCEMENT"]
-    menuItem.notCheckable = true
-    menuItem.isTitle = true
-    local a = Shitlist.db.profile.announcement
-    if a.guild or a.party or a.instance or a.raid then
+        -- Add the submenu
+        local menuItem = UIDropDownMenu_CreateInfo()
+        menuItem.text = shitlist
+        menuItem.notCheckable = true
+        menuItem.keepShownOnClick = true
+        menuItem.hasArrow = false
+        menuItem.isTitle = true
+        menuItem.disabled = true
+        menuItem.icon = Shitlist.db.profile.icon
         UIDropDownMenu_AddButton(menuItem, UIDROPDOWNMENU_MENU_LEVEL)
-    end
 
-    local function _SendChatMessage(chat)
-        SendChatMessage(L["SHITLIST_CHAT_PLAYER"] .. player.name .. "-" .. player.realm, chat, nil, nil)
-        if self.db.profile.reasons[player.reason].reason ~= "None" then
-            SendChatMessage(L["SHITLIST_CHAT_REASON"] .. self.db.profile.reasons[player.reason].reason, chat, nil, nil)
-        end
-        if player.description ~= "" then
-            SendChatMessage(L["SHITLIST_CHAT_DESCRIPTION"] .. player.description, chat, nil, nil)
-        end
-    end
-    local options = {
-        {
-            text = "Guild",
-            notCheckable = true,
-            func = function() _SendChatMessage("GUILD") end,
-            disabled = not self.db.profile.announcement.guild
-        },
-        {
-            text = "Party",
-            notCheckable = true,
-            func = function() _SendChatMessage("PARTY") end,
-            disabled = not self.db.profile.announcement.party
-        },
-        {
-            text = "Instance",
-            notCheckable = true,
-            func = function() _SendChatMessage("INSTANCE_CHAT") end,
-            disabled = not self.db.profile.announcement.instance
-        },
-        {
-            text = "Raid",
-            notCheckable = true,
-            func = function() _SendChatMessage("RAID") end,
-            disabled = not self.db.profile.announcement.raid
-        },
-    }
+        menuItem = UIDropDownMenu_CreateInfo()
+        menuItem.text = L["SHITLIST_POPUP_EDIT"]
+        menuItem.notCheckable = true
+        menuItem.hasArrow = false
+        menuItem.value = listedPlayer
+        menuItem.func = function()
+            if (listedPlayer) then
+                Shitlist.db.profile.listedPlayer.id = listedPlayer.id
+                Shitlist.db.profile.listedPlayer.name = listedPlayer.name
+                Shitlist.db.profile.listedPlayer.realm = listedPlayer.realm
+                Shitlist.db.profile.listedPlayer.reason = listedPlayer.reason
+                Shitlist.db.profile.listedPlayer.description = listedPlayer.description
+                Shitlist.db.profile.listedPlayer.color = listedPlayer.color
+                Shitlist.db.profile.listedPlayer.alert = listedPlayer.alert
 
-    for _, option in ipairs(options) do
-        if not option.disabled then
-            UIDropDownMenu_AddButton(option, UIDROPDOWNMENU_MENU_LEVEL)
+                AceConfigDialog:CloseAll()
+                local AceGUI = Shitlist:AceGUIDefaults()
+                AceGUI:SetTitle(L["SHITLIST_LISTED_PLAYERS_TITLE"])
+                AceConfigDialog:SetDefaultSize("ShitlistSettings Listed_Players", 500, 300)
+                AceConfigDialog:Open("ShitlistSettings Listed_Players")
+            end
+        end
+        UIDropDownMenu_AddButton(menuItem, UIDROPDOWNMENU_MENU_LEVEL)
+
+        menuItem = UIDropDownMenu_CreateInfo()
+        menuItem.text = L["SHITLIST_POPUP_ANNOUNCEMENT"]
+        menuItem.notCheckable = true
+        menuItem.isTitle = true
+        local a = Shitlist.db.profile.announcement
+        if a.guild or a.party or a.instance or a.raid then
+            UIDropDownMenu_AddButton(menuItem, UIDROPDOWNMENU_MENU_LEVEL)
+        end
+
+        local function _SendChatMessage(chat)
+            SendChatMessage(L["SHITLIST_CHAT_PLAYER"] .. listedPlayer.name .. "-" .. listedPlayer.realm, chat, nil, nil)
+            if Shitlist.db.profile.reasons[listedPlayer.reason].reason ~= "None" then
+                SendChatMessage(L["SHITLIST_CHAT_REASON"] .. Shitlist.db.profile.reasons[listedPlayer.reason].reason,
+                    chat,
+                    nil,
+                    nil)
+            end
+            if listedPlayer.description ~= "" then
+                SendChatMessage(L["SHITLIST_CHAT_DESCRIPTION"] .. listedPlayer.description, chat, nil, nil)
+            end
+        end
+        local options = {
+            {
+                text = "Guild",
+                notCheckable = true,
+                func = function() _SendChatMessage("GUILD") end,
+                disabled = not Shitlist.db.profile.announcement.guild
+            },
+            {
+                text = "Party",
+                notCheckable = true,
+                func = function() _SendChatMessage("PARTY") end,
+                disabled = not Shitlist.db.profile.announcement.party
+            },
+            {
+                text = "Instance",
+                notCheckable = true,
+                func = function() _SendChatMessage("INSTANCE_CHAT") end,
+                disabled = not Shitlist.db.profile.announcement.instance
+            },
+            {
+                text = "Raid",
+                notCheckable = true,
+                func = function() _SendChatMessage("RAID") end,
+                disabled = not Shitlist.db.profile.announcement.raid
+            },
+        }
+
+        for _, option in ipairs(options) do
+            if not option.disabled then
+                UIDropDownMenu_AddButton(option, UIDROPDOWNMENU_MENU_LEVEL)
+            end
         end
     end
 end
@@ -331,8 +349,8 @@ function Shitlist:GameTooltip()
     end
 end
 
--- Called within ScheduleTimer and fires when timer ends.
 function Shitlist:AlertDelayTimer(name)
+    -- Called within ScheduleTimer and fires when timer ends.
     --@debug@
     Shitlist:PrintDebug("|cffff0000<ALERT>|cffffffff Sound effect is now enabled for player", name)
     --@end-debug@
