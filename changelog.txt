@@ -1,3 +1,6 @@
+v2.0.2
+  Can now add/edit players thru chat window and guild page.
+
 v2.0.1
   Removed unused dependencies.
 
