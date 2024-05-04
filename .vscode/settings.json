@@ -17,7 +17,8 @@
 		"need-check-nil",
 		"duplicate-set-field",
 		"param-type-mismatch",
-		"redundant-parameter"
+		"redundant-parameter",
+		"lowercase-global"
 	],
 	"Lua.diagnostics.globals": [
 		"UnitIsPlayer",
