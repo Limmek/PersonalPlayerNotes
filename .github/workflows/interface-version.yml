@@ -23,7 +23,7 @@ jobs:
       - name: Checking Vanilla
         uses: p3lim/toc-interface-updater@v3
         with:
-          flavor: classic_era
+          flavor: vanilla
           future: false
 
       - name: Checking Wrath
