@@ -1,3 +1,7 @@
+v2.0.4
+  Minor fix to the dropdown menu added in 2.0.2.
+  Added Wrath toc file.
+
 v2.0.3
   Updated Retail to use the new Blizzard Menu system.
 

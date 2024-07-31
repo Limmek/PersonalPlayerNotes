@@ -24,13 +24,19 @@ jobs:
         uses: p3lim/toc-interface-updater@v3
         with:
           flavor: vanilla
-          future: false
+          future: true
+
+      - name: Checking Wrath
+        uses: p3lim/toc-interface-updater@v3
+        with:
+          flavor: wrath
+          future: true
 
       - name: Checking Cata
         uses: p3lim/toc-interface-updater@v3
         with:
           flavor: cata
-          future: false
+          future: true
 
       - name: Checking Retail
         uses: p3lim/toc-interface-updater@v3

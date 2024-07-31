@@ -249,7 +249,7 @@ function Shitlist:UnitPopup_ShowMenu(target, unit, menuList)
     if target == "SELF" then
         return
     end
-    if not (UnitIsPlayer(unit) or (unit == nil and target == "FRIEND" or target == "COMMUNITIES_GUILD_MEMBER")) then
+    if not (UnitIsPlayer(unit)) or (unit == nil and target == "FRIEND" or target == "COMMUNITIES_GUILD_MEMBER") then
         return
     end
 
