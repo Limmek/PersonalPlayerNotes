@@ -31,4 +31,4 @@ This addon proves invaluable across various in-game scenarios:
 
 ## Download & Contribution
 
-- **Download Now**: Latest release can be found on [Github](https://github.com/Limmek/Shitlist/releases) or [Curse Forge](https://www.curseforge.com/wow/addons/shitlist)
+- **Download Now**: Latest release can be found on [Github](https://github.com/Limmek/Shitlist/releases) or ~~[Curse Forge](https://www.curseforge.com/wow/addons/shitlist)~~(*They removed it due to violating their ToS*)..
