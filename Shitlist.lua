@@ -246,18 +246,31 @@ function Shitlist:UnitPopup_ShowMenu(target, unit, menuList)
     --@debug@
     Shitlist:PrintDebug("Unit: ", unit, ", Target: ", target)
     --@end-debug@
-    if target == "SELF" then
-        return
-    end
-    if not (UnitIsPlayer(unit)) or (unit == nil and target == "FRIEND" or target == "COMMUNITIES_GUILD_MEMBER") then
-        return
-    end
+    --if target == "SELF" then
+    --    return
+    --end
+    --if not (UnitIsPlayer(unit)) or (unit == nil and target == "FRIEND" or target == "COMMUNITIES_GUILD_MEMBER") then
+    --    return
+    --end
 
-    local name, realm = self.name, GetRealmName()
-    if unit ~= nil then
-        name, realm = UnitName(unit)
-        if realm == nil then realm = GetRealmName() end
+    --local name, realm = self.name, GetRealmName()
+    --if unit ~= nil then
+    --    name, realm = UnitName(unit)
+    --    if realm == nil then realm = GetRealmName() end
+    --end
+    -- rewrite code statement to make it more clear for future enhancement - Jason 20240801
+    -- verify the target
+    if target == "SELF" or target == "FRIEND" or target == "COMMUNITIES_GUILD_MEMBER" then
+        return
     end
+    -- verify the unit
+    if unit == nil or not UnitIsPlayer(unit) then
+        return
+    end
+    -- retrieve name and realm from wow api
+    local name, realm = UnitName(unit)
+    -- if the unit is from the same realm then realm is empty, use current realm instead
+    if realm == nil then realm = GetRealmName() end
     local listedPlayer = Shitlist:GetListedPlayer(name, realm)
 
     --@debug@
