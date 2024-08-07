@@ -3,4 +3,5 @@
 ..\FrameXML\UI.xsd">
 
     <Script file="enUS.lua"/>
+    <Script file="zhCN.lua"/>
 </Ui>
