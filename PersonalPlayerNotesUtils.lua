@@ -1,39 +1,39 @@
-local shitlist = ...
-local L = LibStub("AceLocale-3.0"):GetLocale(shitlist, true)
+local personalPlayerNotes = ...
+local L = LibStub("AceLocale-3.0"):GetLocale(personalPlayerNotes, true)
 
-function Shitlist:GetVersion()
-    return tostring(GetAddOnMetadata(shitlist, "Version")) or L["SHITLIST_NA"];
+function PersonalPlayerNotes:GetVersion()
+    return tostring(GetAddOnMetadata(personalPlayerNotes, "Version")) or L["SHITLIST_NA"];
 end
 
-function Shitlist:GetTitle()
-    return GetAddOnMetadata(shitlist, "Title") or L["SHITLIST_NA"];
+function PersonalPlayerNotes:GetTitle()
+    return GetAddOnMetadata(personalPlayerNotes, "Title") or L["SHITLIST_NA"];
 end
 
-function Shitlist:GetAuthor()
-    return GetAddOnMetadata(shitlist, "Author") or L["SHITLIST_NA"];
+function PersonalPlayerNotes:GetAuthor()
+    return GetAddOnMetadata(personalPlayerNotes, "Author") or L["SHITLIST_NA"];
 end
 
-function Shitlist:GetNotes()
-    return GetAddOnMetadata(shitlist, "Notes") or L["SHITLIST_NA"];
+function PersonalPlayerNotes:GetNotes()
+    return GetAddOnMetadata(personalPlayerNotes, "Notes") or L["SHITLIST_NA"];
 end
 
-function Shitlist:GetLocalizations()
-    return GetAddOnMetadata(shitlist, "X-Localizations") or L["SHITLIST_NA"];
+function PersonalPlayerNotes:GetLocalizations()
+    return GetAddOnMetadata(personalPlayerNotes, "X-Localizations") or L["SHITLIST_NA"];
 end
 
-function Shitlist:GetCategory()
-    return GetAddOnMetadata(shitlist, "X-Category") or L["SHITLIST_NA"];
+function PersonalPlayerNotes:GetCategory()
+    return GetAddOnMetadata(personalPlayerNotes, "X-Category") or L["SHITLIST_NA"];
 end
 
-function Shitlist:GetWebsite()
-    return GetAddOnMetadata(shitlist, "X-Website") or L["SHITLIST_NA"];
+function PersonalPlayerNotes:GetWebsite()
+    return GetAddOnMetadata(personalPlayerNotes, "X-Website") or L["SHITLIST_NA"];
 end
 
-function Shitlist:GetLicense()
-    return GetAddOnMetadata(shitlist, "X-License") or L["SHITLIST_NA"];
+function PersonalPlayerNotes:GetLicense()
+    return GetAddOnMetadata(personalPlayerNotes, "X-License") or L["SHITLIST_NA"];
 end
 
-function Shitlist:AceGUIDefaults()
+function PersonalPlayerNotes:AceGUIDefaults()
     local aceGUI = LibStub("AceGUI-3.0"):Create("Frame")
     aceGUI:SetCallback("OnClose", function(widget) aceGUI:Release() end)
     aceGUI:SetLayout("Fill")
@@ -44,7 +44,7 @@ function Shitlist:AceGUIDefaults()
     return aceGUI
 end
 
-function Shitlist:Print(...)
+function PersonalPlayerNotes:Print(...)
     if (self.db and self.db.profile.debug) then
         return print(L["SHITLIST_DEBUG"], ...)
     end
@@ -52,7 +52,7 @@ function Shitlist:Print(...)
 end
 
 --@debug@
-function Shitlist:PrintDebug(...)
+function PersonalPlayerNotes:PrintDebug(...)
     if (self.db and self.db.profile.debug) then
         self:Print(...)
     end

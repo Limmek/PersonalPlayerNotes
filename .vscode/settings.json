@@ -122,7 +122,14 @@
 		"ipairs",
 		"UnitFullName",
 		"PlaySoundFile",
-		"Menu"
+		"Menu",
+		"WOW_PROJECT_ID",
+		"WOW_PROJECT_MAINLINE",
+		"StaticPopupDialogs",
+		"StaticPopup_Show",
+		"C_UI",
+		"CreateColor",
+		"next"
 	],
 	"Lua.runtime.builtin": {
 		"basic": "disable",
@@ -136,6 +143,6 @@
 		"utf8": "disable"
 	},
 	"Lua.workspace.library": [
-		"/home/codespace/.vscode-remote/extensions/ketho.wow-api-0.15.5/Annotations"
+		"c:\\Users\\jim_a\\.vscode\\extensions\\ketho.wow-api-0.15.5\\Annotations"
 	],
 }

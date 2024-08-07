@@ -1,4 +1,4 @@
-local L = LibStub("AceLocale-3.0"):NewLocale("Shitlist", "enUS", true)
+local L = LibStub("AceLocale-3.0"):NewLocale("PersonalPlayerNotes", "enUS", true)
 
 -- White        |cffffffff
 -- Red          |cffff0000
@@ -9,15 +9,15 @@ local L = LibStub("AceLocale-3.0"):NewLocale("Shitlist", "enUS", true)
 -- GOLDENROD    |cFFDAA520
 -- TAN          |cFFD2B48C
 
-L["SHITLIST"] = "Shitlist";
-L["SHITLIST_DEBUG"] = "|cffff0000[Shitlist]|cffffffff";
-L["SHITLIST_PRINT"] = "|cffffd700[Shitlist]|cffffffff";
+L["SHITLIST"] = "Personal Player Notes";
+L["SHITLIST_DEBUG"] = "|cffff0000[Personal Player Notes]|cffffffff";
+L["SHITLIST_PRINT"] = "|cffffd700[Personal Player Notes]|cffffffff";
 
 L["SHITLIST_NA"] = "N/A";
 
 L["SHITLIST_DISABLE"] = "Unloading...";
 
-L["SHITLIST_MENU_TITLE"] = "Shitlist";
+L["SHITLIST_MENU_TITLE"] = "Personal Player Notes";
 L["SHITLIST_MENU_SETTINGS"] = "Options";
 L["SHITLIST_MENU_REASONS"] = "Reasons";
 L["SHITLIST_MENU_LISTED_PLAYERS"] = "Listed Players";
@@ -30,6 +30,7 @@ L["SHITLIST_CONFIG_REASONS"] = "Reasons:";
 L["SHITLIST_CONFIG_LISTEDPLAYERS"] = "Players:";
 L["SHITLIST_CONFIG_REFRESH"] = "Reloading configuration...";
 L["SHITLIST_CONFIG_CHECK_OLD_DATA"] = "Checking for old player data...";
+L["SHITLIST_CONFIG_MIGRATE_OLD_DATA"] = "Migrating profiles from Shitlist.";
 L["SHITLIST_CONFIG_ADDED_OLD_DATA"] = "Added old player:";
 L["SHITLIST_CONFIG_DUPLICATE_DATA"] = "Found duplicate:";
 
@@ -49,7 +50,7 @@ L["SHITLIST_INFO_ABOUT_LICENSE"] = "License";
 L["SHITLIST_INFO_ABOUT_WEB"] = "Website";
 
 L["SHITLIST_SETTINGS"] = "Options";
-L["SHITLIST_SETTINGS_TITLE"] = "Shitlist - Options";
+L["SHITLIST_SETTINGS_TITLE"] = "Personal Player Notes - Options";
 L["SHITLIST_SETTINGS_MINIMAP"] = "Minimap";
 L["SHITLIST_SETTINGS_MINIMAP_ICON"] = "Hide the icon.";
 L["SHITLIST_SETTINGS_MINIMAP_ICON_DESC"] = "Show or hide the minimap icon.";
@@ -65,7 +66,7 @@ L["SHITLIST_SETTINGS_ALERT_SOUNDS_DESC"] = "Select the sound to be played.";
 L["SHITLIST_SETTINGS_ALERT_DELAY"] = "Delay";
 L["SHITLIST_SETTINGS_ALERT_DELAY_DESC"] = "How many seconds to sleep before a new alert for the same player is played.";
 
-L["SHITLIST_REASONS_TITLE"] = "Shitlist - Reasons";
+L["SHITLIST_REASONS_TITLE"] = "Personal Player Notes - Reasons";
 L["SHITLIST_REASONS"] = "Reasons";
 L["SHITLIST_REASON"] = "Reason";
 L["SHITLIST_REASON_DESCRIPTION"] = "Here you can Edit, Add or Remove differrent reasons.\n";
@@ -75,7 +76,7 @@ L["SHITLIST_REASON_COLOR"] = "Select a color";
 L["SHITLIST_REASON_ALERT_ENABLED"] = "Alert"
 L["SHITLIST_REASON_ALERT_ENABLED_DESC"] = "Toggle sound effect for all players with this reason."
 
-L["SHITLIST_LISTED_PLAYERS_TITLE"] = "Shitlist - Listed Players";
+L["SHITLIST_LISTED_PLAYERS_TITLE"] = "Personal Player Notes - Listed Players";
 L["SHITLIST_LISTED_PLAYERS"] = "Listed Players";
 L["SHITLIST_LISTED_PLAYER"] = "Listed Player";
 L["SHITLIST_LISTED_PLAYER_REMOVE"] = "Remove Player";
@@ -89,11 +90,11 @@ L["SHITLIST_LISTED_PLAYER_ALERT_ENABLED"] = "Alert"
 L["SHITLIST_LISTED_PLAYER_ALERT_ENABLED_DESC"] =
 "Toggle sound effect for a specific player. If a sound effect is disabled on a pre defined reason then this has no effect."
 
-L["SHITLIST_POPUP_ADD"] = "Add to Shitlist";
+L["SHITLIST_POPUP_ADD"] = "Add Player";
 L["SHITLIST_POPUP_EDIT"] = "Edit Player";
 L["SHITLIST_POPUP_NEW_ADDED"] = "Added";
 
-L["SHITLIST_MINIMAP_TOOLTIP_TITLE"] = "Shitlist"
+L["SHITLIST_MINIMAP_TOOLTIP_TITLE"] = "Personal Player Notes"
 L["SHITLIST_MINIMAP_TOOLTIP_RIGHT_CLICK"] = "|cFFD2B48C Right-Click|cff00ff00 to open Blizzard options."
 L["SHITLIST_MINIMAP_TOOLTIP_LEFT_CLICK"] = "|cFFD2B48C Left-Click|cff00ff00 to open options."
 L["SHITLIST_MINIMAP_TOOLTIP_SHIFT_LEFT_CLICK"] = "|cFFD2B48C SHIFT + Left-Click|cff00ff00 to open reasons."
