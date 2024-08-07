@@ -9,7 +9,7 @@
 ## DefaultState: enabled
 ## X-Category: Tooltip, Miscellaneous, PvP, Quests & Leveling, Unit Frames
 ## X-Curse-Project-ID: 344967
-## X-Localizations: enUS
+## X-Localizations: enUS, zhCN
 ## X-Website: https://github.com/Limmek/Shitlist
 ## X-License: MIT
 

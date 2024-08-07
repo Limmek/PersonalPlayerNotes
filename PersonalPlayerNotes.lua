@@ -44,7 +44,10 @@ function Shitlist:OnInitialize()
 
     -- https://www.wowace.com/projects/ace3/pages/api/ace-console-3-0
     self:RegisterChatCommand("slm", "ToggleMiniMapIcon")
+
+    --@debug@
     self:RegisterChatCommand("sldebug", "ToggleDebug")
+    --@end-debug@
 
     self:GetOldConfigData()
     self:RefreshConfig()
@@ -56,13 +59,12 @@ function Shitlist:OnEnable()
     self:Print(L["SHITLIST_CONFIG_REASONS"], _G["GREEN_FONT_COLOR_CODE"], #self:GetReasons())
     self:Print(L["SHITLIST_CONFIG_LISTEDPLAYERS"], _G["GREEN_FONT_COLOR_CODE"], #self:GetListedPlayers())
 
-    -- Retail 10.0.2 https://wowpedia.fandom.com/wiki/Patch_10.0.2/API_changes#Tooltip_Changes
     if (self.IsRetail) then
         -- New Menu System in Retail 11.0.0
         -- https://warcraft.wiki.gg/wiki/Patch_11.0.0/API_changes
         -- https://www.townlong-yak.com/framexml/latest/Blizzard_Menu/11_0_0_MenuImplementationGuide.lua
-        self.DropDownMenuInitialize()
-
+        self:DropDownMenuInitialize()
+        -- Retail 10.0.2 https://wowpedia.fandom.com/wiki/Patch_10.0.2/API_changes#Tooltip_Changes
         TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, self.GameTooltip)
     else
         if not self:IsHooked("UnitPopup_ShowMenu") then
@@ -95,6 +97,7 @@ function Shitlist:RefreshConfig()
 end
 
 function Shitlist:GetOldConfigData()
+    -- TODO: Add support to use the new PersonalPlayerNotesDB and move old data to the new DB.
     if _G.ShitlistDB.ListedPlayers == nil and _G.ShitlistDB.Reasons == nil then
         return
     end
@@ -164,10 +167,13 @@ end
 
 function Shitlist:DropDownMenuInitialize()
     local DropDownMenu = function(ownerRegion, rootDescription, contextData)
-        local name, realm = contextData.name, nil
-        if contextData.unit ~= nil then
-            name, realm = UnitName(contextData.unit)
+        -- verify the unit
+        if contextData.unit == nil or not UnitIsPlayer(contextData.unit) then
+            return
         end
+        -- retrieve name and realm from wow api
+        local name, realm = UnitName(contextData.unit)
+        -- if the unit is from the same realm then realm is empty, use current realm instead
         if realm == nil then realm = GetRealmName() end
 
         local listedPlayer = Shitlist:GetListedPlayer(name, realm)
@@ -246,19 +252,7 @@ function Shitlist:UnitPopup_ShowMenu(target, unit, menuList)
     --@debug@
     Shitlist:PrintDebug("Unit: ", unit, ", Target: ", target)
     --@end-debug@
-    --if target == "SELF" then
-    --    return
-    --end
-    --if not (UnitIsPlayer(unit)) or (unit == nil and target == "FRIEND" or target == "COMMUNITIES_GUILD_MEMBER") then
-    --    return
-    --end
 
-    --local name, realm = self.name, GetRealmName()
-    --if unit ~= nil then
-    --    name, realm = UnitName(unit)
-    --    if realm == nil then realm = GetRealmName() end
-    --end
-    -- rewrite code statement to make it more clear for future enhancement - Jason 20240801
     -- verify the target
     if target == "SELF" or target == "FRIEND" or target == "COMMUNITIES_GUILD_MEMBER" then
         return
@@ -505,7 +499,9 @@ function Shitlist:ToggleMiniMapIcon()
     self:RefreshConfig()
 end
 
+--@debug@
 function Shitlist:ToggleDebug()
     self.db.profile.debug = not self.db.profile.debug
     self:RefreshConfig()
 end
+--@end-debug@
