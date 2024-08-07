@@ -1,4 +1,4 @@
-package-as: Shitlist
+package-as: PersonalPlayerNotes
 
 manual-changelog:
   filename: changelog.txt
