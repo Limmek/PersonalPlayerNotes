@@ -38,7 +38,6 @@
 		"GetCursorPosition",
 		"InterfaceOptions_AddCategory",
 		"Enum",
-		"GetItemInfo",
 		"UIDropDownMenu_CreateInfo",
 		"SlashCmdList",
 		"AddDoubleLine",

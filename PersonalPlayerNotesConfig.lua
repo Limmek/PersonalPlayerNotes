@@ -197,50 +197,6 @@ Shitlist.options = {
                     },
                 },
             },
-            announcement = {
-                name = L["SHITLIST_SETTINGS_ANNOUNCEMENT"],
-                order = 2,
-                type = "group",
-                inline = true,
-                width = 0.5,
-                get = "GetAnnouncement",
-                set = "SetAnnouncement",
-                args = {
-                    description = {
-                        type = "description",
-                        order = 0,
-                        name = L["SHITLIST_SETTINGS_ANNOUNCEMENT_DESC"],
-                    },
-                    guild = {
-                        type = "toggle",
-                        order = 1,
-                        name = L["SHITLIST_SETTINGS_ANNOUNCEMENT_GUILD"],
-                        desc = L["SHITLIST_SETTINGS_ANNOUNCEMENT_GUILD_DESC"],
-                        width = 0.5
-                    },
-                    party = {
-                        type = "toggle",
-                        order = 2,
-                        name = L["SHITLIST_SETTINGS_ANNOUNCEMENT_PARY"],
-                        desc = L["SHITLIST_SETTINGS_ANNOUNCEMENT_PARY_DESC"],
-                        width = 0.5
-                    },
-                    raid = {
-                        type = "toggle",
-                        order = 3,
-                        name = L["SHITLIST_SETTINGS_ANNOUNCEMENT_RAID"],
-                        desc = L["SHITLIST_SETTINGS_ANNOUNCEMENT_RAID_DESC"],
-                        width = 0.5
-                    },
-                    instance = {
-                        type = "toggle",
-                        order = 4,
-                        name = L["SHITLIST_SETTINGS_ANNOUNCEMENT_INSTANCE"],
-                        desc = L["SHITLIST_SETTINGS_ANNOUNCEMENT_INSTANCE_DESC"],
-                        width = 0.65
-                    }
-                }
-            },
             alert = {
                 name = L["SHITLIST_SETTINGS_ALERT"],
                 order = 3,
@@ -460,20 +416,6 @@ Shitlist.options = {
     }
 }
 
-
---#region Announcement
-
-function Shitlist:GetAnnouncement(info)
-    return self.db.profile.announcement[info[#info]]
-end
-
-function Shitlist:SetAnnouncement(info, value)
-    self.db.profile.announcement[info[#info]] = value
-end
-
---#endregion
-
-
 --#region Sound
 
 function Shitlist:GetAlert(info)
@@ -484,8 +426,24 @@ function Shitlist:SetAlert(info, value)
     self.db.profile.alert[info[#info]] = value
 end
 
---#endregion
+function Shitlist:GetAlertSoundEffect(info)
+    return self.db.profile.alert.sound
+end
 
+function Shitlist:SetAlertSoundEffect(info, value)
+    self:PlayAlertSoundEffect(value)
+    self.db.profile.alert.sound = value
+end
+
+function Shitlist:PlayAlertSoundEffect(effect, channel)
+    PlaySoundFile(
+        "Interface\\AddOns\\" ..
+        shitlist .. "\\Sounds\\" .. Shitlist.db.profile.alert.sounds[effect or self:GetAlertSoundEffect()] .. ".ogg",
+        channel or "master"
+    )
+end
+
+--#endregion
 
 --#region Reasons
 
@@ -570,17 +528,18 @@ end
 
 --#endregion
 
-
 --#region Listed Players
 
 --[[
-    Returns all listed players
-]]
---
+    Returns all listed players.
+]]--
 function Shitlist:GetListedPlayers()
     return self.db.profile.listedPlayers
 end
 
+--[[
+    Return listed player data by name and realm.
+]]--
 function Shitlist:GetListedPlayer(name, realm)
     for index, value in pairs(self.db.profile.listedPlayers) do
         if (tostring(name) == value.name and tostring(realm) == value.realm) then
@@ -590,10 +549,16 @@ function Shitlist:GetListedPlayer(name, realm)
     return nil
 end
 
+--[[
+    Return the current selected player data.
+]]--
 function Shitlist:GetListedPlayerSelected(info)
     return self.db.profile.listedPlayer[info[#info]]
 end
 
+--[[
+    Set player data by current selected player data.
+]]--
 function Shitlist:SetListedPlayerSelected(info, value)
     self.db.profile.listedPlayer[info[#info]] = value
     local player = self.db.profile.listedPlayers[self.db.profile.listedPlayer.id]
@@ -719,20 +684,3 @@ function Shitlist:SetListedPlayerAlert(info, value)
 end
 
 --#endregion
-
-function Shitlist:GetAlertSoundEffect(info)
-    return self.db.profile.alert.sound
-end
-
-function Shitlist:SetAlertSoundEffect(info, value)
-    self:PlayAlertEffect(value)
-    self.db.profile.alert.sound = value
-end
-
-function Shitlist:PlayAlertEffect(effect, channel)
-    PlaySoundFile(
-        "Interface\\AddOns\\" ..
-        shitlist .. "\\Sounds\\" .. Shitlist.db.profile.alert.sounds[effect or self:GetAlertSoundEffect()] .. ".ogg",
-        channel or "master"
-    )
-end

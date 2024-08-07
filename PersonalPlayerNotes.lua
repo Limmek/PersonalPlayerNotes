@@ -97,7 +97,7 @@ function Shitlist:RefreshConfig()
 end
 
 function Shitlist:GetOldConfigData()
-    -- TODO: Add support to use the new PersonalPlayerNotesDB and move old data to the new DB.
+    -- Check if old data exist pre addon 2.0.0 version
     if _G.ShitlistDB.ListedPlayers == nil and _G.ShitlistDB.Reasons == nil then
         return
     end
@@ -163,6 +163,8 @@ function Shitlist:GetOldConfigData()
         _G.ShitlistDB.ListedPlayers = nil
         _G.ShitlistDB.Reasons = nil
     end
+
+    -- TODO: Add support to use the new PersonalPlayerNotesDB and move old data to the new DB.
 end
 
 function Shitlist:DropDownMenuInitialize()
@@ -215,31 +217,6 @@ function Shitlist:DropDownMenuInitialize()
                 AceConfigDialog:SetDefaultSize("ShitlistSettings Listed_Players", 500, 300)
                 AceConfigDialog:Open("ShitlistSettings Listed_Players")
             end)
-            local announcement = Shitlist.db.profile.announcement
-            if announcement.guild or announcement.party or announcement.instance or announcement.raid then
-                submenu:CreateDivider()
-                submenu:CreateTitle(L["SHITLIST_POPUP_ANNOUNCEMENT"])
-            end
-            if announcement.guild then
-                submenu:CreateButton(L["SHITLIST_POPUP_ANNOUNCEMENT_GUILD"], function()
-                    Shitlist:SendChatMessage("GUILD", listedPlayer)
-                end)
-            end
-            if announcement.party then
-                submenu:CreateButton(L["SHITLIST_POPUP_ANNOUNCEMENT_PARTY"], function()
-                    Shitlist:SendChatMessage("PARTY", listedPlayer)
-                end)
-            end
-            if announcement.instance then
-                submenu:CreateButton(L["SHITLIST_POPUP_ANNOUNCEMENT_INSTANCE_CHAT"], function()
-                    Shitlist:SendChatMessage("INSTANCE_CHAT", listedPlayer)
-                end)
-            end
-            if announcement.raid then
-                submenu:CreateButton(L["SHITLIST_POPUP_ANNOUNCEMENT_RAID"], function()
-                    Shitlist:SendChatMessage("RAID", listedPlayer)
-                end)
-            end
         end
     end
     Menu.ModifyMenu("MENU_UNIT_PLAYER", function(...) DropDownMenu(...) end)
@@ -341,60 +318,6 @@ function Shitlist:UnitPopup_ShowMenu(target, unit, menuList)
         end
         UIDropDownMenu_AddButton(menuItem, UIDROPDOWNMENU_MENU_LEVEL)
 
-        menuItem = UIDropDownMenu_CreateInfo()
-        menuItem.text = L["SHITLIST_POPUP_ANNOUNCEMENT"]
-        menuItem.notCheckable = true
-        menuItem.isTitle = true
-        local a = Shitlist.db.profile.announcement
-        if a.guild or a.party or a.instance or a.raid then
-            UIDropDownMenu_AddButton(menuItem, UIDROPDOWNMENU_MENU_LEVEL)
-        end
-
-        local options = {
-            {
-                text = "Guild",
-                notCheckable = true,
-                func = function() Shitlist:SendChatMessage("GUILD", listedPlayer) end,
-                disabled = not Shitlist.db.profile.announcement.guild
-            },
-            {
-                text = "Party",
-                notCheckable = true,
-                func = function() Shitlist:SendChatMessage("PARTY", listedPlayer) end,
-                disabled = not Shitlist.db.profile.announcement.party
-            },
-            {
-                text = "Instance",
-                notCheckable = true,
-                func = function() Shitlist:SendChatMessage("INSTANCE_CHAT", listedPlayer) end,
-                disabled = not Shitlist.db.profile.announcement.instance
-            },
-            {
-                text = "Raid",
-                notCheckable = true,
-                func = function() Shitlist:SendChatMessage("RAID", listedPlayer) end,
-                disabled = not Shitlist.db.profile.announcement.raid
-            },
-        }
-
-        for _, option in ipairs(options) do
-            if not option.disabled then
-                UIDropDownMenu_AddButton(option, UIDROPDOWNMENU_MENU_LEVEL)
-            end
-        end
-    end
-end
-
-function Shitlist:SendChatMessage(chat, listedPlayer)
-    SendChatMessage(L["SHITLIST_CHAT_PLAYER"] .. listedPlayer.name .. "-" .. listedPlayer.realm, chat, nil, nil)
-    if Shitlist.db.profile.reasons[listedPlayer.reason].reason ~= "None" then
-        SendChatMessage(L["SHITLIST_CHAT_REASON"] .. Shitlist.db.profile.reasons[listedPlayer.reason].reason,
-            chat,
-            nil,
-            nil)
-    end
-    if listedPlayer.description ~= "" then
-        SendChatMessage(L["SHITLIST_CHAT_DESCRIPTION"] .. listedPlayer.description, chat, nil, nil)
     end
 end
 
@@ -436,7 +359,7 @@ function Shitlist:GameTooltip()
         if (listedPlayer.alert and not alert.last[name]) then
             alert.last[name] = time + alert.delay
             Shitlist:ScheduleTimer("AlertDelayTimer", alert.delay, name)
-            Shitlist:PlayAlertEffect()
+            Shitlist:PlayAlertSoundEffect()
             --@debug@
             Shitlist:PrintDebug("|cffff0000<ALERT>|cffffffff Sound effect disabled for player", name, "for", alert.delay,
                 "seconds.")
