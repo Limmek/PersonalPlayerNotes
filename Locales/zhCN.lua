@@ -19,10 +19,10 @@ L["SHITLIST_NA"] = "不适用";
 L["SHITLIST_DISABLE"] = "正在禁用...";
 
 L["SHITLIST_MENU_TITLE"] = "ShitList关注名单";
-L["SHITLIST_MENU_SETTINGS"] = "图标声音设置";
+L["SHITLIST_MENU_SETTINGS"] = "设置选项";
 L["SHITLIST_MENU_REASONS"] = "分组分类设置";
 L["SHITLIST_MENU_LISTED_PLAYERS"] = "已关注的玩家";
-L["SHITLIST_MENU_PROFILES"] = "配置文件设置";
+L["SHITLIST_MENU_PROFILES"] = "配置文件";
 
 L["SHITLIST_CONFIG_LOADING"] = "正在加载...";
 L["SHITLIST_CONFIG_LOADED"] = "已加载.";
@@ -52,12 +52,12 @@ L["SHITLIST_INFO_ABOUT_WEB"] = "发布网站";
 L["SHITLIST_SETTINGS"] = "设置选项";
 L["SHITLIST_SETTINGS_TITLE"] = "关注名单 - 设置选项";
 L["SHITLIST_SETTINGS_MINIMAP"] = "小地图图标";
-L["SHITLIST_SETTINGS_MINIMAP_ICON"] = "隐藏图标.";
-L["SHITLIST_SETTINGS_MINIMAP_ICON_DESC"] = "显示或隐藏小地图图标.";
+L["SHITLIST_SETTINGS_MINIMAP_ICON"] = "隐藏图标";
+L["SHITLIST_SETTINGS_MINIMAP_ICON_DESC"] = "显示或隐藏小地图图标";
 L["SHITLIST_SETTINGS_MINIMAP_POS"] = "图标位置";
-L["SHITLIST_SETTINGS_MINIMAP_POS_DESC"] = "调整小地图图标位置.";
+L["SHITLIST_SETTINGS_MINIMAP_POS_DESC"] = "调整小地图图标位置";
 L["SHITLIST_SETTINGS_ANNOUNCEMENT"] = "聊天频道通告";
-L["SHITLIST_SETTINGS_ANNOUNCEMENT_DESC"] = "当发现已关注的玩家时向哪些聊天频道发布信息.";
+L["SHITLIST_SETTINGS_ANNOUNCEMENT_DESC"] = "当发现已关注的玩家时允许向哪些聊天频道发布信息";
 L["SHITLIST_SETTINGS_ANNOUNCEMENT_PARY"] = "小队";
 L["SHITLIST_SETTINGS_ANNOUNCEMENT_PARY_DESC"] = "在小队聊天频道中发布关注名单通告";
 L["SHITLIST_SETTINGS_ANNOUNCEMENT_RAID"] = "团队";
@@ -79,12 +79,12 @@ L["SHITLIST_SETTINGS_ALERT_DELAY"] = "提示间隔";
 L["SHITLIST_SETTINGS_ALERT_DELAY_DESC"] = "设置在为同一玩家播放下一个提示音之前需要等待的时间(秒). 这有助于防止在短时间内重复播放相同的提示音.";
 
 L["SHITLIST_REASONS_TITLE"] = "关注名单 - 分组分类设置";
-L["SHITLIST_REASONS"] = "选择分组分类";
-L["SHITLIST_REASON"] = "添加或删除分组分类";
-L["SHITLIST_REASON_DESCRIPTION"] = "编辑,添加或删除关注名单分组分类.\n";
+L["SHITLIST_REASONS"] = "现有分组分类";
+L["SHITLIST_REASON"] = "添加或编辑分组分类";
+L["SHITLIST_REASON_DESCRIPTION"] = "添加,编辑或删除关注名单分组分类\n";
 L["SHITLIST_REASON_REMOVE"] = "删除分组";
 L["SHITLIST_REASON_REMOVE_CONFIRMATION"] = "您确定要删除:\n|cffffd700";
-L["SHITLIST_REASON_COLOR"] = "选择颜色";
+L["SHITLIST_REASON_COLOR"] = "选择颜色(此分组在鼠标提示中的颜色)";
 L["SHITLIST_REASON_ALERT_ENABLED"] = "启用分组提示音"
 L["SHITLIST_REASON_ALERT_ENABLED_DESC"] = "当前分组提示音效开关. 启用后, 当发现此分组内的玩家时, 将播放配置的提示音."
 
@@ -97,14 +97,14 @@ L["SHITLIST_LISTED_PLAYER_NAME"] = "玩家名称";
 L["SHITLIST_LISTED_PLAYER_REALM"] = "所在服务器";
 L["SHITLIST_LISTED_PLAYER_REASON"] = "分组分类";
 L["SHITLIST_LISTED_PLAYER_DESCRIPTION"] = "附加描述";
-L["SHITLIST_LISTED_PLAYER_COLOR"] = "附加描述在鼠标提示中的文字颜色";
+L["SHITLIST_LISTED_PLAYER_COLOR"] = "文字颜色(此附加描述在鼠标提示中的颜色)";
 L["SHITLIST_LISTED_PLAYER_ALERT_ENABLED"] = "启用玩家提示音"
 L["SHITLIST_LISTED_PLAYER_ALERT_ENABLED_DESC"] =
-"为特定玩家启用或禁用提示音效。如果在插件预设的分组分类上禁用了提示音，则此设置将不会覆盖分组分类的设置."
+"为该玩家启用或禁用提示音. 如果该玩家所在的分组分类已禁用了提示音, 则不能开启."
 
 L["SHITLIST_POPUP_ADD"] = "添加到关注名单";
 L["SHITLIST_POPUP_EDIT"] = "编辑关注信息";
-L["SHITLIST_POPUP_ANNOUNCEMENT"] = "选择通告频道";
+L["SHITLIST_POPUP_ANNOUNCEMENT"] = "聊天频道通告";
 L["SHITLIST_POPUP_NEW_ADDED"] = "已成功添加到关注名单";
 
 L["SHITLIST_POPUP_ANNOUNCEMENT_GUILD"] = "公会";
