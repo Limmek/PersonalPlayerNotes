@@ -10,11 +10,11 @@ enable-toc-creation: no
 
 ignore:
   - .gitignore
+  - .gitkeep
   - .luacheckrc
   - .vscode
   - .github
   - .pkgmeta
-  - Libs/libs.txt
 
 required-dependencies:
 
