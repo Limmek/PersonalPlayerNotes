@@ -57,5 +57,4 @@ function Shitlist:PrintDebug(...)
         self:Print(...)
     end
 end
-
 --@end-debug@
