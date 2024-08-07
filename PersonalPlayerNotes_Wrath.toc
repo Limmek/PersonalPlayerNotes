@@ -1,11 +1,11 @@
 ## Interface: 30403
 ## Title : Personal Player Notes
-## Notes: Set a personal comment on players and show it on the player information tooltip window.
+## Notes: Set a personal comment on players and adding it to player information tooltip.
 ## Author: Limmek
 ## Version: @project-version@
 ## Dependencies:
 ## OptionalDeps: Ace3, LibStub, LibDataBroker-1.1, LibDBIcon-1.0, CallbackHandler-1.0
-## SavedVariables: PersonalPlayerNotesDB
+## SavedVariables: PersonalPlayerNotesDB, ShitlistDB
 ## DefaultState: enabled
 ## X-Category: Tooltip, Miscellaneous, PvP, Quests & Leveling, Unit Frames
 ## X-Curse-Project-ID: 344967

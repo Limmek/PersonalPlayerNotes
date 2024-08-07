@@ -1,4 +1,4 @@
-local L = LibStub("AceLocale-3.0"):NewLocale("Shitlist", "zhCN")
+local L = LibStub("AceLocale-3.0"):NewLocale("PersonalPlayerNotes", "zhCN")
 if not L then return end
 
 -- White        |cffffffff
