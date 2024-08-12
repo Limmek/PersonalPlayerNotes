@@ -129,7 +129,8 @@
 		"StaticPopup_Show",
 		"C_UI",
 		"CreateColor",
-		"next"
+		"next",
+		"SettingsPanel"
 	],
 	"Lua.runtime.builtin": {
 		"basic": "disable",
@@ -143,6 +144,6 @@
 		"utf8": "disable"
 	},
 	"Lua.workspace.library": [
-		"c:\\Users\\jim_a\\.vscode\\extensions\\ketho.wow-api-0.15.5\\Annotations"
+		"$USERPROFILE\\.vscode\\extensions\\ketho.wow-api-0.15.7\\Annotations"
 	],
 }

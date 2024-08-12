@@ -1,7 +1,11 @@
 ## Interface: 110002
+## Interface-Classic: 11503
+## Interface-Wrath: 30403
+## Interface-Cata: 40400
 ## Title : Personal Player Notes
 ## Notes: Set a personal comment on players and adding it to player information tooltip.
-## Author: Limmek
+## Notes-zhCN: Set a personal comment on players and adding it to player information tooltip.
+## Author: Limmek, JasonDepp
 ## Version: @project-version@
 ## Dependencies:
 ## OptionalDeps: Shitlist, Ace3, LibStub, LibDataBroker-1.1, LibDBIcon-1.0, CallbackHandler-1.0
