@@ -16,10 +16,7 @@ PersonalPlayerNotes.defaults = {
             time = 0
         },
         reasons = {
-            { id = 1, reason = "None",          color = { r = 1, g = 1, b = 1 }, alert = false, },
-            { id = 2, reason = "Kill Stealing", color = { r = 0, g = 0, b = 1 }, alert = true, },
-            { id = 3, reason = "Ninja Looting", color = { r = 1, g = 0, b = 0 }, alert = true, },
-            { id = 4, reason = "Spamming",      color = { r = 0, g = 1, b = 0 }, alert = true, },
+            { id = 1, reason = "None", color = { r = 1, g = 1, b = 1 }, alert = false, },
         },
         reason = { id = 1, reason = "None", color = { r = 1, g = 1, b = 1 } },
         listedPlayer = {
@@ -279,7 +276,8 @@ PersonalPlayerNotes.options = {
                 cmdHidden = true,
                 name = L["SHITLIST_REASON_REMOVE"],
                 confirm = function()
-                    return L["SHITLIST_REASON_REMOVE_CONFIRMATION"] .. PersonalPlayerNotes.db.profile.reason.reason .. "|cffffffff?";
+                    return L["SHITLIST_REASON_REMOVE_CONFIRMATION"] ..
+                    PersonalPlayerNotes.db.profile.reason.reason .. "|cffffffff?";
                 end,
                 func = "RemoveReason",
                 disabled = function()
@@ -409,7 +407,8 @@ PersonalPlayerNotes.options = {
                 get = "GetListedPlayerAlert",
                 set = "SetListedPlayerAlert",
                 disabled = function()
-                    return not PersonalPlayerNotes.db.profile.reasons[PersonalPlayerNotes.db.profile.listedPlayer.reason].alert
+                    return not PersonalPlayerNotes.db.profile.reasons
+                    [PersonalPlayerNotes.db.profile.listedPlayer.reason].alert
                 end,
             },
         }
@@ -438,7 +437,8 @@ end
 function PersonalPlayerNotes:PlayAlertSoundEffect(effect, channel)
     PlaySoundFile(
         "Interface\\AddOns\\" ..
-        personalPlayerNotes .. "\\Sounds\\" .. PersonalPlayerNotes.db.profile.alert.sounds[effect or self:GetAlertSoundEffect()] .. ".ogg",
+        personalPlayerNotes ..
+        "\\Sounds\\" .. PersonalPlayerNotes.db.profile.alert.sounds[effect or self:GetAlertSoundEffect()] .. ".ogg",
         channel or "master"
     )
 end

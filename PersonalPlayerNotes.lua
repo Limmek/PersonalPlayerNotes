@@ -50,14 +50,10 @@ function PersonalPlayerNotes:OnInitialize()
     -- https://www.wowace.com/projects/ace3/pages/api/ace-console-3-0
     self:RegisterChatCommand("slm", "ToggleMiniMapIcon")
 
-    --@debug@
     self:RegisterChatCommand("sldebug", "ToggleDebug")
-    --@end-debug@
 
     local loaded, reason = LoadAddOn("Shitlist")
-    if not loaded then
-        self:Print("Failed to load Shitlist because", reason)
-    else
+    if loaded then
         self:GetOldConfigData()
     end
     self:LoadConfig()
@@ -99,11 +95,9 @@ function PersonalPlayerNotes:LoadConfig()
         LibDBIcon:Show(personalPlayerNotes)
     end
 
-    --@debug@
     self:PrintDebug(L["SHITLIST_CONFIG_REFRESH"])
-    self:PrintDebug("Debug:", _G["GREEN_FONT_COLOR_CODE"], self.db.profile.debug)
+    self:PrintDebug("Debug mode:", _G["GREEN_FONT_COLOR_CODE"], self.db.profile.debug)
     self:PrintDebug("Mini Map Icon:", _G["GREEN_FONT_COLOR_CODE"], not self.db.profile.minimap.hide)
-    --@end-debug@
 end
 
 function PersonalPlayerNotes:GetOldConfigData()
@@ -174,12 +168,12 @@ function PersonalPlayerNotes:GetOldConfigData()
 
     -- Move old shitlist profiles data to new Personal Player Notes database
     if ShitlistDB and ShitlistDB.profiles then
+        self:Print(L["SHITLIST_CONFIG_MIGRATE_OLD_DATA"])
         StaticPopupDialogs["MIGRATE_PROFILES"] = {
             text = "Do you want to migrate profiles from Shitlist?",
             button1 = "Yes",
             button2 = "No",
             OnAccept = function()
-                PersonalPlayerNotes:Print(L["SHITLIST_CONFIG_MIGRATE_OLD_DATA"])
                 for profileName, profileData in pairs(ShitlistDB.profiles) do
                     PersonalPlayerNotes.db.profiles[profileName] = profileData
                 end
@@ -260,10 +254,7 @@ end
 
 -- Classic Deprecated
 function PersonalPlayerNotes:UnitPopup_ShowMenu(target, unit, menuList)
-    --@debug@
     PersonalPlayerNotes:PrintDebug("Unit: ", unit, ", Target: ", target)
-    --@end-debug@
-
     -- verify the target
     if target == "SELF" or target == "FRIEND" or target == "COMMUNITIES_GUILD_MEMBER" then
         return
@@ -278,9 +269,7 @@ function PersonalPlayerNotes:UnitPopup_ShowMenu(target, unit, menuList)
     if realm == nil then realm = GetRealmName() end
     local listedPlayer = PersonalPlayerNotes:GetListedPlayer(name, realm)
 
-    --@debug@
     PersonalPlayerNotes:PrintDebug("Name: ", name, ", Realm: ", realm)
-    --@end-debug@
 
     -- Check if this is the root level of the dropdown menu
     if UIDROPDOWNMENU_MENU_LEVEL == 1 then
@@ -370,12 +359,10 @@ function PersonalPlayerNotes:GameTooltip()
     local _reason = reason
     local _listedPlayer = listedPlayer
 
-    --@debug@
     PersonalPlayerNotes:PrintDebug("|cffff0000<GameTooltip>|cffffffff Playername:", name, "Realm:", realm, "Reason:",
         _reason
         .reason,
         "Note:", _listedPlayer.description)
-    --@end-debug@
 
     -- Tooltip
     if not (_reason.reason == "None" and _listedPlayer.description == "") then
@@ -394,20 +381,16 @@ function PersonalPlayerNotes:GameTooltip()
             alert.last[name] = time + alert.delay
             PersonalPlayerNotes:ScheduleTimer("AlertDelayTimer", alert.delay, name)
             PersonalPlayerNotes:PlayAlertSoundEffect()
-            --@debug@
             PersonalPlayerNotes:PrintDebug("|cffff0000<ALERT>|cffffffff Sound effect disabled for player", name, "for",
                 alert.delay,
                 "seconds.")
-            --@end-debug@
         end
     end
 end
 
 function PersonalPlayerNotes:AlertDelayTimer(name)
     -- Called within ScheduleTimer and fires when timer ends.
-    --@debug@
     PersonalPlayerNotes:PrintDebug("|cffff0000<ALERT>|cffffffff Sound effect is now enabled for player", name)
-    --@end-debug@
     PersonalPlayerNotes.db.profile.alert.last[name] = nil
 end
 
@@ -416,15 +399,16 @@ function PersonalPlayerNotes:MiniMapIcon()
     -- https://github.com/tekkub/libdatabroker-1-1/wiki/How-to-provide-a-dataobject
     return LibDataBroker:NewDataObject(personalPlayerNotes, {
         type = "launcher",
-        text = personalPlayerNotes,
+        text = L["SHITLIST"],
         icon = PersonalPlayerNotes.db.profile.icon,
         OnClick = function(clickedframe, button)
-            AceConfigDialog:Close("PersonalPlayerNotesSettings Options")
+            HideUIPanel(SettingsPanel)
+            HideUIPanel(GameMenuFrame)
             AceConfigDialog:CloseAll()
-            local AceGUI = PersonalPlayerNotes:AceGUIDefaults()
             if button == "RightButton" then
-                InterfaceOptionsFrame_OpenToCategory(personalPlayerNotes)
+                Settings.OpenToCategory(personalPlayerNotes, "PersonalPlayerNotesSettings Info")
             elseif button == "LeftButton" then
+                local AceGUI = PersonalPlayerNotes:AceGUIDefaults()
                 if IsShiftKeyDown() then
                     AceGUI:SetTitle(L["SHITLIST_REASONS_TITLE"])
                     AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Reasons", 500, 200)
@@ -458,10 +442,7 @@ function PersonalPlayerNotes:ToggleMiniMapIcon()
     self:LoadConfig()
 end
 
---@debug@
 function PersonalPlayerNotes:ToggleDebug()
     self.db.profile.debug = not self.db.profile.debug
     self:LoadConfig()
 end
-
---@end-debug@
