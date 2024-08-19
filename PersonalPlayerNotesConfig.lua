@@ -6,7 +6,6 @@ PersonalPlayerNotes.defaults = {
         icon = "Interface\\AddOns\\" .. personalPlayerNotes .. "\\Images\\icon.png",
         debug = false,
         minimap = { hide = false, minimapPos = 240 },
-        announcement = { delay = 10, guild = true, party = true, raid = true, instance = true },
         alert = {
             delay = 10,
             enabled = true,
@@ -16,26 +15,26 @@ PersonalPlayerNotes.defaults = {
             time = 0
         },
         reasons = {
-            { id = 1, reason = "None", color = { r = 1, g = 1, b = 1 }, alert = false, },
+            { id = 1, reason = L["PPN_DEFAULT_REASON"], color = { r = 1, g = 1, b = 1 }, alert = false, },
         },
-        reason = { id = 1, reason = "None", color = { r = 1, g = 1, b = 1 } },
+        reason = { id = 1, reason = L["PPN_DEFAULT_REASON"], color = { r = 1, g = 1, b = 1 }, alert = false, },
         listedPlayer = {
             id = 1,
-            name = "Example",
-            realm = "Silvermoon",
+            name = L["PPN_LISTED_PLAYERS_EXAMPLE_NAME"],
+            realm = L["PPN_LISTED_PLAYERS_EXAMPLE_REALM"],
             reason = 1,
-            description = "Example Description",
+            description = L["PPN_DEFAULT_REASON"],
             color = { r = 1, g = 1, b = 1 },
             alert = true,
         },
         listedPlayers = {
             {
                 id = 1,
-                name = "Example",
-                realm = "Silvermoon",
+                name = L["PPN_LISTED_PLAYERS_EXAMPLE_NAME"],
+                realm = L["PPN_LISTED_PLAYERS_EXAMPLE_REALM"],
                 reason = 1,
-                description = "Example Description",
-                color = { r = 0, g = 0, b = 0 },
+                description = L["PPN_DEFAULT_REASON"],
+                color = { r = 1, g = 1, b = 1 },
                 alert = true,
             },
         }
@@ -47,7 +46,7 @@ PersonalPlayerNotes.options = {
     Info = {
         type = "group",
         order = 0,
-        name = L["SHITLIST_MENU_TITLE"],
+        name = L["PPN_MENU_TITLE"],
         inline = true,
         cmdHidden = true,
         args = {
@@ -58,40 +57,46 @@ PersonalPlayerNotes.options = {
                 name = PersonalPlayerNotes:GetNotes() .. "\n\n\n",
             },
             Commands = {
-                name = L["SHITLIST_INFO_COMMANDS_TITLE"],
-                desc = L["SHITLIST_INFO_COMMANDS_DESC"],
+                name = L["PPN_INFO_COMMANDS_TITLE"],
+                desc = L["PPN_INFO_COMMANDS_DESC"],
                 order = 2,
                 type = "group",
                 inline = true,
                 args = {
-                    options = {
+                    info = {
                         order = 1,
                         type = "description",
                         fontSize = "medium",
-                        name = L["SHITLIST_INFO_COMMANDS_2"],
+                        name = L["PPN_INFO_COMMANDS_1"],
                     },
-                    reasons = {
+                    options = {
                         order = 2,
                         type = "description",
                         fontSize = "medium",
-                        name = L["SHITLIST_INFO_COMMANDS_3"],
+                        name = L["PPN_INFO_COMMANDS_2"],
                     },
-                    players = {
+                    reasons = {
                         order = 3,
                         type = "description",
                         fontSize = "medium",
-                        name = L["SHITLIST_INFO_COMMANDS_4"],
+                        name = L["PPN_INFO_COMMANDS_3"],
                     },
-                    minimap = {
+                    players = {
                         order = 4,
                         type = "description",
                         fontSize = "medium",
-                        name = L["SHITLIST_INFO_COMMANDS_5"],
+                        name = L["PPN_INFO_COMMANDS_4"],
+                    },
+                    minimap = {
+                        order = 5,
+                        type = "description",
+                        fontSize = "medium",
+                        name = L["PPN_INFO_COMMANDS_5"],
                     },
                 },
             },
             About = {
-                name = L["SHITLIST_INFO_ABOUT_TITLE"],
+                name = L["PPN_INFO_ABOUT_TITLE"],
                 order = 3,
                 type = "group",
                 inline = true,
@@ -101,7 +106,7 @@ PersonalPlayerNotes.options = {
                         order = 0,
                         width = "full",
                         fontSize = "medium",
-                        name = "|cffffd700" .. L["SHITLIST_INFO_ABOUT_VERSION"] ..
+                        name = "|cffffd700" .. L["PPN_INFO_ABOUT_VERSION"] ..
                             ": |cffff8c00" .. PersonalPlayerNotes:GetVersion()
                     },
                     author = {
@@ -109,7 +114,7 @@ PersonalPlayerNotes.options = {
                         order = 1,
                         width = "full",
                         fontSize = "medium",
-                        name = "|cffffd700" .. L["SHITLIST_INFO_ABOUT_AUTHOR"] ..
+                        name = "|cffffd700" .. L["PPN_INFO_ABOUT_AUTHOR"] ..
                             ": |cffffffff" .. PersonalPlayerNotes:GetAuthor()
                     },
                     category = {
@@ -117,7 +122,7 @@ PersonalPlayerNotes.options = {
                         order = 2,
                         width = "full",
                         fontSize = "medium",
-                        name = "|cffffd700" .. L["SHITLIST_INFO_ABOUT_CATEGORY"] ..
+                        name = "|cffffd700" .. L["PPN_INFO_ABOUT_CATEGORY"] ..
                             ": |cffffffff" .. PersonalPlayerNotes:GetCategory()
                     },
                     localizations = {
@@ -125,7 +130,7 @@ PersonalPlayerNotes.options = {
                         order = 3,
                         width = "full",
                         fontSize = "medium",
-                        name = "|cffffd700" .. L["SHITLIST_INFO_ABOUT_LOCALIZATION"] ..
+                        name = "|cffffd700" .. L["PPN_INFO_ABOUT_LOCALIZATION"] ..
                             ": |cffffffff" .. PersonalPlayerNotes:GetLocalizations()
                     },
                     license = {
@@ -133,7 +138,7 @@ PersonalPlayerNotes.options = {
                         order = 4,
                         width = "full",
                         fontSize = "medium",
-                        name = "|cffffd700" .. L["SHITLIST_INFO_ABOUT_LICENSE"] ..
+                        name = "|cffffd700" .. L["PPN_INFO_ABOUT_LICENSE"] ..
                             ": |cffffffff" .. PersonalPlayerNotes:GetLicense()
                     },
                     website = {
@@ -141,7 +146,7 @@ PersonalPlayerNotes.options = {
                         order = 5,
                         width = "full",
                         fontSize = "medium",
-                        name = "|cffffd700" .. L["SHITLIST_INFO_ABOUT_WEB"] ..
+                        name = "|cffffd700" .. L["PPN_INFO_ABOUT_WEB"] ..
                             ": |cffffffff" .. PersonalPlayerNotes:GetWebsite()
                     },
                 }
@@ -151,13 +156,13 @@ PersonalPlayerNotes.options = {
     Settings = {
         type = "group",
         order = 1,
-        name = L["SHITLIST_SETTINGS_TITLE"],
+        name = L["PPN_SETTINGS_TITLE"],
         inline = true,
         childGroups = "tab",
         handler = PersonalPlayerNotes,
         args = {
             minimap = {
-                name = L["SHITLIST_SETTINGS_MINIMAP"],
+                name = L["PPN_SETTINGS_MINIMAP"],
                 order = 1,
                 type = "group",
                 inline = true,
@@ -165,8 +170,8 @@ PersonalPlayerNotes.options = {
                     minimapToggle = {
                         type = "toggle",
                         order = 0,
-                        name = L["SHITLIST_SETTINGS_MINIMAP_ICON"],
-                        desc = L["SHITLIST_SETTINGS_MINIMAP_ICON_DESC"],
+                        name = L["PPN_SETTINGS_MINIMAP_ICON"],
+                        desc = L["PPN_SETTINGS_MINIMAP_ICON_DESC"],
                         get = function(info)
                             return PersonalPlayerNotes.db.profile.minimap.hide;
                         end,
@@ -178,8 +183,8 @@ PersonalPlayerNotes.options = {
                     minimapPos = {
                         type = "range",
                         order = 1,
-                        name = L["SHITLIST_SETTINGS_MINIMAP_POS"],
-                        desc = L["SHITLIST_SETTINGS_MINIMAP_POS_DESC"],
+                        name = L["PPN_SETTINGS_MINIMAP_POS"],
+                        desc = L["PPN_SETTINGS_MINIMAP_POS_DESC"],
                         width = 1.5,
                         get = function(info)
                             return PersonalPlayerNotes.db.profile.minimap.minimapPos;
@@ -195,7 +200,7 @@ PersonalPlayerNotes.options = {
                 },
             },
             alert = {
-                name = L["SHITLIST_SETTINGS_ALERT"],
+                name = L["PPN_SETTINGS_ALERT"],
                 order = 3,
                 type = "group",
                 inline = true,
@@ -206,20 +211,20 @@ PersonalPlayerNotes.options = {
                     description = {
                         type = "description",
                         order = 0,
-                        name = L["SHITLIST_SETTINGS_ALERT_DESC"]
+                        name = L["PPN_SETTINGS_ALERT_DESC"]
                     },
                     enabled = {
                         type = "toggle",
                         order = 1,
-                        name = L["SHITLIST_SETTINGS_ALERT_ENABLED"],
-                        desc = L["SHITLIST_SETTINGS_ALERT_ENABLED_DESC"],
+                        name = L["PPN_SETTINGS_ALERT_ENABLED"],
+                        desc = L["PPN_SETTINGS_ALERT_ENABLED_DESC"],
                         width = 0.5
                     },
                     sounds = {
                         type = "select",
                         order = 2,
-                        name = L["SHITLIST_SETTINGS_ALERT_SOUNDS"],
-                        desc = L["SHITLIST_SETTINGS_ALERT_SOUNDS_DESC"],
+                        name = L["PPN_SETTINGS_ALERT_SOUNDS"],
+                        desc = L["PPN_SETTINGS_ALERT_SOUNDS_DESC"],
                         values = function()
                             return PersonalPlayerNotes.db.profile.alert.sounds
                         end,
@@ -233,8 +238,8 @@ PersonalPlayerNotes.options = {
                         min = 1,
                         max = 60,
                         step = 1,
-                        name = L["SHITLIST_SETTINGS_ALERT_DELAY"],
-                        desc = L["SHITLIST_SETTINGS_ALERT_DELAY_DESC"],
+                        name = L["PPN_SETTINGS_ALERT_DELAY"],
+                        desc = L["PPN_SETTINGS_ALERT_DELAY_DESC"],
                         width = 1
                     }
                 }
@@ -244,7 +249,7 @@ PersonalPlayerNotes.options = {
     Reasons = {
         type = "group",
         order = 2,
-        name = L["SHITLIST_REASONS_TITLE"],
+        name = L["PPN_REASONS_TITLE"],
         inline = false,
         handler = PersonalPlayerNotes,
         args = {
@@ -252,13 +257,13 @@ PersonalPlayerNotes.options = {
                 type = "description",
                 order = 0,
                 width = "full",
-                name = L["SHITLIST_REASON_DESCRIPTION"]
+                name = L["PPN_REASON_DESCRIPTION"]
             },
             id = {
                 type = "select",
                 order = 1,
                 width = 1.6,
-                name = L["SHITLIST_REASONS"],
+                name = L["PPN_REASONS"],
                 values = function()
                     local _return = {}
                     for key, value in pairs(PersonalPlayerNotes.db.profile.reasons) do
@@ -274,10 +279,10 @@ PersonalPlayerNotes.options = {
                 order = 2,
                 width = 1,
                 cmdHidden = true,
-                name = L["SHITLIST_REASON_REMOVE"],
+                name = L["PPN_REASON_REMOVE"],
                 confirm = function()
-                    return L["SHITLIST_REASON_REMOVE_CONFIRMATION"] ..
-                    PersonalPlayerNotes.db.profile.reason.reason .. "|cffffffff?";
+                    return L["PPN_REASON_REMOVE_CONFIRMATION"] ..
+                        PersonalPlayerNotes.db.profile.reason.reason .. "|cffffffff?";
                 end,
                 func = "RemoveReason",
                 disabled = function()
@@ -290,7 +295,7 @@ PersonalPlayerNotes.options = {
             reason = {
                 type = "input",
                 order = 3,
-                name = L["SHITLIST_REASON"],
+                name = L["PPN_REASON"],
                 width = 2.6,
                 get = "GetReason",
                 set = "SetReason",
@@ -299,7 +304,7 @@ PersonalPlayerNotes.options = {
                 type = "color",
                 order = 4,
                 width = 1.5,
-                name = L["SHITLIST_REASON_COLOR"],
+                name = L["PPN_REASON_COLOR"],
                 hasAlpha = false,
                 get = "GetReasonColor",
                 set = "SetReasonColor",
@@ -308,8 +313,8 @@ PersonalPlayerNotes.options = {
                 type = "toggle",
                 order = 5,
                 width = 1,
-                name = L["SHITLIST_REASON_ALERT_ENABLED"],
-                desc = L["SHITLIST_REASON_ALERT_ENABLED_DESC"],
+                name = L["PPN_REASON_ALERT_ENABLED"],
+                desc = L["PPN_REASON_ALERT_ENABLED_DESC"],
                 get = "GetReasonAlert",
                 set = "SetReasonAlert",
             },
@@ -318,7 +323,7 @@ PersonalPlayerNotes.options = {
     ListedPlayers = {
         type = "group",
         order = 3,
-        name = L["SHITLIST_LISTED_PLAYERS_TITLE"],
+        name = L["PPN_LISTED_PLAYERS_TITLE"],
         inline = true,
         handler = PersonalPlayerNotes,
         args = {
@@ -326,7 +331,7 @@ PersonalPlayerNotes.options = {
                 type = "select",
                 order = 1,
                 width = 1.6,
-                name = L["SHITLIST_LISTED_PLAYERS"],
+                name = L["PPN_LISTED_PLAYERS"],
                 values = function()
                     local _return = {}
                     for key, value in pairs(PersonalPlayerNotes:GetListedPlayers()) do
@@ -342,9 +347,9 @@ PersonalPlayerNotes.options = {
                 order = 2,
                 width = 1,
                 cmdHidden = true,
-                name = L["SHITLIST_LISTED_PLAYER_REMOVE"],
+                name = L["PPN_LISTED_PLAYER_REMOVE"],
                 confirm = function()
-                    return L["SHITLIST_LISTED_PLAYER_REMOVE_CONFIRMATION"] ..
+                    return L["PPN_LISTED_PLAYER_REMOVE_CONFIRMATION"] ..
                         PersonalPlayerNotes.db.profile.listedPlayer.name ..
                         "-" .. PersonalPlayerNotes.db.profile.listedPlayer.realm .. "|cffffffff?";
                 end,
@@ -353,7 +358,7 @@ PersonalPlayerNotes.options = {
             name = {
                 type = "input",
                 order = 3,
-                name = L["SHITLIST_LISTED_PLAYER_NAME"],
+                name = L["PPN_LISTED_PLAYER_NAME"],
                 width = 1.25,
                 get = "GetListedPlayerName",
                 set = "SetListedPlayerName",
@@ -361,7 +366,7 @@ PersonalPlayerNotes.options = {
             realm = {
                 type = "input",
                 order = 4,
-                name = L["SHITLIST_LISTED_PLAYER_REALM"],
+                name = L["PPN_LISTED_PLAYER_REALM"],
                 width = 1.25,
                 get = "GetListedPlayerRealm",
                 set = "SetListedPlayerRealm",
@@ -370,7 +375,7 @@ PersonalPlayerNotes.options = {
                 type = "select",
                 order = 5,
                 width = 2.6,
-                name = L["SHITLIST_LISTED_PLAYER_REASON"],
+                name = L["PPN_LISTED_PLAYER_REASON"],
                 values = function()
                     local _return = {}
                     for key, value in pairs(PersonalPlayerNotes:GetReasons()) do
@@ -384,7 +389,7 @@ PersonalPlayerNotes.options = {
             description = {
                 type = "input",
                 order = 6,
-                name = L["SHITLIST_LISTED_PLAYER_DESCRIPTION"],
+                name = L["PPN_LISTED_PLAYER_DESCRIPTION"],
                 width = 2.6,
                 get = "GetListedPlayerSelectedDescription",
                 set = "SetListedPlayerSelectedDescription",
@@ -393,7 +398,7 @@ PersonalPlayerNotes.options = {
                 type = "color",
                 order = 7,
                 width = 1.5,
-                name = L["SHITLIST_LISTED_PLAYER_COLOR"],
+                name = L["PPN_LISTED_PLAYER_COLOR"],
                 hasAlpha = false,
                 get = "GetListedPlayerColor",
                 set = "SetListedPlayerColor",
@@ -402,13 +407,13 @@ PersonalPlayerNotes.options = {
                 type = "toggle",
                 order = 8,
                 width = 1,
-                name = L["SHITLIST_LISTED_PLAYER_ALERT_ENABLED"],
-                desc = L["SHITLIST_LISTED_PLAYER_ALERT_ENABLED_DESC"],
+                name = L["PPN_LISTED_PLAYER_ALERT_ENABLED"],
+                desc = L["PPN_LISTED_PLAYER_ALERT_ENABLED_DESC"],
                 get = "GetListedPlayerAlert",
                 set = "SetListedPlayerAlert",
                 disabled = function()
                     return not PersonalPlayerNotes.db.profile.reasons
-                    [PersonalPlayerNotes.db.profile.listedPlayer.reason].alert
+                        [PersonalPlayerNotes.db.profile.listedPlayer.reason].alert
                 end,
             },
         }

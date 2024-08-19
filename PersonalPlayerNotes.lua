@@ -27,32 +27,31 @@ function PersonalPlayerNotes:OnInitialize()
     AceConfig:RegisterOptionsTable("PersonalPlayerNotesSettings Info", self.options.Info)
     AceConfigDialog:AddToBlizOptions("PersonalPlayerNotesSettings Info", personalPlayerNotes)
 
-    AceConfig:RegisterOptionsTable("PersonalPlayerNotesSettings Options", self.options.Settings, { "slo" })
-    AceConfigDialog:AddToBlizOptions("PersonalPlayerNotesSettings Options", L["SHITLIST_MENU_SETTINGS"],
+    AceConfig:RegisterOptionsTable("PersonalPlayerNotesSettings Options", self.options.Settings, { "ppno", "ppnoptions" })
+    AceConfigDialog:AddToBlizOptions("PersonalPlayerNotesSettings Options", L["PPN_MENU_SETTINGS"], personalPlayerNotes)
+
+    AceConfig:RegisterOptionsTable("PersonalPlayerNotesSettings Reasons", self.options.Reasons, { "ppnr", "ppnreasons" })
+    AceConfigDialog:AddToBlizOptions("PersonalPlayerNotesSettings Reasons", L["PPN_MENU_REASONS"], personalPlayerNotes)
+
+    AceConfig:RegisterOptionsTable("PersonalPlayerNotesSettings Listed_Players", self.options.ListedPlayers,
+        { "ppnp", "ppnplayers" })
+    AceConfigDialog:AddToBlizOptions("PersonalPlayerNotesSettings Listed_Players", L["PPN_MENU_LISTED_PLAYERS"],
         personalPlayerNotes)
 
-    AceConfig:RegisterOptionsTable("PersonalPlayerNotesSettings Reasons", self.options.Reasons, { "slr" })
-    AceConfigDialog:AddToBlizOptions("PersonalPlayerNotesSettings Reasons", L["SHITLIST_MENU_REASONS"],
-        personalPlayerNotes)
-
-    AceConfig:RegisterOptionsTable("PersonalPlayerNotesSettings Listed_Players", self.options.ListedPlayers, { "slp" })
-    AceConfigDialog:AddToBlizOptions("PersonalPlayerNotesSettings Listed_Players", L["SHITLIST_MENU_LISTED_PLAYERS"],
-        personalPlayerNotes)
-
-    -- adds a child options table, in this case our profiles panel
     local profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
     AceConfig:RegisterOptionsTable("PersonalPlayerNotesSettings Profiles", profiles)
-    AceConfigDialog:AddToBlizOptions("PersonalPlayerNotesSettings Profiles", L["SHITLIST_MENU_PROFILES"],
-        personalPlayerNotes)
+    AceConfigDialog:AddToBlizOptions("PersonalPlayerNotesSettings Profiles", L["PPN_MENU_PROFILES"], personalPlayerNotes)
 
     LibDBIcon:Register(personalPlayerNotes, self:MiniMapIcon(), self.db.profile.minimap)
 
-    -- https://www.wowace.com/projects/ace3/pages/api/ace-console-3-0
-    self:RegisterChatCommand("slm", "ToggleMiniMapIcon")
+    self:RegisterChatCommand("ppn", function()
+        Settings.OpenToCategory(personalPlayerNotes)
+    end)
+    self:RegisterChatCommand("ppnm", "ToggleMiniMapIcon")
+    self:RegisterChatCommand("ppnminimap", "ToggleMiniMapIcon")
+    self:RegisterChatCommand("ppndebug", "ToggleDebug")
 
-    self:RegisterChatCommand("sldebug", "ToggleDebug")
-
-    local loaded, reason = LoadAddOn("Shitlist")
+    local loaded, reason = C_AddOns.LoadAddOn("Shitlist")
     if loaded then
         self:GetOldConfigData()
     end
@@ -60,10 +59,10 @@ function PersonalPlayerNotes:OnInitialize()
 end
 
 function PersonalPlayerNotes:OnEnable()
-    self:Print(L["SHITLIST_CONFIG_LOADING"])
-    self:Print(L["SHITLIST_CONFIG_VERSION"], _G["ORANGE_FONT_COLOR_CODE"], self:GetVersion())
-    self:Print(L["SHITLIST_CONFIG_REASONS"], _G["GREEN_FONT_COLOR_CODE"], #self:GetReasons())
-    self:Print(L["SHITLIST_CONFIG_LISTEDPLAYERS"], _G["GREEN_FONT_COLOR_CODE"], #self:GetListedPlayers())
+    self:Print(L["PPN_CONFIG_LOADING"])
+    self:Print(L["PPN_CONFIG_VERSION"], _G["ORANGE_FONT_COLOR_CODE"], self:GetVersion())
+    self:Print(L["PPN_CONFIG_REASONS"], _G["GREEN_FONT_COLOR_CODE"], #self:GetReasons())
+    self:Print(L["PPN_CONFIG_LISTEDPLAYERS"], _G["GREEN_FONT_COLOR_CODE"], #self:GetListedPlayers())
 
     if (self.IsRetail) then
         -- New Menu System in Retail 11.0.0
@@ -73,17 +72,17 @@ function PersonalPlayerNotes:OnEnable()
         -- Retail 10.0.2 https://wowpedia.fandom.com/wiki/Patch_10.0.2/API_changes#Tooltip_Changes
         TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, self.GameTooltip)
     else
+        -- Backwards compatibility Classic
         if not self:IsHooked("UnitPopup_ShowMenu") then
             self:SecureHook("UnitPopup_ShowMenu", self.UnitPopup_ShowMenu)
         end
-        -- Backwards compatibility Classic
         GameTooltip:HookScript("OnTooltipSetUnit", self.GameTooltip)
     end
-    self:Print(L["SHITLIST_CONFIG_LOADED"])
+    self:Print(L["PPN_CONFIG_LOADED"])
 end
 
 function PersonalPlayerNotes:OnDisable()
-    self:Print(L["SHITLIST_DISABLE"])
+    self:Print(L["PPN_DISABLE"])
 end
 
 function PersonalPlayerNotes:LoadConfig()
@@ -95,7 +94,7 @@ function PersonalPlayerNotes:LoadConfig()
         LibDBIcon:Show(personalPlayerNotes)
     end
 
-    self:PrintDebug(L["SHITLIST_CONFIG_REFRESH"])
+    self:PrintDebug(L["PPN_CONFIG_REFRESH"])
     self:PrintDebug("Debug mode:", _G["GREEN_FONT_COLOR_CODE"], self.db.profile.debug)
     self:PrintDebug("Mini Map Icon:", _G["GREEN_FONT_COLOR_CODE"], not self.db.profile.minimap.hide)
 end
@@ -105,7 +104,7 @@ function PersonalPlayerNotes:GetOldConfigData()
     local listedPlayers = self:GetListedPlayers()
     -- Check if old data exist pre addon 2.0.0 version
     if ShitlistDB.Reasons ~= nil and ShitlistDB.ListedPlayers ~= nil then
-        self:Print(L["SHITLIST_CONFIG_CHECK_OLD_DATA"])
+        self:Print(L["PPN_CONFIG_CHECK_OLD_DATA"])
 
         local oldListedPlayers = ShitlistDB.ListedPlayers
         local newPlayers = {}
@@ -153,9 +152,9 @@ function PersonalPlayerNotes:GetOldConfigData()
                             alert = true,
                         }
 
-                        self:Print(L["SHITLIST_CONFIG_ADDED_OLD_DATA"], name .. "-" .. realm)
+                        self:Print(L["PPN_CONFIG_ADDED_OLD_DATA"], name .. "-" .. realm)
                     else
-                        self:Print(L["SHITLIST_CONFIG_DUPLICATE_DATA"], name .. "-" .. realm)
+                        self:Print(L["PPN_CONFIG_DUPLICATE_DATA"], name .. "-" .. realm)
                     end
                 end
             end
@@ -168,20 +167,20 @@ function PersonalPlayerNotes:GetOldConfigData()
 
     -- Move old shitlist profiles data to new Personal Player Notes database
     if ShitlistDB and ShitlistDB.profiles then
-        self:Print(L["SHITLIST_CONFIG_MIGRATE_OLD_DATA"])
+        self:Print(L["PPN_CONFIG_MIGRATE_OLD_DATA"])
         StaticPopupDialogs["MIGRATE_PROFILES"] = {
-            text = "Do you want to migrate profiles from Shitlist?",
-            button1 = "Yes",
-            button2 = "No",
+            text = L["PPN_CONFIG_MIGRATE"],
+            button1 = L["PPN_CONFIG_MIGRATE_YES"],
+            button2 = L["PPN_CONFIG_MIGRATE_NO"],
             OnAccept = function()
                 for profileName, profileData in pairs(ShitlistDB.profiles) do
                     PersonalPlayerNotes.db.profiles[profileName] = profileData
                 end
-                self:Print(L["SHITLIST_CONFIG_REASONS"], _G["GREEN_FONT_COLOR_CODE"], #self:GetReasons())
-                self:Print(L["SHITLIST_CONFIG_LISTEDPLAYERS"], _G["GREEN_FONT_COLOR_CODE"], #self:GetListedPlayers())
-                PersonalPlayerNotes:Print("Profiles from Shitlist has been migrated.")
+                self:Print(L["PPN_CONFIG_REASONS"], _G["GREEN_FONT_COLOR_CODE"], #self:GetReasons())
+                self:Print(L["PPN_CONFIG_LISTEDPLAYERS"], _G["GREEN_FONT_COLOR_CODE"], #self:GetListedPlayers())
+                PersonalPlayerNotes:Print(L["PPN_CONFIG_MIGRATE_DONE"])
                 self.db:SetProfile("Default")
-                DisableAddOn("Shitlist")
+                C_AddOns.DisableAddOn("Shitlist")
                 C_UI.Reload()
             end,
             timeout = 0,
@@ -207,9 +206,9 @@ function PersonalPlayerNotes:DropDownMenuInitialize()
         local listedPlayer = PersonalPlayerNotes:GetListedPlayer(name, realm)
         if (not listedPlayer) then
             rootDescription:CreateDivider()
-            rootDescription:CreateTitle(L["SHITLIST"])
-            rootDescription:CreateButton(L["SHITLIST_POPUP_ADD"], function()
-                PersonalPlayerNotes:Print(L["SHITLIST_POPUP_NEW_ADDED"], name, realm)
+            rootDescription:CreateTitle(L["PPN"])
+            rootDescription:CreateButton(L["PPN_POPUP_ADD"], function()
+                PersonalPlayerNotes:Print(L["PPN_POPUP_NEW_ADDED"], name, realm)
 
                 local new_player = PersonalPlayerNotes:NewListedPlayer(name, realm)
                 PersonalPlayerNotes.db.profile.listedPlayer.id = new_player.id
@@ -222,15 +221,14 @@ function PersonalPlayerNotes:DropDownMenuInitialize()
 
                 AceConfigDialog:CloseAll()
                 local AceGUI = PersonalPlayerNotes:AceGUIDefaults()
-                AceGUI:SetTitle(L["SHITLIST_LISTED_PLAYERS_TITLE"])
+                AceGUI:SetTitle(L["PPN_LISTED_PLAYERS_TITLE"])
                 AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Listed_Players", 500, 300)
                 AceConfigDialog:Open("PersonalPlayerNotesSettings Listed_Players")
             end)
         else
             rootDescription:CreateDivider()
-            rootDescription:CreateTitle(L["SHITLIST"])
-            --local submenu = rootDescription:CreateButton(L["SHITLIST"]);
-            rootDescription:CreateButton(L["SHITLIST_POPUP_EDIT"], function()
+            rootDescription:CreateTitle(L["PPN"])
+            rootDescription:CreateButton(L["PPN_POPUP_EDIT"], function()
                 PersonalPlayerNotes.db.profile.listedPlayer.id = listedPlayer.id
                 PersonalPlayerNotes.db.profile.listedPlayer.name = listedPlayer.name
                 PersonalPlayerNotes.db.profile.listedPlayer.realm = listedPlayer.realm
@@ -241,7 +239,7 @@ function PersonalPlayerNotes:DropDownMenuInitialize()
 
                 AceConfigDialog:CloseAll()
                 local AceGUI = PersonalPlayerNotes:AceGUIDefaults()
-                AceGUI:SetTitle(L["SHITLIST_LISTED_PLAYERS_TITLE"])
+                AceGUI:SetTitle(L["PPN_LISTED_PLAYERS_TITLE"])
                 AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Listed_Players", 500, 300)
                 AceConfigDialog:Open("PersonalPlayerNotesSettings Listed_Players")
             end)
@@ -282,12 +280,12 @@ function PersonalPlayerNotes:UnitPopup_ShowMenu(target, unit, menuList)
             }, UIDROPDOWNMENU_MENU_LEVEL)
         else
             UIDropDownMenu_AddButton({
-                text = L["SHITLIST_POPUP_ADD"],
+                text = L["PPN_POPUP_ADD"],
                 notCheckable = true,
                 icon = PersonalPlayerNotes.db.profile.icon,
                 value = { name, realm },
                 func = function()
-                    PersonalPlayerNotes:Print(L["SHITLIST_POPUP_NEW_ADDED"], name, realm)
+                    PersonalPlayerNotes:Print(L["PPN_POPUP_NEW_ADDED"], name, realm)
                     local new_player = PersonalPlayerNotes:NewListedPlayer(name, realm)
                     PersonalPlayerNotes.db.profile.listedPlayer.id = new_player.id
                     PersonalPlayerNotes.db.profile.listedPlayer.name = new_player.name
@@ -299,7 +297,7 @@ function PersonalPlayerNotes:UnitPopup_ShowMenu(target, unit, menuList)
 
                     AceConfigDialog:CloseAll()
                     local AceGUI = PersonalPlayerNotes:AceGUIDefaults()
-                    AceGUI:SetTitle(L["SHITLIST_LISTED_PLAYERS_TITLE"])
+                    AceGUI:SetTitle(L["PPN_LISTED_PLAYERS_TITLE"])
                     AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Listed_Players", 500, 300)
                     AceConfigDialog:Open("PersonalPlayerNotesSettings Listed_Players")
                 end,
@@ -318,7 +316,7 @@ function PersonalPlayerNotes:UnitPopup_ShowMenu(target, unit, menuList)
         UIDropDownMenu_AddButton(menuItem, UIDROPDOWNMENU_MENU_LEVEL)
 
         menuItem = UIDropDownMenu_CreateInfo()
-        menuItem.text = L["SHITLIST_POPUP_EDIT"]
+        menuItem.text = L["PPN_POPUP_EDIT"]
         menuItem.notCheckable = true
         menuItem.hasArrow = false
         menuItem.value = listedPlayer
@@ -334,7 +332,7 @@ function PersonalPlayerNotes:UnitPopup_ShowMenu(target, unit, menuList)
 
                 AceConfigDialog:CloseAll()
                 local AceGUI = PersonalPlayerNotes:AceGUIDefaults()
-                AceGUI:SetTitle(L["SHITLIST_LISTED_PLAYERS_TITLE"])
+                AceGUI:SetTitle(L["PPN_LISTED_PLAYERS_TITLE"])
                 AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Listed_Players", 500, 300)
                 AceConfigDialog:Open("PersonalPlayerNotesSettings Listed_Players")
             end
@@ -399,26 +397,26 @@ function PersonalPlayerNotes:MiniMapIcon()
     -- https://github.com/tekkub/libdatabroker-1-1/wiki/How-to-provide-a-dataobject
     return LibDataBroker:NewDataObject(personalPlayerNotes, {
         type = "launcher",
-        text = L["SHITLIST"],
+        text = L["PPN"],
         icon = PersonalPlayerNotes.db.profile.icon,
         OnClick = function(clickedframe, button)
             HideUIPanel(SettingsPanel)
             HideUIPanel(GameMenuFrame)
             AceConfigDialog:CloseAll()
             if button == "RightButton" then
-                Settings.OpenToCategory(personalPlayerNotes, "PersonalPlayerNotesSettings Info")
+                Settings.OpenToCategory(personalPlayerNotes)
             elseif button == "LeftButton" then
                 local AceGUI = PersonalPlayerNotes:AceGUIDefaults()
                 if IsShiftKeyDown() then
-                    AceGUI:SetTitle(L["SHITLIST_REASONS_TITLE"])
+                    AceGUI:SetTitle(L["PPN_REASONS_TITLE"])
                     AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Reasons", 500, 200)
                     AceConfigDialog:Open("PersonalPlayerNotesSettings Reasons")
                 elseif IsControlKeyDown() then
-                    AceGUI:SetTitle(L["SHITLIST_LISTED_PLAYERS_TITLE"])
+                    AceGUI:SetTitle(L["PPN_LISTED_PLAYERS_TITLE"])
                     AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Listed_Players", 500, 300)
                     AceConfigDialog:Open("PersonalPlayerNotesSettings Listed_Players")
                 else
-                    AceGUI:SetTitle(L["SHITLIST_SETTINGS_TITLE"])
+                    AceGUI:SetTitle(L["PPN_SETTINGS_TITLE"])
                     AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Options", 500, 350)
                     AceConfigDialog:Open("PersonalPlayerNotesSettings Options")
                 end
@@ -426,13 +424,13 @@ function PersonalPlayerNotes:MiniMapIcon()
         end,
         OnTooltipShow = function(tooltip)
             tooltip:AddDoubleLine(
-                "|T" .. PersonalPlayerNotes.db.profile.icon .. ":0|t " .. L["SHITLIST_MINIMAP_TOOLTIP_TITLE"],
+                "|T" .. PersonalPlayerNotes.db.profile.icon .. ":0|t " .. L["PPN_MINIMAP_TOOLTIP_TITLE"],
                 PersonalPlayerNotes:GetVersion())
             tooltip:AddLine("\n")
-            tooltip:AddLine(L["SHITLIST_MINIMAP_TOOLTIP_RIGHT_CLICK"])
-            tooltip:AddLine(L["SHITLIST_MINIMAP_TOOLTIP_LEFT_CLICK"])
-            tooltip:AddLine(L["SHITLIST_MINIMAP_TOOLTIP_SHIFT_LEFT_CLICK"])
-            tooltip:AddLine(L["SHITLIST_MINIMAP_TOOLTIP_CTRL_LEFT_CLICK"])
+            tooltip:AddLine(L["PPN_MINIMAP_TOOLTIP_RIGHT_CLICK"])
+            tooltip:AddLine(L["PPN_MINIMAP_TOOLTIP_LEFT_CLICK"])
+            tooltip:AddLine(L["PPN_MINIMAP_TOOLTIP_SHIFT_LEFT_CLICK"])
+            tooltip:AddLine(L["PPN_MINIMAP_TOOLTIP_CTRL_LEFT_CLICK"])
         end,
     })
 end
