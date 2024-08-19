@@ -1,15 +1,2 @@
-v2.0.4
-  Minor fix to the dropdown menu added in 2.0.2.
-  Added Wrath toc file.
-
-v2.0.3
-  Updated Retail to use the new Blizzard Menu system.
-
-v2.0.2
-  Can now add/edit players thru chat window and guild page.
-
-v2.0.1
-  Removed unused dependencies.
-
-v2.0.0
-  Complete rewrite of the addon.
+v1.0.0
+  Re-released with a new name and minor code base changes to not violate curse forge ToS.
