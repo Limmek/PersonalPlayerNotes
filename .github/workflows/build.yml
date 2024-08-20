@@ -2,9 +2,8 @@ name: Package and release
 
 on:
   workflow_dispatch:
-  push:
-    tags:
-      - "**"
+  workflow_run:
+    workflows: ['Auto Release']
 
 jobs:
   run:
