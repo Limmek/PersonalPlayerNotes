@@ -33,10 +33,10 @@ L["PPN_CONFIG_REFRESH"] = "正在重新加载配置...";
 L["PPN_CONFIG_CHECK_OLD_DATA"] = "正在检查历史数据...";
 L["PPN_CONFIG_ADDED_OLD_DATA"] = "已添加历史数据:";
 L["PPN_CONFIG_DUPLICATE_DATA"] = "找到重复数据:";
-L["PPN_CONFIG_MIGRATE"] = "Do you want to migrate profiles from Shitlist?";
-L["PPN_CONFIG_MIGRATE_YES"] = "Yes";
-L["PPN_CONFIG_MIGRATE_NO"] = "No";
-L["PPN_CONFIG_MIGRATE_DONE"] = "Profiles from Shitlist has been migrated.";
+L["PPN_CONFIG_MIGRATE"] = "ShitList插件现已更名为Personal Player Notes. 你想把原Shitlist插件的配置文件迁移至Personal Player Notes吗?";
+L["PPN_CONFIG_MIGRATE_YES"] = "是";
+L["PPN_CONFIG_MIGRATE_NO"] = "否";
+L["PPN_CONFIG_MIGRATE_DONE"] = "Shitlist配置文件已迁移至Personal Player Notes.";
 
 L["PPN_INFO_COMMANDS_TITLE"] = "命令";
 L["PPN_INFO_COMMANDS_DESC"] = "所有可用的斜杠命令";
@@ -79,7 +79,7 @@ L["PPN_REASON_REMOVE_CONFIRMATION"] = "您确定要删除:\n|cffffd700";
 L["PPN_REASON_COLOR"] = "选择颜色(此分组在鼠标提示中的颜色)";
 L["PPN_REASON_ALERT_ENABLED"] = "启用分组提示音"
 L["PPN_REASON_ALERT_ENABLED_DESC"] = "当前分组提示音效开关. 启用后, 当发现此分组内的玩家时, 将播放配置的提示音."
-L["PPN_DEFAULT_REASON"] = "None";
+L["PPN_DEFAULT_REASON"] = "默认";
 
 L["PPN_LISTED_PLAYERS_TITLE"] = "关注名单 - 已关注的玩家";
 L["PPN_LISTED_PLAYERS"] = "已关注的玩家";
@@ -96,7 +96,7 @@ L["PPN_LISTED_PLAYER_ALERT_ENABLED_DESC"] =
 "为该玩家启用或禁用提示音. 如果该玩家所在的分组分类已禁用了提示音, 则不能开启."
 L["PPN_LISTED_PLAYERS_EXAMPLE_NAME"] = "变异骷髅";
 L["PPN_LISTED_PLAYERS_EXAMPLE_REALM"] = "灰烬使者";
-L["PPN_LISTED_PLAYERS_EXAMPLE_DESC"] = "None";
+L["PPN_LISTED_PLAYERS_EXAMPLE_DESC"] = "关注名单汉化先行者!RESPECT!";
 
 L["PPN_POPUP_ADD"] = "添加到关注名单";
 L["PPN_POPUP_EDIT"] = "编辑关注信息";
