@@ -2,6 +2,8 @@ name: Bug Report
 description: File a bug report
 title: "🐛 "
 labels: ["🐛 Bug"]
+assignees:
+  - Limmek
 body:
   - type: checkboxes
     attributes:
@@ -26,15 +28,14 @@ body:
       options:
         - Retail (Default)
         - Classic
-        - Wrath of the Lich King Classic
     validations:
       required: true
   
   - type: checkboxes
     id: testing
     attributes:
-      label: Tested with only Shitlist
-      description: Did you try having Shitlist as the only enabled addon and everything else disabled?
+      label: Tested with only Personal Player Notes
+      description: Did you try having Personal Player Notes as the only enabled addon and everything else disabled?
       options:
       - label: "Yes"
         required: true

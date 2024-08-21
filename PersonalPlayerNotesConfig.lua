@@ -1,12 +1,11 @@
-local shitlist = ...
-local L = LibStub("AceLocale-3.0"):GetLocale(shitlist, true)
+local personalPlayerNotes = ...
+local L = LibStub("AceLocale-3.0"):GetLocale(personalPlayerNotes, true)
 
-Shitlist.defaults = {
+PersonalPlayerNotes.defaults = {
     profile = {
-        icon = "Interface\\AddOns\\" .. shitlist .. "\\Images\\shitlist.png",
+        icon = "Interface\\AddOns\\" .. personalPlayerNotes .. "\\Images\\icon.png",
         debug = false,
         minimap = { hide = false, minimapPos = 240 },
-        announcement = { delay = 10, guild = true, party = true, raid = true, instance = true },
         alert = {
             delay = 10,
             enabled = true,
@@ -16,29 +15,26 @@ Shitlist.defaults = {
             time = 0
         },
         reasons = {
-            { id = 1, reason = "None",          color = { r = 1, g = 1, b = 1 }, alert = false, },
-            { id = 2, reason = "Kill Stealing", color = { r = 0, g = 0, b = 1 }, alert = true, },
-            { id = 3, reason = "Ninja Looting", color = { r = 1, g = 0, b = 0 }, alert = true, },
-            { id = 4, reason = "Spamming",      color = { r = 0, g = 1, b = 0 }, alert = true, },
+            { id = 1, reason = L["PPN_DEFAULT_REASON"], color = { r = 1, g = 1, b = 1 }, alert = false, },
         },
-        reason = { id = 1, reason = "None", color = { r = 1, g = 1, b = 1 } },
+        reason = { id = 1, reason = L["PPN_DEFAULT_REASON"], color = { r = 1, g = 1, b = 1 }, alert = false, },
         listedPlayer = {
             id = 1,
-            name = "Example",
-            realm = "Silvermoon",
+            name = L["PPN_LISTED_PLAYERS_EXAMPLE_NAME"],
+            realm = L["PPN_LISTED_PLAYERS_EXAMPLE_REALM"],
             reason = 1,
-            description = "Example Description",
+            description = L["PPN_DEFAULT_REASON"],
             color = { r = 1, g = 1, b = 1 },
             alert = true,
         },
         listedPlayers = {
             {
                 id = 1,
-                name = "Example",
-                realm = "Silvermoon",
+                name = L["PPN_LISTED_PLAYERS_EXAMPLE_NAME"],
+                realm = L["PPN_LISTED_PLAYERS_EXAMPLE_REALM"],
                 reason = 1,
-                description = "Example Description",
-                color = { r = 0, g = 0, b = 0 },
+                description = L["PPN_DEFAULT_REASON"],
+                color = { r = 1, g = 1, b = 1 },
                 alert = true,
             },
         }
@@ -46,11 +42,11 @@ Shitlist.defaults = {
 }
 
 -- https://www.wowace.com/projects/ace3/pages/ace-config-3-0-options-tables
-Shitlist.options = {
+PersonalPlayerNotes.options = {
     Info = {
         type = "group",
         order = 0,
-        name = L["SHITLIST_MENU_TITLE"],
+        name = L["PPN_MENU_TITLE"],
         inline = true,
         cmdHidden = true,
         args = {
@@ -58,43 +54,49 @@ Shitlist.options = {
                 order = 1,
                 type = "description",
                 fontSize = "medium",
-                name = Shitlist:GetNotes() .. "\n\n\n",
+                name = PersonalPlayerNotes:GetNotes() .. "\n\n\n",
             },
             Commands = {
-                name = L["SHITLIST_INFO_COMMANDS_TITLE"],
-                desc = L["SHITLIST_INFO_COMMANDS_DESC"],
+                name = L["PPN_INFO_COMMANDS_TITLE"],
+                desc = L["PPN_INFO_COMMANDS_DESC"],
                 order = 2,
                 type = "group",
                 inline = true,
                 args = {
-                    options = {
+                    info = {
                         order = 1,
                         type = "description",
                         fontSize = "medium",
-                        name = L["SHITLIST_INFO_COMMANDS_2"],
+                        name = L["PPN_INFO_COMMANDS_1"],
                     },
-                    reasons = {
+                    options = {
                         order = 2,
                         type = "description",
                         fontSize = "medium",
-                        name = L["SHITLIST_INFO_COMMANDS_3"],
+                        name = L["PPN_INFO_COMMANDS_2"],
                     },
-                    players = {
+                    reasons = {
                         order = 3,
                         type = "description",
                         fontSize = "medium",
-                        name = L["SHITLIST_INFO_COMMANDS_4"],
+                        name = L["PPN_INFO_COMMANDS_3"],
                     },
-                    minimap = {
+                    players = {
                         order = 4,
                         type = "description",
                         fontSize = "medium",
-                        name = L["SHITLIST_INFO_COMMANDS_5"],
+                        name = L["PPN_INFO_COMMANDS_4"],
+                    },
+                    minimap = {
+                        order = 5,
+                        type = "description",
+                        fontSize = "medium",
+                        name = L["PPN_INFO_COMMANDS_5"],
                     },
                 },
             },
             About = {
-                name = L["SHITLIST_INFO_ABOUT_TITLE"],
+                name = L["PPN_INFO_ABOUT_TITLE"],
                 order = 3,
                 type = "group",
                 inline = true,
@@ -104,48 +106,48 @@ Shitlist.options = {
                         order = 0,
                         width = "full",
                         fontSize = "medium",
-                        name = "|cffffd700" .. L["SHITLIST_INFO_ABOUT_VERSION"] ..
-                            ": |cffff8c00" .. Shitlist:GetVersion()
+                        name = "|cffffd700" .. L["PPN_INFO_ABOUT_VERSION"] ..
+                            ": |cffff8c00" .. PersonalPlayerNotes:GetVersion()
                     },
                     author = {
                         type = "description",
                         order = 1,
                         width = "full",
                         fontSize = "medium",
-                        name = "|cffffd700" .. L["SHITLIST_INFO_ABOUT_AUTHOR"] ..
-                            ": |cffffffff" .. Shitlist:GetAuthor()
+                        name = "|cffffd700" .. L["PPN_INFO_ABOUT_AUTHOR"] ..
+                            ": |cffffffff" .. PersonalPlayerNotes:GetAuthor()
                     },
                     category = {
                         type = "description",
                         order = 2,
                         width = "full",
                         fontSize = "medium",
-                        name = "|cffffd700" .. L["SHITLIST_INFO_ABOUT_CATEGORY"] ..
-                            ": |cffffffff" .. Shitlist:GetCategory()
+                        name = "|cffffd700" .. L["PPN_INFO_ABOUT_CATEGORY"] ..
+                            ": |cffffffff" .. PersonalPlayerNotes:GetCategory()
                     },
                     localizations = {
                         type = "description",
                         order = 3,
                         width = "full",
                         fontSize = "medium",
-                        name = "|cffffd700" .. L["SHITLIST_INFO_ABOUT_LOCALIZATION"] ..
-                            ": |cffffffff" .. Shitlist:GetLocalizations()
+                        name = "|cffffd700" .. L["PPN_INFO_ABOUT_LOCALIZATION"] ..
+                            ": |cffffffff" .. PersonalPlayerNotes:GetLocalizations()
                     },
                     license = {
                         type = "description",
                         order = 4,
                         width = "full",
                         fontSize = "medium",
-                        name = "|cffffd700" .. L["SHITLIST_INFO_ABOUT_LICENSE"] ..
-                            ": |cffffffff" .. Shitlist:GetLicense()
+                        name = "|cffffd700" .. L["PPN_INFO_ABOUT_LICENSE"] ..
+                            ": |cffffffff" .. PersonalPlayerNotes:GetLicense()
                     },
                     website = {
                         type = "description",
                         order = 5,
                         width = "full",
                         fontSize = "medium",
-                        name = "|cffffd700" .. L["SHITLIST_INFO_ABOUT_WEB"] ..
-                            ": |cffffffff" .. Shitlist:GetWebsite()
+                        name = "|cffffd700" .. L["PPN_INFO_ABOUT_WEB"] ..
+                            ": |cffffffff" .. PersonalPlayerNotes:GetWebsite()
                     },
                 }
             }
@@ -154,13 +156,13 @@ Shitlist.options = {
     Settings = {
         type = "group",
         order = 1,
-        name = L["SHITLIST_SETTINGS_TITLE"],
+        name = L["PPN_SETTINGS_TITLE"],
         inline = true,
         childGroups = "tab",
-        handler = Shitlist,
+        handler = PersonalPlayerNotes,
         args = {
             minimap = {
-                name = L["SHITLIST_SETTINGS_MINIMAP"],
+                name = L["PPN_SETTINGS_MINIMAP"],
                 order = 1,
                 type = "group",
                 inline = true,
@@ -168,28 +170,28 @@ Shitlist.options = {
                     minimapToggle = {
                         type = "toggle",
                         order = 0,
-                        name = L["SHITLIST_SETTINGS_MINIMAP_ICON"],
-                        desc = L["SHITLIST_SETTINGS_MINIMAP_ICON_DESC"],
+                        name = L["PPN_SETTINGS_MINIMAP_ICON"],
+                        desc = L["PPN_SETTINGS_MINIMAP_ICON_DESC"],
                         get = function(info)
-                            return Shitlist.db.profile.minimap.hide;
+                            return PersonalPlayerNotes.db.profile.minimap.hide;
                         end,
                         set = function(info, value)
-                            Shitlist.db.profile.minimap.hide = value;
-                            Shitlist:RefreshConfig();
+                            PersonalPlayerNotes.db.profile.minimap.hide = value;
+                            PersonalPlayerNotes:LoadConfig();
                         end
                     },
                     minimapPos = {
                         type = "range",
                         order = 1,
-                        name = L["SHITLIST_SETTINGS_MINIMAP_POS"],
-                        desc = L["SHITLIST_SETTINGS_MINIMAP_POS_DESC"],
+                        name = L["PPN_SETTINGS_MINIMAP_POS"],
+                        desc = L["PPN_SETTINGS_MINIMAP_POS_DESC"],
                         width = 1.5,
                         get = function(info)
-                            return Shitlist.db.profile.minimap.minimapPos;
+                            return PersonalPlayerNotes.db.profile.minimap.minimapPos;
                         end,
                         set = function(info, value)
-                            Shitlist.db.profile.minimap.minimapPos = value;
-                            Shitlist:RefreshConfig();
+                            PersonalPlayerNotes.db.profile.minimap.minimapPos = value;
+                            PersonalPlayerNotes:LoadConfig();
                         end,
                         min = 0,
                         max = 360,
@@ -197,52 +199,8 @@ Shitlist.options = {
                     },
                 },
             },
-            announcement = {
-                name = L["SHITLIST_SETTINGS_ANNOUNCEMENT"],
-                order = 2,
-                type = "group",
-                inline = true,
-                width = 0.5,
-                get = "GetAnnouncement",
-                set = "SetAnnouncement",
-                args = {
-                    description = {
-                        type = "description",
-                        order = 0,
-                        name = L["SHITLIST_SETTINGS_ANNOUNCEMENT_DESC"],
-                    },
-                    guild = {
-                        type = "toggle",
-                        order = 1,
-                        name = L["SHITLIST_SETTINGS_ANNOUNCEMENT_GUILD"],
-                        desc = L["SHITLIST_SETTINGS_ANNOUNCEMENT_GUILD_DESC"],
-                        width = 0.5
-                    },
-                    party = {
-                        type = "toggle",
-                        order = 2,
-                        name = L["SHITLIST_SETTINGS_ANNOUNCEMENT_PARY"],
-                        desc = L["SHITLIST_SETTINGS_ANNOUNCEMENT_PARY_DESC"],
-                        width = 0.5
-                    },
-                    raid = {
-                        type = "toggle",
-                        order = 3,
-                        name = L["SHITLIST_SETTINGS_ANNOUNCEMENT_RAID"],
-                        desc = L["SHITLIST_SETTINGS_ANNOUNCEMENT_RAID_DESC"],
-                        width = 0.5
-                    },
-                    instance = {
-                        type = "toggle",
-                        order = 4,
-                        name = L["SHITLIST_SETTINGS_ANNOUNCEMENT_INSTANCE"],
-                        desc = L["SHITLIST_SETTINGS_ANNOUNCEMENT_INSTANCE_DESC"],
-                        width = 0.65
-                    }
-                }
-            },
             alert = {
-                name = L["SHITLIST_SETTINGS_ALERT"],
+                name = L["PPN_SETTINGS_ALERT"],
                 order = 3,
                 type = "group",
                 inline = true,
@@ -253,22 +211,22 @@ Shitlist.options = {
                     description = {
                         type = "description",
                         order = 0,
-                        name = L["SHITLIST_SETTINGS_ALERT_DESC"]
+                        name = L["PPN_SETTINGS_ALERT_DESC"]
                     },
                     enabled = {
                         type = "toggle",
                         order = 1,
-                        name = L["SHITLIST_SETTINGS_ALERT_ENABLED"],
-                        desc = L["SHITLIST_SETTINGS_ALERT_ENABLED_DESC"],
+                        name = L["PPN_SETTINGS_ALERT_ENABLED"],
+                        desc = L["PPN_SETTINGS_ALERT_ENABLED_DESC"],
                         width = 0.5
                     },
                     sounds = {
                         type = "select",
                         order = 2,
-                        name = L["SHITLIST_SETTINGS_ALERT_SOUNDS"],
-                        desc = L["SHITLIST_SETTINGS_ALERT_SOUNDS_DESC"],
+                        name = L["PPN_SETTINGS_ALERT_SOUNDS"],
+                        desc = L["PPN_SETTINGS_ALERT_SOUNDS_DESC"],
                         values = function()
-                            return Shitlist.db.profile.alert.sounds
+                            return PersonalPlayerNotes.db.profile.alert.sounds
                         end,
                         width = 1,
                         set = "SetAlertSoundEffect",
@@ -280,8 +238,8 @@ Shitlist.options = {
                         min = 1,
                         max = 60,
                         step = 1,
-                        name = L["SHITLIST_SETTINGS_ALERT_DELAY"],
-                        desc = L["SHITLIST_SETTINGS_ALERT_DELAY_DESC"],
+                        name = L["PPN_SETTINGS_ALERT_DELAY"],
+                        desc = L["PPN_SETTINGS_ALERT_DELAY_DESC"],
                         width = 1
                     }
                 }
@@ -291,43 +249,44 @@ Shitlist.options = {
     Reasons = {
         type = "group",
         order = 2,
-        name = L["SHITLIST_REASONS_TITLE"],
+        name = L["PPN_REASONS_TITLE"],
         inline = false,
-        handler = Shitlist,
+        handler = PersonalPlayerNotes,
         args = {
             description = {
                 type = "description",
                 order = 0,
                 width = "full",
-                name = L["SHITLIST_REASON_DESCRIPTION"]
+                name = L["PPN_REASON_DESCRIPTION"]
             },
             id = {
                 type = "select",
                 order = 1,
                 width = 1.6,
-                name = L["SHITLIST_REASONS"],
+                name = L["PPN_REASONS"],
                 values = function()
                     local _return = {}
-                    for key, value in pairs(Shitlist.db.profile.reasons) do
+                    for key, value in pairs(PersonalPlayerNotes.db.profile.reasons) do
                         _return[key] = value.reason
                     end
                     return _return
                 end,
-                get = "GetReasonSelected",
-                set = "SetReasonSelected",
+                get = "GetReason",
+                set = "SelectedReason",
             },
             remove = {
                 type = "execute",
                 order = 2,
                 width = 1,
                 cmdHidden = true,
-                name = L["SHITLIST_REASON_REMOVE"],
+                name = L["PPN_REASON_REMOVE"],
                 confirm = function()
-                    return L["SHITLIST_REASON_REMOVE_CONFIRMATION"] .. Shitlist.db.profile.reason.reason .. "|cffffffff?";
+                    return L["PPN_REASON_REMOVE_CONFIRMATION"] ..
+                        PersonalPlayerNotes.db.profile.reason.reason .. "|cffffffff?";
                 end,
                 func = "RemoveReason",
                 disabled = function()
-                    if (Shitlist.db.profile.reason.id <= #Shitlist.defaults.profile.reasons) then
+                    if (PersonalPlayerNotes.db.profile.reason.id <= #PersonalPlayerNotes.defaults.profile.reasons) then
                         return true
                     end
                     return false
@@ -336,7 +295,7 @@ Shitlist.options = {
             reason = {
                 type = "input",
                 order = 3,
-                name = L["SHITLIST_REASON"],
+                name = L["PPN_REASON"],
                 width = 2.6,
                 get = "GetReason",
                 set = "SetReason",
@@ -345,7 +304,7 @@ Shitlist.options = {
                 type = "color",
                 order = 4,
                 width = 1.5,
-                name = L["SHITLIST_REASON_COLOR"],
+                name = L["PPN_REASON_COLOR"],
                 hasAlpha = false,
                 get = "GetReasonColor",
                 set = "SetReasonColor",
@@ -354,8 +313,8 @@ Shitlist.options = {
                 type = "toggle",
                 order = 5,
                 width = 1,
-                name = L["SHITLIST_REASON_ALERT_ENABLED"],
-                desc = L["SHITLIST_REASON_ALERT_ENABLED_DESC"],
+                name = L["PPN_REASON_ALERT_ENABLED"],
+                desc = L["PPN_REASON_ALERT_ENABLED_DESC"],
                 get = "GetReasonAlert",
                 set = "SetReasonAlert",
             },
@@ -364,18 +323,18 @@ Shitlist.options = {
     ListedPlayers = {
         type = "group",
         order = 3,
-        name = L["SHITLIST_LISTED_PLAYERS_TITLE"],
+        name = L["PPN_LISTED_PLAYERS_TITLE"],
         inline = true,
-        handler = Shitlist,
+        handler = PersonalPlayerNotes,
         args = {
             id = {
                 type = "select",
                 order = 1,
                 width = 1.6,
-                name = L["SHITLIST_LISTED_PLAYERS"],
+                name = L["PPN_LISTED_PLAYERS"],
                 values = function()
                     local _return = {}
-                    for key, value in pairs(Shitlist:GetListedPlayers()) do
+                    for key, value in pairs(PersonalPlayerNotes:GetListedPlayers()) do
                         _return[key] = value.name .. "-" .. value.realm
                     end
                     return _return
@@ -388,18 +347,18 @@ Shitlist.options = {
                 order = 2,
                 width = 1,
                 cmdHidden = true,
-                name = L["SHITLIST_LISTED_PLAYER_REMOVE"],
+                name = L["PPN_LISTED_PLAYER_REMOVE"],
                 confirm = function()
-                    return L["SHITLIST_LISTED_PLAYER_REMOVE_CONFIRMATION"] ..
-                        Shitlist.db.profile.listedPlayer.name ..
-                        "-" .. Shitlist.db.profile.listedPlayer.realm .. "|cffffffff?";
+                    return L["PPN_LISTED_PLAYER_REMOVE_CONFIRMATION"] ..
+                        PersonalPlayerNotes.db.profile.listedPlayer.name ..
+                        "-" .. PersonalPlayerNotes.db.profile.listedPlayer.realm .. "|cffffffff?";
                 end,
                 func = "RemoveListedPlayer",
             },
             name = {
                 type = "input",
                 order = 3,
-                name = L["SHITLIST_LISTED_PLAYER_NAME"],
+                name = L["PPN_LISTED_PLAYER_NAME"],
                 width = 1.25,
                 get = "GetListedPlayerName",
                 set = "SetListedPlayerName",
@@ -407,7 +366,7 @@ Shitlist.options = {
             realm = {
                 type = "input",
                 order = 4,
-                name = L["SHITLIST_LISTED_PLAYER_REALM"],
+                name = L["PPN_LISTED_PLAYER_REALM"],
                 width = 1.25,
                 get = "GetListedPlayerRealm",
                 set = "SetListedPlayerRealm",
@@ -416,10 +375,10 @@ Shitlist.options = {
                 type = "select",
                 order = 5,
                 width = 2.6,
-                name = L["SHITLIST_LISTED_PLAYER_REASON"],
+                name = L["PPN_LISTED_PLAYER_REASON"],
                 values = function()
                     local _return = {}
-                    for key, value in pairs(Shitlist:GetReasons()) do
+                    for key, value in pairs(PersonalPlayerNotes:GetReasons()) do
                         _return[key] = value.reason
                     end
                     return _return
@@ -430,7 +389,7 @@ Shitlist.options = {
             description = {
                 type = "input",
                 order = 6,
-                name = L["SHITLIST_LISTED_PLAYER_DESCRIPTION"],
+                name = L["PPN_LISTED_PLAYER_DESCRIPTION"],
                 width = 2.6,
                 get = "GetListedPlayerSelectedDescription",
                 set = "SetListedPlayerSelectedDescription",
@@ -439,7 +398,7 @@ Shitlist.options = {
                 type = "color",
                 order = 7,
                 width = 1.5,
-                name = L["SHITLIST_LISTED_PLAYER_COLOR"],
+                name = L["PPN_LISTED_PLAYER_COLOR"],
                 hasAlpha = false,
                 get = "GetListedPlayerColor",
                 set = "SetListedPlayerColor",
@@ -448,75 +407,67 @@ Shitlist.options = {
                 type = "toggle",
                 order = 8,
                 width = 1,
-                name = L["SHITLIST_LISTED_PLAYER_ALERT_ENABLED"],
-                desc = L["SHITLIST_LISTED_PLAYER_ALERT_ENABLED_DESC"],
+                name = L["PPN_LISTED_PLAYER_ALERT_ENABLED"],
+                desc = L["PPN_LISTED_PLAYER_ALERT_ENABLED_DESC"],
                 get = "GetListedPlayerAlert",
                 set = "SetListedPlayerAlert",
                 disabled = function()
-                    return not Shitlist.db.profile.reasons[Shitlist.db.profile.listedPlayer.reason].alert
+                    return not PersonalPlayerNotes.db.profile.reasons
+                        [PersonalPlayerNotes.db.profile.listedPlayer.reason].alert
                 end,
             },
         }
     }
 }
 
-
---#region Announcement
-
-function Shitlist:GetAnnouncement(info)
-    return self.db.profile.announcement[info[#info]]
-end
-
-function Shitlist:SetAnnouncement(info, value)
-    self.db.profile.announcement[info[#info]] = value
-end
-
---#endregion
-
-
 --#region Sound
 
-function Shitlist:GetAlert(info)
+function PersonalPlayerNotes:GetAlert(info)
     return self.db.profile.alert[info[#info]]
 end
 
-function Shitlist:SetAlert(info, value)
+function PersonalPlayerNotes:SetAlert(info, value)
     self.db.profile.alert[info[#info]] = value
 end
 
---#endregion
+function PersonalPlayerNotes:GetAlertSoundEffect(info)
+    return self.db.profile.alert.sound
+end
 
+function PersonalPlayerNotes:SetAlertSoundEffect(info, value)
+    self:PlayAlertSoundEffect(value)
+    self.db.profile.alert.sound = value
+end
+
+function PersonalPlayerNotes:PlayAlertSoundEffect(effect, channel)
+    PlaySoundFile(
+        "Interface\\AddOns\\" ..
+        personalPlayerNotes ..
+        "\\Sounds\\" .. PersonalPlayerNotes.db.profile.alert.sounds[effect or self:GetAlertSoundEffect()] .. ".ogg",
+        channel or "master"
+    )
+end
+
+--#endregion
 
 --#region Reasons
 
 --[[
     Returns all reasons
 ]]
---
-function Shitlist:GetReasons()
+function PersonalPlayerNotes:GetReasons()
     return self.db.profile.reasons
 end
 
-function Shitlist:GetReasonSelected(info)
+function PersonalPlayerNotes:SetReasons(data)
+    self.db.profile.reasons = data
+end
+
+function PersonalPlayerNotes:GetReason(info)
     return self.db.profile.reason[info[#info]]
 end
 
-function Shitlist:SetReasonSelected(info, value)
-    local r = self.db.profile.reasons[value]
-    if (not r) then
-        return
-    end
-    self.db.profile.reason[info[#info]] = value
-    self.db.profile.reason.reason = r.reason
-    self.db.profile.reason.color = r.color
-    self.db.profile.reason.alert = r.alert
-end
-
-function Shitlist:GetReason(info)
-    return self.db.profile.reason[info[#info]]
-end
-
-function Shitlist:SetReason(info, value)
+function PersonalPlayerNotes:SetReason(info, value)
     self.db.profile.reason[info[#info]] = value
     if (self.db.profile.reasons[self.db.profile.reason.id].reason == value) then
         return
@@ -530,39 +481,47 @@ function Shitlist:SetReason(info, value)
                 alert = true
             })
         self.db.profile.reason.id = #self.db.profile.reasons
-        -- self.db.profile.reason.color = { r = 1, g = 1, b = 1 }
-        -- self.db.profile.reason.alert = { r = 1, g = 1, b = 1 }
-        self:SetReasonSelected(info, self.db.profile.reason.id)
-        self:GetReasonSelected(info)
+        self:SelectedReason(info, self.db.profile.reason.id)
+        self:GetReason(info)
     end
 end
 
-function Shitlist:RemoveReason()
-    tremove(Shitlist.db.profile.reasons, Shitlist.db.profile.reason.id)
-    --Shitlist.db.profile.reasons[Shitlist.db.profile.reason.id] = nil
-    local reasons = Shitlist:GetReasons()
-    Shitlist.db.profile.reason.id = #reasons
-    Shitlist.db.profile.reason.reason = reasons[#reasons].reason
-    Shitlist.db.profile.reason.color = reasons[#reasons].color
-    Shitlist.db.profile.reason.alert = reasons[#reasons].alert
+function PersonalPlayerNotes:SelectedReason(info, value)
+    local r = self.db.profile.reasons[value]
+    if (not r) then
+        return
+    end
+    self.db.profile.reason[info[#info]] = value
+    self.db.profile.reason.reason = r.reason
+    self.db.profile.reason.color = r.color
+    self.db.profile.reason.alert = r.alert
+end
+
+function PersonalPlayerNotes:RemoveReason()
+    tremove(PersonalPlayerNotes.db.profile.reasons, PersonalPlayerNotes.db.profile.reason.id)
+    local reasons = PersonalPlayerNotes:GetReasons()
+    PersonalPlayerNotes.db.profile.reason.id = #reasons
+    PersonalPlayerNotes.db.profile.reason.reason = reasons[#reasons].reason
+    PersonalPlayerNotes.db.profile.reason.color = reasons[#reasons].color
+    PersonalPlayerNotes.db.profile.reason.alert = reasons[#reasons].alert
     return true;
 end
 
-function Shitlist:GetReasonColor(info)
+function PersonalPlayerNotes:GetReasonColor(info)
     local c = self.db.profile.reason[info[#info]]
     return c.r or 1, c.g or 1, c.b or 1
 end
 
-function Shitlist:SetReasonColor(info, r, g, b)
+function PersonalPlayerNotes:SetReasonColor(info, r, g, b)
     local c = self.db.profile.reason[info[#info]]
     c.r, c.g, c.b = r or 1, g or 1, b or 1
 end
 
-function Shitlist:GetReasonAlert(info)
+function PersonalPlayerNotes:GetReasonAlert(info)
     return self.db.profile.reason[info[#info]]
 end
 
-function Shitlist:SetReasonAlert(info, value)
+function PersonalPlayerNotes:SetReasonAlert(info, value)
     self.db.profile.reason[info[#info]] = value
     local reason = self:GetReasons()[self.db.profile.reason.id]
     reason.alert = value
@@ -570,18 +529,19 @@ end
 
 --#endregion
 
-
 --#region Listed Players
 
 --[[
-    Returns all listed players
+    Returns all listed players.
 ]]
---
-function Shitlist:GetListedPlayers()
+function PersonalPlayerNotes:GetListedPlayers()
     return self.db.profile.listedPlayers
 end
 
-function Shitlist:GetListedPlayer(name, realm)
+--[[
+    Return listed player data by name and realm.
+]]
+function PersonalPlayerNotes:GetListedPlayer(name, realm)
     for index, value in pairs(self.db.profile.listedPlayers) do
         if (tostring(name) == value.name and tostring(realm) == value.realm) then
             return self.db.profile.listedPlayers[index]
@@ -590,11 +550,17 @@ function Shitlist:GetListedPlayer(name, realm)
     return nil
 end
 
-function Shitlist:GetListedPlayerSelected(info)
+--[[
+    Return the current selected player data.
+]]
+function PersonalPlayerNotes:GetListedPlayerSelected(info)
     return self.db.profile.listedPlayer[info[#info]]
 end
 
-function Shitlist:SetListedPlayerSelected(info, value)
+--[[
+    Set player data by current selected player data.
+]]
+function PersonalPlayerNotes:SetListedPlayerSelected(info, value)
     self.db.profile.listedPlayer[info[#info]] = value
     local player = self.db.profile.listedPlayers[self.db.profile.listedPlayer.id]
     if (player) then
@@ -608,14 +574,14 @@ function Shitlist:SetListedPlayerSelected(info, value)
     end
 end
 
-function Shitlist:GetListedPlayerRealm(info)
+function PersonalPlayerNotes:GetListedPlayerRealm(info)
     return self.db.profile.listedPlayer[info[#info]]
 end
 
-function Shitlist:SetListedPlayerRealm(info, value)
+function PersonalPlayerNotes:SetListedPlayerRealm(info, value)
     self.db.profile.listedPlayer[info[#info]] = value
-    local player = Shitlist:GetListedPlayers()[self.db.profile.listedPlayer.id]
-    --local player = Shitlist:GetListedPlayer(self.db.profile.listedPlayer.name, value)
+    local player = PersonalPlayerNotes:GetListedPlayers()[self.db.profile.listedPlayer.id]
+    --local player = PersonalPlayerNotes:GetListedPlayer(self.db.profile.listedPlayer.name, value)
     if (player) then
         player.id = self.db.profile.listedPlayer.id
         player.name = self.db.profile.listedPlayer.name
@@ -627,14 +593,14 @@ function Shitlist:SetListedPlayerRealm(info, value)
     end
 end
 
-function Shitlist:GetListedPlayerName(info)
+function PersonalPlayerNotes:GetListedPlayerName(info)
     return self.db.profile.listedPlayer[info[#info]]
 end
 
-function Shitlist:SetListedPlayerName(info, value)
+function PersonalPlayerNotes:SetListedPlayerName(info, value)
     self.db.profile.listedPlayer[info[#info]] = value
-    --local player = Shitlist:GetListedPlayers()[self.db.profile.listedPlayer.id]
-    local player = Shitlist:GetListedPlayer(value, self.db.profile.listedPlayer.realm)
+    --local player = PersonalPlayerNotes:GetListedPlayers()[self.db.profile.listedPlayer.id]
+    local player = PersonalPlayerNotes:GetListedPlayer(value, self.db.profile.listedPlayer.realm)
     if (player) then
         player.id = self.db.profile.listedPlayer.id
         player.name = value
@@ -644,15 +610,15 @@ function Shitlist:SetListedPlayerName(info, value)
         player.color = self.db.profile.listedPlayer.color
         player.alert = self.db.profile.listedPlayer.alert
     else
-        local new = Shitlist:NewListedPlayer(value, self.db.profile.listedPlayer.realm)
-        Shitlist:SetListedPlayerSelected(info, new.id)
-        Shitlist:GetListedPlayerSelected(info)
+        local new = PersonalPlayerNotes:NewListedPlayer(value, self.db.profile.listedPlayer.realm)
+        PersonalPlayerNotes:SetListedPlayerSelected(info, new.id)
+        PersonalPlayerNotes:GetListedPlayerSelected(info)
     end
 end
 
-function Shitlist:RemoveListedPlayer()
+function PersonalPlayerNotes:RemoveListedPlayer()
     tremove(self.db.profile.listedPlayers, self.db.profile.listedPlayer.id)
-    local listedPlayers = Shitlist:GetListedPlayers()
+    local listedPlayers = PersonalPlayerNotes:GetListedPlayers()
     self.db.profile.listedPlayer.id = #listedPlayers
     self.db.profile.listedPlayer.name = listedPlayers[#listedPlayers].name
     self.db.profile.listedPlayer.realm = listedPlayers[#listedPlayers].realm
@@ -663,37 +629,37 @@ function Shitlist:RemoveListedPlayer()
     return true
 end
 
-function Shitlist:GetListedPlayerSelectedReason(info)
+function PersonalPlayerNotes:GetListedPlayerSelectedReason(info)
     return self.db.profile.listedPlayer[info[#info]]
 end
 
-function Shitlist:SetListedPlayerSelectedReason(info, value)
+function PersonalPlayerNotes:SetListedPlayerSelectedReason(info, value)
     self.db.profile.listedPlayer[info[#info]] = value
-    local player = Shitlist:GetListedPlayers()[self.db.profile.listedPlayer.id]
+    local player = PersonalPlayerNotes:GetListedPlayers()[self.db.profile.listedPlayer.id]
     player.reason = value
 end
 
-function Shitlist:GetListedPlayerSelectedDescription(info)
+function PersonalPlayerNotes:GetListedPlayerSelectedDescription(info)
     return self.db.profile.listedPlayer[info[#info]]
 end
 
-function Shitlist:SetListedPlayerSelectedDescription(info, value)
+function PersonalPlayerNotes:SetListedPlayerSelectedDescription(info, value)
     self.db.profile.listedPlayer[info[#info]] = value
-    local player = Shitlist:GetListedPlayers()[self.db.profile.listedPlayer.id]
+    local player = PersonalPlayerNotes:GetListedPlayers()[self.db.profile.listedPlayer.id]
     player.description = value
 end
 
-function Shitlist:GetListedPlayerColor(info)
+function PersonalPlayerNotes:GetListedPlayerColor(info)
     local c = self.db.profile.listedPlayer[info[#info]]
     return c.r or 1, c.g or 1, c.b or 1
 end
 
-function Shitlist:SetListedPlayerColor(info, r, g, b)
+function PersonalPlayerNotes:SetListedPlayerColor(info, r, g, b)
     local c = self.db.profile.listedPlayer[info[#info]]
     c.r, c.g, c.b = r or 1, g or 1, b or 1
 end
 
-function Shitlist:NewListedPlayer(name, realm, reason, description)
+function PersonalPlayerNotes:NewListedPlayer(name, realm, reason, description)
     self.db.profile.listedPlayer.id = #self.db.profile.listedPlayers + 1
     local newPlayer = {
         id = self.db.profile.listedPlayer.id,
@@ -708,31 +674,14 @@ function Shitlist:NewListedPlayer(name, realm, reason, description)
     return newPlayer
 end
 
-function Shitlist:GetListedPlayerAlert(info)
+function PersonalPlayerNotes:GetListedPlayerAlert(info)
     return self.db.profile.listedPlayer[info[#info]]
 end
 
-function Shitlist:SetListedPlayerAlert(info, value)
+function PersonalPlayerNotes:SetListedPlayerAlert(info, value)
     self.db.profile.listedPlayer[info[#info]] = value
-    local player = Shitlist:GetListedPlayers()[self.db.profile.listedPlayer.id]
+    local player = PersonalPlayerNotes:GetListedPlayers()[self.db.profile.listedPlayer.id]
     player.alert = value
 end
 
 --#endregion
-
-function Shitlist:GetAlertSoundEffect(info)
-    return self.db.profile.alert.sound
-end
-
-function Shitlist:SetAlertSoundEffect(info, value)
-    self:PlayAlertEffect(value)
-    self.db.profile.alert.sound = value
-end
-
-function Shitlist:PlayAlertEffect(effect, channel)
-    PlaySoundFile(
-        "Interface\\AddOns\\" ..
-        shitlist .. "\\Sounds\\" .. Shitlist.db.profile.alert.sounds[effect or self:GetAlertSoundEffect()] .. ".ogg",
-        channel or "master"
-    )
-end
