@@ -6,7 +6,7 @@ manual-changelog:
 
 enable-nolib-creation: no
 
-enable-toc-creation: no
+enable-toc-creation: yes
 
 ignore:
   - .gitignore
