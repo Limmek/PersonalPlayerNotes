@@ -7,7 +7,7 @@ Set personal notes and pre-defined descriptions on players to remind your self i
 
 ### Notes and pre-defined Descriptions can be set and managed:
 - By right-clicking on a unit frame or in chat
-- From a GUI interface or addon options
-- Minimap button to GUI interface or to open addon options
+- From a GUI interface or blizzard addon options
+- Minimap button to open GUI interface or the blizzard addon options
 
-- **Download Now**: Latest release can be found on [Github](https://github.com/Limmek/Shitlist/releases) or ~~[Curse Forge](https://www.curseforge.com/wow/addons/shitlist)~~(*They removed it due to violating their ToS*)..
+- **Download Now**: Latest release can be found on [Github](https://github.com/Limmek/Shitlist/releases) or [Curse Forge](https://www.curseforge.com/wow/addons/personal-player-notes)
