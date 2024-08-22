@@ -1,5 +1,5 @@
 nomatches:
-- contains: "Which version of WeakAuras are you using?" # Checks the entire issue for a substring match.
+- contains: "What version of World of Warcraft are are you running?" # Checks the entire issue for a substring match.
   addLabels: ["\U0001F41B Bug"]
 
 - contains: "Is your feature request related to a problem? Please describe."
