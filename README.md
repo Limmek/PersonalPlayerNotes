@@ -10,4 +10,4 @@ Set personal notes and pre-defined descriptions on players to remind your self i
 - From a GUI interface or blizzard addon options
 - Minimap button to open GUI interface or the blizzard addon options
 
-- **Download Now**: Latest release can be found on [Github](https://github.com/Limmek/Shitlist/releases) or [Curse Forge](https://www.curseforge.com/wow/addons/personal-player-notes)
+**Download Now**: Latest release can be found on [Github](https://github.com/Limmek/Shitlist/releases) or [Curse Forge](https://www.curseforge.com/wow/addons/personal-player-notes)
