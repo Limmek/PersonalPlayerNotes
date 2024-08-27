@@ -35,7 +35,12 @@
 		"SettingsPanel",
 		"GameMenuFrame",
 		"UIDROPDOWNMENU_MENU_VALUE",
-		"ShitlistDB"
+		"ShitlistDB",
+		"WOW_PROJECT_ID",
+		"WOW_PROJECT_MAINLINE",
+		"GameTooltip",
+		"HideUIPanel",
+		"ReloadUI"
 	],
 	"Lua.runtime.builtin": {
 		"basic": "disable",

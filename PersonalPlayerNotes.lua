@@ -11,7 +11,10 @@ local LibDataBroker          = LibStub("LibDataBroker-1.1")
 local LibDBIcon              = LibStub("LibDBIcon-1.0")
 
 local IS_RETAIL              = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE or false;
+local IS_WRATH               = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC or false;
+
 PersonalPlayerNotes.IsRetail = IS_RETAIL;
+PersonalPlayerNotes.IsWrath = IS_WRATH;
 
 function PersonalPlayerNotes:OnInitialize()
     -- uses the "Default" profile instead of character-specific profiles
@@ -51,7 +54,13 @@ function PersonalPlayerNotes:OnInitialize()
     self:RegisterChatCommand("ppnminimap", "ToggleMiniMapIcon")
     self:RegisterChatCommand("ppndebug", "ToggleDebug")
 
-    local loaded, reason = C_AddOns.LoadAddOn("Shitlist")
+    local loaded = nil
+    if (self.IsWrath) then
+        loaded, reason = LoadAddOn("Shitlist")
+    else
+        loaded, reason = C_AddOns.LoadAddOn("Shitlist")
+    end
+
     if loaded then
         self:GetOldConfigData()
     end
@@ -180,8 +189,13 @@ function PersonalPlayerNotes:GetOldConfigData()
                 self:Print(L["PPN_CONFIG_LISTEDPLAYERS"], _G["GREEN_FONT_COLOR_CODE"], #self:GetListedPlayers())
                 PersonalPlayerNotes:Print(L["PPN_CONFIG_MIGRATE_DONE"])
                 self.db:SetProfile("Default")
-                C_AddOns.DisableAddOn("Shitlist")
-                C_UI.Reload()
+                if (self.IsWrath) then
+                    DisableAddOn("Shitlist")
+                    ReloadUI()
+                else
+                    C_AddOns.DisableAddOn("Shitlist")
+                    C_UI.Reload()
+                end
             end,
             timeout = 0,
             whileDead = true,
