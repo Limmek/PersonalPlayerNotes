@@ -21,25 +21,25 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Checking Vanilla
-        uses: p3lim/toc-interface-updater@v3
+        uses: p3lim/toc-interface-updater@v4
         with:
           flavor: vanilla
           future: true
 
       - name: Checking Wrath
-        uses: p3lim/toc-interface-updater@v3
+        uses: p3lim/toc-interface-updater@v4
         with:
           flavor: wrath
           future: true
 
       - name: Checking Cata
-        uses: p3lim/toc-interface-updater@v3
+        uses: p3lim/toc-interface-updater@v4
         with:
           flavor: cata
           future: true
 
       - name: Checking Retail
-        uses: p3lim/toc-interface-updater@v3
+        uses: p3lim/toc-interface-updater@v4
         with:
           flavor: retail
           future: true
