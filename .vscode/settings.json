@@ -37,7 +37,15 @@
 		"UIDROPDOWNMENU_MENU_VALUE",
 		"ShitlistDB",
 		"ReloadUI",
-		"UnitPopup_ShowMenu"
+		"UnitPopup_ShowMenu",
+		"LoadAddOn",
+		"DisableAddOn",
+		"os",
+		"io",
+		"debug",
+		"loadfile",
+		"dofile",
+		"files"
 	],
 	"Lua.runtime.builtin": {
 		"basic": "disable",

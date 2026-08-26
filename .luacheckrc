@@ -1,3 +1,11 @@
+-- This file is itself a Lua chunk read by luacheck, and some editor
+-- extensions lint it directly by path (bypassing the `exclude_files` entry
+-- below, which only applies to luacheck's own directory-walking CLI
+-- invocation - passing this exact filename explicitly is hardcoded to
+-- always be skipped there anyway). Declare these as known globals so
+-- editor diagnostics don't flag every top-level assignment below.
+-- luacheck: globals std self max_line_length max_code_line_length max_string_line_length max_comment_line_length exclude_files ignore globals read_globals files
+
 std = "lua51"
 self = false
 
