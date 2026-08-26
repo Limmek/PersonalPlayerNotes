@@ -6,7 +6,7 @@
 ### apply, or `make format-check` to verify without writing (same as CI).
 
 column_width = 120
-line_endings = "Windows"
+line_endings = "Unix"
 indent_type = "Spaces"
 indent_width = 4
 quote_style = "AutoPreferDouble"
