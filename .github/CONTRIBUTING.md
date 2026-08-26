@@ -38,12 +38,18 @@ lua5.1 Tools/validate-toc.lua
 [![Interface versions](https://github.com/Limmek/PersonalPlayerNotes/actions/workflows/interface-version.yml/badge.svg)](https://github.com/Limmek/PersonalPlayerNotes/actions/workflows/interface-version.yml)
 [![Release](https://github.com/Limmek/PersonalPlayerNotes/actions/workflows/release.yml/badge.svg)](https://github.com/Limmek/PersonalPlayerNotes/actions/workflows/release.yml)
 
-Releases are fully automated via [workflows/release.yml](workflows/release.yml), and only happen on pull requests merged into `master` (or manual dispatch) — never on every push:
+**Branch model:** `master` is where all regular development happens (direct pushes or PRs); `release` is a persistent branch that exists only to cut versioned releases. To ship a new version:
 
-1. The `tag` job runs [K-Phoen/semver-release-action](https://github.com/K-Phoen/semver-release-action) (pinned to `v1.3.2`), which decides whether the merged PR warrants a new semver tag (based on the PR's labels — see that action's docs) and creates the git tag + GitHub release if so. If no new tag is warranted, nothing else in this workflow runs.
+1. Open a PR from `master` into `release`.
+2. Label it `patch`, `minor`, or `major` (whichever [K-Phoen/semver-release-action](https://github.com/K-Phoen/semver-release-action) should bump).
+3. Merge it. This triggers [workflows/release.yml](workflows/release.yml) — never on every push, and never on a merge into `master`.
+
+What the workflow does once that merge lands:
+
+1. The `tag` job runs [K-Phoen/semver-release-action](https://github.com/K-Phoen/semver-release-action) (pinned to `v1.3.2`), which decides whether the merged PR warrants a new semver tag (based on the PR's label) and creates the git tag + GitHub release if so. If no valid label is found, nothing else in this workflow runs. Note: this action parses the event strictly as a merged-PR payload, so `workflow_dispatch` (manual runs) and direct pushes never produce a tag.
 2. The `package` job (gated on step 1 actually producing a tag) runs the [BigWigsMods packager](https://github.com/BigWigsMods/packager) (pinned to the exact release `v2.5.1`, not a floating tag) to build a clean release zip (excluding dev-only files per [.pkgmeta](../.pkgmeta)), using the git tag as the addon version (the `.toc`'s `@project-version@` placeholder — see [.luacheckrc](../.luacheckrc)/AGENTS.md — is substituted in at this point), and publishes it to GitHub Releases and CurseForge (project `344967`).
 3. Credentials (`CF_API_KEY`, `GITHUB_OAUTH`) are supplied via repository secrets, never hardcoded. These names are what packager `v2.5.1` actually reads (verified from its source) — a future packager upgrade past its unreleased "Normalize api token env vars" change would need `CF_API_TOKEN`/`GITHUB_API_TOKEN` instead.
-4. A merge only reaches the `release` workflow's intended effect (an actual publish) if [workflows/ci.yml](workflows/ci.yml) passed first — this repository's branch protection rules on `master` should require the `ci.yml` jobs (`format`, `luacheck`, `tests`, `validate`, `build`) as required status checks, since a workflow file alone cannot enforce that.
+4. [workflows/ci.yml](workflows/ci.yml) also runs on the master→release PR itself (its `pull_request` trigger has no branch filter), so format/lint/tests/validate/build are checked before the release is cut.
 
 [workflows/interface-version.yml](workflows/interface-version.yml) separately keeps the declared `## Interface` versions in [PersonalPlayerNotes.toc](../PersonalPlayerNotes.toc) up to date on a daily schedule.
 

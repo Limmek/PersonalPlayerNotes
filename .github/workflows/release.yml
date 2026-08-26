@@ -1,10 +1,15 @@
 name: Release
 
-# Only runs on merged PRs into master (or manual dispatch). Creates a new git
-# tag + GitHub release ONLY when K-Phoen/semver-release-action determines a
-# new version is warranted (see its PR-label docs); if no new tag is created,
-# the package/publish job is skipped entirely - this workflow does not
-# publish on every push.
+# Branch model: `master` is where all regular development happens (direct
+# pushes or PRs); `release` is a persistent branch that only exists to cut
+# versioned releases. To ship a new version: open a PR from master into
+# release, label it patch/minor/major, and merge it.
+#
+# Only runs on merged PRs into the release branch (or manual dispatch).
+# Creates a new git tag + GitHub release ONLY when K-Phoen/semver-release-action
+# determines a new version is warranted (see its PR-label docs); if no new tag
+# is created, the package/publish job is skipped entirely - this workflow
+# does not publish on every push.
 #
 # `needs: tag` + `if: needs.tag.outputs.tag != ''` replaces the old
 # cross-workflow `workflow_run` trigger (which had no conclusion check and
@@ -26,7 +31,7 @@ jobs:
   tag:
     name: Tag new version
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged && github.event.pull_request.base.ref == 'master')
+    if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged && github.event.pull_request.base.ref == 'release')
     outputs:
       tag: ${{ steps.tag_and_prepare_release.outputs.tag }}
     steps:
@@ -37,7 +42,7 @@ jobs:
         id: tag_and_prepare_release
         uses: K-Phoen/semver-release-action@v1.3.2
         with:
-          release_branch: master
+          release_branch: release
           release_strategy: tag
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
