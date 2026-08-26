@@ -53,6 +53,10 @@ jobs:
         uses: Roang-zero1/github-create-release-action@v3
         with:
           created_tag: ${{ steps.tag_and_prepare_release.outputs.tag }}
+          # Without this, the release title defaults to the merged commit's
+          # message (e.g. "Merge pull request #29 from ...") instead of the
+          # version.
+          release_title: ${{ steps.tag_and_prepare_release.outputs.tag }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
