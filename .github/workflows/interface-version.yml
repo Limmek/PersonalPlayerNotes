@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone project
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       
       - name: Checking Vanilla
         uses: p3lim/toc-interface-updater@v4
@@ -34,7 +34,7 @@ jobs:
           flavor: retail
       
       - name: Commit changes
-        uses: EndBug/add-and-commit@v9
+        uses: EndBug/add-and-commit@v10
         with:
           message: 'Update TOC interface version(s)'
           add: '.'
