@@ -1,13 +1,5 @@
 v1.0.0
   Re-released with a new name and minor code base changes to not violate curse forge ToS.
 
-Unreleased
-  - Updated Interface versions: Retail 12.0.7, Classic Era 1.15.9, Mists of Pandaria Classic 5.5.4 (replacing the retired Cataclysm Classic flavor).
-  - Replaced hardcoded Retail/Classic branching for the unit menu and tooltip hookups with runtime feature detection.
-  - Guarded Blizzard Settings panel and legacy Shitlist migration lookups against clients/accounts where the relevant globals or SavedVariables don't exist.
-  - Added a SavedVariables schema version field and migration hook for future data format changes.
-  - Added Lua unit tests for the legacy Shitlist key-parsing logic and feature detection helpers, plus new CI workflows for tests and addon/TOC validation.
-  - Restored a fix (previously only tested live on Wrath Classic, never merged) for clients where the `C_AddOns`/`C_UI` namespaces don't exist yet: legacy Shitlist load/disable/reload now falls back to the older global `LoadAddOn`/`DisableAddOn`/`ReloadUI` functions via feature detection.
-  - Fixed a right-click minimap error ("bad argument #1 to 'OpenSettingsPanel'") by using the registered category ID returned from AddToBlizOptions() instead of the addon name when opening the Blizzard options panel.
-  - Added `_beta_`, `_anniversary_` flavor detection to Tools/Install-LocalAddon.ps1.
-  - Rebuilt the GitHub Actions pipeline: added StyLua formatting (CI-enforced), a stricter Luacheck config with explicit globals instead of blanket-ignored warnings, a pure-Lua TOC/addon validator (Tools/validate-toc.lua), and a local `make format/lint/test/validate/build/check` developer workflow. Replaced the old luacheck/tests/validate-toc/build/tag_and_release workflows with a single non-publishing `ci.yml` and a `release.yml` that only tags/publishes on a merged pull request, with pinned action versions (BigWigsMods/packager@v2.5.1, K-Phoen/semver-release-action@v1.3.2, JohnnyMorganz/stylua-action@v5).
+v1.1.0
+  Updated for Retail 12.0.7, Classic Era 1.15.9, and Mists of Pandaria Classic 5.5.4.
