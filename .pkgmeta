@@ -17,6 +17,10 @@ ignore:
   - .github
   - .pkgmeta
   - Makefile
+  - Tests
+  - Tools
+  - luacheck.exe
+  - Libs/LibStub/tests
 
 required-dependencies:
 
