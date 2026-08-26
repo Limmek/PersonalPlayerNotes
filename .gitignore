@@ -57,4 +57,18 @@ luac.out
 
 # Addon dependencies
 Libs/*
-!Libs/libs.txt
+!Libs/.gitkeep
+
+# BigWigsMods packager local build output
+.release/
+
+# OS cruft
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor/backup cruft
+*.tmp
+*.bak
+*.orig
+*.log

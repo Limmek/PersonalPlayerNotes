@@ -1,0 +1,53 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Install Local Addon",
+            "detail": "Link this checkout into your WoW AddOns folder(s) and fetch the Libs/ dependencies.",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}/Tools/Install-LocalAddon.ps1"
+            ],
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Update Local Addon Libs",
+            "detail": "Re-fetch every library in Libs/ from .pkgmeta, even if already present.",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}/Tools/Install-LocalAddon.ps1",
+                "-SkipLink",
+                "-UpdateLibs"
+            ],
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Uninstall Local Addon",
+            "detail": "Remove the AddOns folder junction(s) created by 'Install Local Addon'. Leaves Libs/ alone.",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}/Tools/Install-LocalAddon.ps1",
+                "-Uninstall"
+            ],
+            "group": "build",
+            "problemMatcher": []
+        }
+    ]
+}

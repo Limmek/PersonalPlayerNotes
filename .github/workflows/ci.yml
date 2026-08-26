@@ -1,0 +1,101 @@
+name: CI
+
+# Runs on every push and pull request. Never publishes or uploads anywhere -
+# see release.yml for the publish pipeline. This workflow is what branch
+# protection should require to pass before merging to master.
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  format:
+    name: Format check (StyLua)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone project
+        uses: actions/checkout@v4
+
+      - name: Check formatting
+        uses: JohnnyMorganz/stylua-action@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          version: "2.5.2"
+          args: --check .
+
+  luacheck:
+    name: Luacheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone project
+        uses: actions/checkout@v4
+
+      - name: Install and run Luacheck
+        uses: nebularg/actions-luacheck@v1
+        with:
+          args: "--no-color -q"
+
+  tests:
+    name: Lua unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone project
+        uses: actions/checkout@v4
+
+      - name: Install Lua 5.1
+        run: sudo apt-get update && sudo apt-get install -y lua5.1
+
+      - name: Run unit tests
+        run: |
+          set -e
+          for f in Tests/test_utils.lua Tests/test_config.lua Tests/test_main.lua; do
+            echo "-- $f --"
+            lua5.1 "$f"
+          done
+
+  validate:
+    name: Validate addon (TOC, file structure)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone project
+        uses: actions/checkout@v4
+
+      - name: Install Lua 5.1
+        run: sudo apt-get update && sudo apt-get install -y lua5.1
+
+      - name: Validate .toc files
+        run: lua5.1 Tools/validate-toc.lua
+
+  build:
+    name: Build package (no upload)
+    needs: [format, luacheck, tests, validate]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone project
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # -d skips all uploading (CurseForge/WoWInterface/Wago/GitHub) - this
+      # only proves the package builds. -p 0 unsets the CurseForge project id
+      # for this dry run so it doesn't attempt any CurseForge API calls
+      # (which would need CF_API_KEY, not available to PRs from forks).
+      - name: Build package artifact
+        uses: BigWigsMods/packager@v2.5.1
+        with:
+          args: -d -p 0 -w 0 -a 0 -m .pkgmeta
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PersonalPlayerNotes-build-${{ github.sha }}
+          path: .release/*.zip
+          retention-days: 14
+          if-no-files-found: error
