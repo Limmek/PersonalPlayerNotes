@@ -1,17 +1,21 @@
-local personalPlayerNotes    = ...
-PersonalPlayerNotes          = LibStub("AceAddon-3.0"):NewAddon(personalPlayerNotes, "AceConsole-3.0", "AceEvent-3.0",
+local personalPlayerNotes = ...
+PersonalPlayerNotes = LibStub("AceAddon-3.0"):NewAddon(
+    personalPlayerNotes,
+    "AceConsole-3.0",
+    "AceEvent-3.0",
     "AceHook-3.0",
-    "AceTimer-3.0"
-    , "AceSerializer-3.0")
-local L                      = LibStub("AceLocale-3.0"):GetLocale(personalPlayerNotes, true)
-local AceConfig              = LibStub("AceConfig-3.0")
-local AceConfigDialog        = LibStub("AceConfigDialog-3.0")
-local AceConfigRegistry      = LibStub("AceConfigRegistry-3.0")
-local LibDataBroker          = LibStub("LibDataBroker-1.1")
-local LibDBIcon              = LibStub("LibDBIcon-1.0")
+    "AceTimer-3.0",
+    "AceSerializer-3.0"
+)
+local L = LibStub("AceLocale-3.0"):GetLocale(personalPlayerNotes, true)
+local AceConfig = LibStub("AceConfig-3.0")
+local AceConfigDialog = LibStub("AceConfigDialog-3.0")
+local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
+local LibDataBroker = LibStub("LibDataBroker-1.1")
+local LibDBIcon = LibStub("LibDBIcon-1.0")
 
-local IS_RETAIL              = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE or false;
-PersonalPlayerNotes.IsRetail = IS_RETAIL;
+local IS_RETAIL = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE or false
+PersonalPlayerNotes.IsRetail = IS_RETAIL
 
 function PersonalPlayerNotes:OnInitialize()
     -- uses the "Default" profile instead of character-specific profiles
@@ -22,36 +26,68 @@ function PersonalPlayerNotes:OnInitialize()
     self.db.RegisterCallback(self, "OnProfileCopied", "LoadConfig")
     self.db.RegisterCallback(self, "OnProfileReset", "LoadConfig")
 
+    -- fills in any missing SavedVariables fields and runs schema migrations, if needed
+    self:MigrateSavedVariablesSchema()
+
     -- registers an options table and adds it to the Blizzard options window
     -- https://www.wowace.com/projects/ace3/pages/api/ace-config-3-0
     AceConfig:RegisterOptionsTable("PersonalPlayerNotesSettings Info", self.options.Info)
-    AceConfigDialog:AddToBlizOptions("PersonalPlayerNotesSettings Info", personalPlayerNotes)
+    -- the 2nd return value is the registered category ID Settings.OpenToCategory()
+    -- expects (a numeric ID/category object on modern clients) - the addon name
+    -- string itself is NOT a valid argument, see OpenBlizzardOptions() below
+    local _, blizOptionsCategoryID =
+        AceConfigDialog:AddToBlizOptions("PersonalPlayerNotesSettings Info", personalPlayerNotes)
+    self.blizOptionsCategoryID = blizOptionsCategoryID
 
-    AceConfig:RegisterOptionsTable("PersonalPlayerNotesSettings Options", self.options.Settings, { "ppno", "ppnoptions" })
+    AceConfig:RegisterOptionsTable(
+        "PersonalPlayerNotesSettings Options",
+        self.options.Settings,
+        { "ppno", "ppnoptions" }
+    )
     AceConfigDialog:AddToBlizOptions("PersonalPlayerNotesSettings Options", L["PPN_MENU_SETTINGS"], personalPlayerNotes)
 
-    AceConfig:RegisterOptionsTable("PersonalPlayerNotesSettings Reasons", self.options.Reasons, { "ppnr", "ppnreasons" })
+    AceConfig:RegisterOptionsTable(
+        "PersonalPlayerNotesSettings Reasons",
+        self.options.Reasons,
+        { "ppnr", "ppnreasons" }
+    )
     AceConfigDialog:AddToBlizOptions("PersonalPlayerNotesSettings Reasons", L["PPN_MENU_REASONS"], personalPlayerNotes)
 
-    AceConfig:RegisterOptionsTable("PersonalPlayerNotesSettings Listed_Players", self.options.ListedPlayers,
-        { "ppnp", "ppnplayers" })
-    AceConfigDialog:AddToBlizOptions("PersonalPlayerNotesSettings Listed_Players", L["PPN_MENU_LISTED_PLAYERS"],
-        personalPlayerNotes)
+    AceConfig:RegisterOptionsTable(
+        "PersonalPlayerNotesSettings Listed_Players",
+        self.options.ListedPlayers,
+        { "ppnp", "ppnplayers" }
+    )
+    AceConfigDialog:AddToBlizOptions(
+        "PersonalPlayerNotesSettings Listed_Players",
+        L["PPN_MENU_LISTED_PLAYERS"],
+        personalPlayerNotes
+    )
 
     local profiles = LibStub("AceDBOptions-3.0"):GetOptionsTable(self.db)
     AceConfig:RegisterOptionsTable("PersonalPlayerNotesSettings Profiles", profiles)
-    AceConfigDialog:AddToBlizOptions("PersonalPlayerNotesSettings Profiles", L["PPN_MENU_PROFILES"], personalPlayerNotes)
+    AceConfigDialog:AddToBlizOptions(
+        "PersonalPlayerNotesSettings Profiles",
+        L["PPN_MENU_PROFILES"],
+        personalPlayerNotes
+    )
 
     LibDBIcon:Register(personalPlayerNotes, self:MiniMapIcon(), self.db.profile.minimap)
 
     self:RegisterChatCommand("ppn", function()
-        Settings.OpenToCategory(personalPlayerNotes)
+        PersonalPlayerNotes:OpenBlizzardOptions()
     end)
     self:RegisterChatCommand("ppnm", "ToggleMiniMapIcon")
     self:RegisterChatCommand("ppnminimap", "ToggleMiniMapIcon")
     self:RegisterChatCommand("ppndebug", "ToggleDebug")
 
-    local loaded, reason = C_AddOns.LoadAddOn("Shitlist")
+    local loaded
+    if self:HasModernAddOnAPI() then
+        loaded = C_AddOns.LoadAddOn("Shitlist")
+    else
+        -- Some Classic clients don't expose the C_AddOns namespace yet.
+        loaded = LoadAddOn("Shitlist")
+    end
     if loaded then
         self:GetOldConfigData()
     end
@@ -64,18 +100,27 @@ function PersonalPlayerNotes:OnEnable()
     self:Print(L["PPN_CONFIG_REASONS"], _G["GREEN_FONT_COLOR_CODE"], #self:GetReasons())
     self:Print(L["PPN_CONFIG_LISTEDPLAYERS"], _G["GREEN_FONT_COLOR_CODE"], #self:GetListedPlayers())
 
-    if (self.IsRetail) then
-        -- New Menu System in Retail 11.0.0
+    -- Feature detection instead of a hardcoded Retail/Classic branch: some Classic
+    -- clients have already picked up the modern Menu/Tooltip APIs, and future
+    -- clients may too, so we check for the actual API surface instead.
+    if self:HasModernMenuAPI() then
+        -- New Menu System, introduced in Retail 11.0.0
         -- https://warcraft.wiki.gg/wiki/Patch_11.0.0/API_changes
         -- https://www.townlong-yak.com/framexml/latest/Blizzard_Menu/11_0_0_MenuImplementationGuide.lua
         self:DropDownMenuInitialize()
-        -- Retail 10.0.2 https://wowpedia.fandom.com/wiki/Patch_10.0.2/API_changes#Tooltip_Changes
-        TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, self.GameTooltip)
-    else
-        -- Backwards compatibility Classic
+    elseif UnitPopup_ShowMenu then
+        -- Legacy dropdown menu, still used on some Classic clients
         if not self:IsHooked("UnitPopup_ShowMenu") then
             self:SecureHook("UnitPopup_ShowMenu", self.UnitPopup_ShowMenu)
         end
+    else
+        self:PrintDebug("No supported unit menu API was found on this client.")
+    end
+
+    if self:HasModernTooltipAPI() then
+        -- Retail 10.0.2 https://wowpedia.fandom.com/wiki/Patch_10.0.2/API_changes#Tooltip_Changes
+        TooltipDataProcessor.AddTooltipPostCall(Enum.TooltipDataType.Unit, self.GameTooltip)
+    else
         GameTooltip:HookScript("OnTooltipSetUnit", self.GameTooltip)
     end
     self:Print(L["PPN_CONFIG_LOADED"])
@@ -100,6 +145,11 @@ function PersonalPlayerNotes:LoadConfig()
 end
 
 function PersonalPlayerNotes:GetOldConfigData()
+    -- Shitlist may be loadable without ever having saved any data (e.g. a fresh account).
+    if not ShitlistDB then
+        return
+    end
+
     local reasons = self:GetReasons()
     local listedPlayers = self:GetListedPlayers()
     -- Check if old data exist pre addon 2.0.0 version
@@ -116,7 +166,7 @@ function PersonalPlayerNotes:GetOldConfigData()
             end
 
             for key, value in pairs(oldListedPlayers) do
-                local name, realm = key:match("([^-]+)-([^-]+)")
+                local name, realm = self:ParseLegacyPlayerKey(key)
                 if name and realm then
                     if not newPlayers[name .. "-" .. realm] then
                         local reason = value[1]
@@ -166,7 +216,7 @@ function PersonalPlayerNotes:GetOldConfigData()
     end
 
     -- Move old shitlist profiles data to new Personal Player Notes database
-    if ShitlistDB and ShitlistDB.profiles then
+    if ShitlistDB.profiles then
         self:Print(L["PPN_CONFIG_MIGRATE_OLD_DATA"])
         StaticPopupDialogs["MIGRATE_PROFILES"] = {
             text = L["PPN_CONFIG_MIGRATE"],
@@ -180,8 +230,18 @@ function PersonalPlayerNotes:GetOldConfigData()
                 self:Print(L["PPN_CONFIG_LISTEDPLAYERS"], _G["GREEN_FONT_COLOR_CODE"], #self:GetListedPlayers())
                 PersonalPlayerNotes:Print(L["PPN_CONFIG_MIGRATE_DONE"])
                 self.db:SetProfile("Default")
-                C_AddOns.DisableAddOn("Shitlist")
-                C_UI.Reload()
+                if self:HasModernAddOnAPI() then
+                    C_AddOns.DisableAddOn("Shitlist")
+                else
+                    -- Some Classic clients don't expose the C_AddOns namespace yet.
+                    DisableAddOn("Shitlist")
+                end
+                if self:HasModernUIReloadAPI() then
+                    C_UI.Reload()
+                else
+                    -- Some Classic clients don't expose the C_UI namespace yet.
+                    ReloadUI()
+                end
             end,
             timeout = 0,
             whileDead = true,
@@ -201,10 +261,12 @@ function PersonalPlayerNotes:DropDownMenuInitialize()
         -- retrieve name and realm from wow api
         local name, realm = UnitName(contextData.unit)
         -- if the unit is from the same realm then realm is empty, use current realm instead
-        if realm == nil then realm = GetRealmName() end
+        if realm == nil then
+            realm = GetRealmName()
+        end
 
         local listedPlayer = PersonalPlayerNotes:GetListedPlayer(name, realm)
-        if (not listedPlayer) then
+        if not listedPlayer then
             rootDescription:CreateDivider()
             rootDescription:CreateTitle(L["PPN"])
             rootDescription:CreateButton(L["PPN_POPUP_ADD"], function()
@@ -245,9 +307,15 @@ function PersonalPlayerNotes:DropDownMenuInitialize()
             end)
         end
     end
-    Menu.ModifyMenu("MENU_UNIT_PLAYER", function(...) DropDownMenu(...) end)
-    Menu.ModifyMenu("MENU_UNIT_ENEMY_PLAYER", function(...) DropDownMenu(...) end)
-    Menu.ModifyMenu("MENU_UNIT_FRIEND", function(...) DropDownMenu(...) end)
+    Menu.ModifyMenu("MENU_UNIT_PLAYER", function(...)
+        DropDownMenu(...)
+    end)
+    Menu.ModifyMenu("MENU_UNIT_ENEMY_PLAYER", function(...)
+        DropDownMenu(...)
+    end)
+    Menu.ModifyMenu("MENU_UNIT_FRIEND", function(...)
+        DropDownMenu(...)
+    end)
 end
 
 -- Classic Deprecated
@@ -264,14 +332,16 @@ function PersonalPlayerNotes:UnitPopup_ShowMenu(target, unit, menuList)
     -- retrieve name and realm from wow api
     local name, realm = UnitName(unit)
     -- if the unit is from the same realm then realm is empty, use current realm instead
-    if realm == nil then realm = GetRealmName() end
+    if realm == nil then
+        realm = GetRealmName()
+    end
     local listedPlayer = PersonalPlayerNotes:GetListedPlayer(name, realm)
 
     PersonalPlayerNotes:PrintDebug("Name: ", name, ", Realm: ", realm)
 
     -- Check if this is the root level of the dropdown menu
     if UIDROPDOWNMENU_MENU_LEVEL == 1 then
-        if (listedPlayer) then
+        if listedPlayer then
             UIDropDownMenu_AddButton({
                 text = personalPlayerNotes,
                 notCheckable = true,
@@ -321,7 +391,7 @@ function PersonalPlayerNotes:UnitPopup_ShowMenu(target, unit, menuList)
         menuItem.hasArrow = false
         menuItem.value = listedPlayer
         menuItem.func = function()
-            if (listedPlayer) then
+            if listedPlayer then
                 PersonalPlayerNotes.db.profile.listedPlayer.id = listedPlayer.id
                 PersonalPlayerNotes.db.profile.listedPlayer.name = listedPlayer.name
                 PersonalPlayerNotes.db.profile.listedPlayer.realm = listedPlayer.realm
@@ -343,45 +413,73 @@ end
 
 function PersonalPlayerNotes:GameTooltip()
     local _name, unit = self:GetUnit()
-    if not (unit and UnitIsPlayer(unit)) then return end
+    if not (unit and UnitIsPlayer(unit)) then
+        return
+    end
 
     local name, realm = UnitFullName(unit)
-    if (_name ~= name) then return end
+    if _name ~= name then
+        return
+    end
 
-    if (realm == nil) then realm = GetRealmName() end
+    if realm == nil then
+        realm = GetRealmName()
+    end
 
     local listedPlayer = PersonalPlayerNotes:GetListedPlayer(name, realm)
-    if (not listedPlayer) then return end
+    if not listedPlayer then
+        return
+    end
 
     local reason = PersonalPlayerNotes:GetReasons()[listedPlayer.reason]
     local _reason = reason
     local _listedPlayer = listedPlayer
 
-    PersonalPlayerNotes:PrintDebug("|cffff0000<GameTooltip>|cffffffff Playername:", name, "Realm:", realm, "Reason:",
-        _reason
-        .reason,
-        "Note:", _listedPlayer.description)
+    PersonalPlayerNotes:PrintDebug(
+        "|cffff0000<GameTooltip>|cffffffff Playername:",
+        name,
+        "Realm:",
+        realm,
+        "Reason:",
+        _reason.reason,
+        "Note:",
+        _listedPlayer.description
+    )
 
     -- Tooltip
     if not (_reason.reason == "None" and _listedPlayer.description == "") then
         self:AddLine("\n")
-        self:AddDoubleLine(_reason.reason:gsub("None", ""), "|T" .. PersonalPlayerNotes.db.profile.icon .. ":0|t",
-            _reason.color.r or 1, _reason.color.g or 1, _reason.color.b or 1)
-        self:AddLine(_listedPlayer.description, _listedPlayer.color.r or 1, _listedPlayer.color.g or 1,
-            _listedPlayer.color.b or 1, false)
+        self:AddDoubleLine(
+            _reason.reason:gsub("None", ""),
+            "|T" .. PersonalPlayerNotes.db.profile.icon .. ":0|t",
+            _reason.color.r or 1,
+            _reason.color.g or 1,
+            _reason.color.b or 1
+        )
+        self:AddLine(
+            _listedPlayer.description,
+            _listedPlayer.color.r or 1,
+            _listedPlayer.color.g or 1,
+            _listedPlayer.color.b or 1,
+            false
+        )
     end
 
     -- Alert
     local time = time()
     local alert = PersonalPlayerNotes.db.profile.alert
-    if (alert.enabled and reason.alert) then
-        if (listedPlayer.alert and not alert.last[name]) then
+    if alert.enabled and reason.alert then
+        if listedPlayer.alert and not alert.last[name] then
             alert.last[name] = time + alert.delay
             PersonalPlayerNotes:ScheduleTimer("AlertDelayTimer", alert.delay, name)
             PersonalPlayerNotes:PlayAlertSoundEffect()
-            PersonalPlayerNotes:PrintDebug("|cffff0000<ALERT>|cffffffff Sound effect disabled for player", name, "for",
+            PersonalPlayerNotes:PrintDebug(
+                "|cffff0000<ALERT>|cffffffff Sound effect disabled for player",
+                name,
+                "for",
                 alert.delay,
-                "seconds.")
+                "seconds."
+            )
         end
     end
 end
@@ -400,11 +498,15 @@ function PersonalPlayerNotes:MiniMapIcon()
         text = L["PPN"],
         icon = PersonalPlayerNotes.db.profile.icon,
         OnClick = function(clickedframe, button)
-            HideUIPanel(SettingsPanel)
-            HideUIPanel(GameMenuFrame)
+            if SettingsPanel then
+                HideUIPanel(SettingsPanel)
+            end
+            if GameMenuFrame then
+                HideUIPanel(GameMenuFrame)
+            end
             AceConfigDialog:CloseAll()
             if button == "RightButton" then
-                Settings.OpenToCategory(personalPlayerNotes)
+                PersonalPlayerNotes:OpenBlizzardOptions()
             elseif button == "LeftButton" then
                 local AceGUI = PersonalPlayerNotes:AceGUIDefaults()
                 if IsShiftKeyDown() then
@@ -425,7 +527,8 @@ function PersonalPlayerNotes:MiniMapIcon()
         OnTooltipShow = function(tooltip)
             tooltip:AddDoubleLine(
                 "|T" .. PersonalPlayerNotes.db.profile.icon .. ":0|t " .. L["PPN_MINIMAP_TOOLTIP_TITLE"],
-                PersonalPlayerNotes:GetVersion())
+                PersonalPlayerNotes:GetVersion()
+            )
             tooltip:AddLine("\n")
             tooltip:AddLine(L["PPN_MINIMAP_TOOLTIP_RIGHT_CLICK"])
             tooltip:AddLine(L["PPN_MINIMAP_TOOLTIP_LEFT_CLICK"])

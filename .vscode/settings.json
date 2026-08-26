@@ -35,7 +35,9 @@
 		"SettingsPanel",
 		"GameMenuFrame",
 		"UIDROPDOWNMENU_MENU_VALUE",
-		"ShitlistDB"
+		"ShitlistDB",
+		"ReloadUI",
+		"UnitPopup_ShowMenu"
 	],
 	"Lua.runtime.builtin": {
 		"basic": "disable",
@@ -49,6 +51,6 @@
 		"utf8": "disable"
 	},
 	"Lua.workspace.library": [
-		"~\\.vscode\\extensions\\ketho.wow-api-0.17.4\\Annotations"
+		"~\\.vscode\\extensions\\ketho.wow-api-0.22.3\\Annotations\\Core"
 	],
 }

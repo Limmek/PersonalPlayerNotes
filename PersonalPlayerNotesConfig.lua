@@ -3,6 +3,7 @@ local L = LibStub("AceLocale-3.0"):GetLocale(personalPlayerNotes, true)
 
 PersonalPlayerNotes.defaults = {
     profile = {
+        schemaVersion = PersonalPlayerNotes.SCHEMA_VERSION,
         icon = "Interface\\AddOns\\" .. personalPlayerNotes .. "\\Images\\icon.png",
         debug = false,
         minimap = { hide = false, minimapPos = 240 },
@@ -12,12 +13,12 @@ PersonalPlayerNotes.defaults = {
             sound = 1,
             sounds = { "alarmbeep", "alarmbuzz", "alarmbuzzer", "alarmdouble" },
             last = {},
-            time = 0
+            time = 0,
         },
         reasons = {
-            { id = 1, reason = L["PPN_DEFAULT_REASON"], color = { r = 1, g = 1, b = 1 }, alert = false, },
+            { id = 1, reason = L["PPN_DEFAULT_REASON"], color = { r = 1, g = 1, b = 1 }, alert = false },
         },
-        reason = { id = 1, reason = L["PPN_DEFAULT_REASON"], color = { r = 1, g = 1, b = 1 }, alert = false, },
+        reason = { id = 1, reason = L["PPN_DEFAULT_REASON"], color = { r = 1, g = 1, b = 1 }, alert = false },
         listedPlayer = {
             id = 1,
             name = L["PPN_LISTED_PLAYERS_EXAMPLE_NAME"],
@@ -37,8 +38,8 @@ PersonalPlayerNotes.defaults = {
                 color = { r = 1, g = 1, b = 1 },
                 alert = true,
             },
-        }
-    }
+        },
+    },
 }
 
 -- https://www.wowace.com/projects/ace3/pages/ace-config-3-0-options-tables
@@ -106,52 +107,64 @@ PersonalPlayerNotes.options = {
                         order = 0,
                         width = "full",
                         fontSize = "medium",
-                        name = "|cffffd700" .. L["PPN_INFO_ABOUT_VERSION"] ..
-                            ": |cffff8c00" .. PersonalPlayerNotes:GetVersion()
+                        name = "|cffffd700"
+                            .. L["PPN_INFO_ABOUT_VERSION"]
+                            .. ": |cffff8c00"
+                            .. PersonalPlayerNotes:GetVersion(),
                     },
                     author = {
                         type = "description",
                         order = 1,
                         width = "full",
                         fontSize = "medium",
-                        name = "|cffffd700" .. L["PPN_INFO_ABOUT_AUTHOR"] ..
-                            ": |cffffffff" .. PersonalPlayerNotes:GetAuthor()
+                        name = "|cffffd700"
+                            .. L["PPN_INFO_ABOUT_AUTHOR"]
+                            .. ": |cffffffff"
+                            .. PersonalPlayerNotes:GetAuthor(),
                     },
                     category = {
                         type = "description",
                         order = 2,
                         width = "full",
                         fontSize = "medium",
-                        name = "|cffffd700" .. L["PPN_INFO_ABOUT_CATEGORY"] ..
-                            ": |cffffffff" .. PersonalPlayerNotes:GetCategory()
+                        name = "|cffffd700"
+                            .. L["PPN_INFO_ABOUT_CATEGORY"]
+                            .. ": |cffffffff"
+                            .. PersonalPlayerNotes:GetCategory(),
                     },
                     localizations = {
                         type = "description",
                         order = 3,
                         width = "full",
                         fontSize = "medium",
-                        name = "|cffffd700" .. L["PPN_INFO_ABOUT_LOCALIZATION"] ..
-                            ": |cffffffff" .. PersonalPlayerNotes:GetLocalizations()
+                        name = "|cffffd700"
+                            .. L["PPN_INFO_ABOUT_LOCALIZATION"]
+                            .. ": |cffffffff"
+                            .. PersonalPlayerNotes:GetLocalizations(),
                     },
                     license = {
                         type = "description",
                         order = 4,
                         width = "full",
                         fontSize = "medium",
-                        name = "|cffffd700" .. L["PPN_INFO_ABOUT_LICENSE"] ..
-                            ": |cffffffff" .. PersonalPlayerNotes:GetLicense()
+                        name = "|cffffd700"
+                            .. L["PPN_INFO_ABOUT_LICENSE"]
+                            .. ": |cffffffff"
+                            .. PersonalPlayerNotes:GetLicense(),
                     },
                     website = {
                         type = "description",
                         order = 5,
                         width = "full",
                         fontSize = "medium",
-                        name = "|cffffd700" .. L["PPN_INFO_ABOUT_WEB"] ..
-                            ": |cffffffff" .. PersonalPlayerNotes:GetWebsite()
+                        name = "|cffffd700"
+                            .. L["PPN_INFO_ABOUT_WEB"]
+                            .. ": |cffffffff"
+                            .. PersonalPlayerNotes:GetWebsite(),
                     },
-                }
-            }
-        }
+                },
+            },
+        },
     },
     Settings = {
         type = "group",
@@ -173,12 +186,12 @@ PersonalPlayerNotes.options = {
                         name = L["PPN_SETTINGS_MINIMAP_ICON"],
                         desc = L["PPN_SETTINGS_MINIMAP_ICON_DESC"],
                         get = function(info)
-                            return PersonalPlayerNotes.db.profile.minimap.hide;
+                            return PersonalPlayerNotes.db.profile.minimap.hide
                         end,
                         set = function(info, value)
-                            PersonalPlayerNotes.db.profile.minimap.hide = value;
-                            PersonalPlayerNotes:LoadConfig();
-                        end
+                            PersonalPlayerNotes.db.profile.minimap.hide = value
+                            PersonalPlayerNotes:LoadConfig()
+                        end,
                     },
                     minimapPos = {
                         type = "range",
@@ -187,11 +200,11 @@ PersonalPlayerNotes.options = {
                         desc = L["PPN_SETTINGS_MINIMAP_POS_DESC"],
                         width = 1.5,
                         get = function(info)
-                            return PersonalPlayerNotes.db.profile.minimap.minimapPos;
+                            return PersonalPlayerNotes.db.profile.minimap.minimapPos
                         end,
                         set = function(info, value)
-                            PersonalPlayerNotes.db.profile.minimap.minimapPos = value;
-                            PersonalPlayerNotes:LoadConfig();
+                            PersonalPlayerNotes.db.profile.minimap.minimapPos = value
+                            PersonalPlayerNotes:LoadConfig()
                         end,
                         min = 0,
                         max = 360,
@@ -211,14 +224,14 @@ PersonalPlayerNotes.options = {
                     description = {
                         type = "description",
                         order = 0,
-                        name = L["PPN_SETTINGS_ALERT_DESC"]
+                        name = L["PPN_SETTINGS_ALERT_DESC"],
                     },
                     enabled = {
                         type = "toggle",
                         order = 1,
                         name = L["PPN_SETTINGS_ALERT_ENABLED"],
                         desc = L["PPN_SETTINGS_ALERT_ENABLED_DESC"],
-                        width = 0.5
+                        width = 0.5,
                     },
                     sounds = {
                         type = "select",
@@ -240,11 +253,11 @@ PersonalPlayerNotes.options = {
                         step = 1,
                         name = L["PPN_SETTINGS_ALERT_DELAY"],
                         desc = L["PPN_SETTINGS_ALERT_DELAY_DESC"],
-                        width = 1
-                    }
-                }
-            }
-        }
+                        width = 1,
+                    },
+                },
+            },
+        },
     },
     Reasons = {
         type = "group",
@@ -257,7 +270,7 @@ PersonalPlayerNotes.options = {
                 type = "description",
                 order = 0,
                 width = "full",
-                name = L["PPN_REASON_DESCRIPTION"]
+                name = L["PPN_REASON_DESCRIPTION"],
             },
             id = {
                 type = "select",
@@ -281,16 +294,17 @@ PersonalPlayerNotes.options = {
                 cmdHidden = true,
                 name = L["PPN_REASON_REMOVE"],
                 confirm = function()
-                    return L["PPN_REASON_REMOVE_CONFIRMATION"] ..
-                        PersonalPlayerNotes.db.profile.reason.reason .. "|cffffffff?";
+                    return L["PPN_REASON_REMOVE_CONFIRMATION"]
+                        .. PersonalPlayerNotes.db.profile.reason.reason
+                        .. "|cffffffff?"
                 end,
                 func = "RemoveReason",
                 disabled = function()
-                    if (PersonalPlayerNotes.db.profile.reason.id <= #PersonalPlayerNotes.defaults.profile.reasons) then
+                    if PersonalPlayerNotes.db.profile.reason.id <= #PersonalPlayerNotes.defaults.profile.reasons then
                         return true
                     end
                     return false
-                end
+                end,
             },
             reason = {
                 type = "input",
@@ -318,7 +332,7 @@ PersonalPlayerNotes.options = {
                 get = "GetReasonAlert",
                 set = "SetReasonAlert",
             },
-        }
+        },
     },
     ListedPlayers = {
         type = "group",
@@ -349,9 +363,11 @@ PersonalPlayerNotes.options = {
                 cmdHidden = true,
                 name = L["PPN_LISTED_PLAYER_REMOVE"],
                 confirm = function()
-                    return L["PPN_LISTED_PLAYER_REMOVE_CONFIRMATION"] ..
-                        PersonalPlayerNotes.db.profile.listedPlayer.name ..
-                        "-" .. PersonalPlayerNotes.db.profile.listedPlayer.realm .. "|cffffffff?";
+                    return L["PPN_LISTED_PLAYER_REMOVE_CONFIRMATION"]
+                        .. PersonalPlayerNotes.db.profile.listedPlayer.name
+                        .. "-"
+                        .. PersonalPlayerNotes.db.profile.listedPlayer.realm
+                        .. "|cffffffff?"
                 end,
                 func = "RemoveListedPlayer",
             },
@@ -412,12 +428,11 @@ PersonalPlayerNotes.options = {
                 get = "GetListedPlayerAlert",
                 set = "SetListedPlayerAlert",
                 disabled = function()
-                    return not PersonalPlayerNotes.db.profile.reasons
-                        [PersonalPlayerNotes.db.profile.listedPlayer.reason].alert
+                    return not PersonalPlayerNotes.db.profile.reasons[PersonalPlayerNotes.db.profile.listedPlayer.reason].alert
                 end,
             },
-        }
-    }
+        },
+    },
 }
 
 --#region Sound
@@ -441,9 +456,11 @@ end
 
 function PersonalPlayerNotes:PlayAlertSoundEffect(effect, channel)
     PlaySoundFile(
-        "Interface\\AddOns\\" ..
-        personalPlayerNotes ..
-        "\\Sounds\\" .. PersonalPlayerNotes.db.profile.alert.sounds[effect or self:GetAlertSoundEffect()] .. ".ogg",
+        "Interface\\AddOns\\"
+            .. personalPlayerNotes
+            .. "\\Sounds\\"
+            .. PersonalPlayerNotes.db.profile.alert.sounds[effect or self:GetAlertSoundEffect()]
+            .. ".ogg",
         channel or "master"
     )
 end
@@ -469,17 +486,15 @@ end
 
 function PersonalPlayerNotes:SetReason(info, value)
     self.db.profile.reason[info[#info]] = value
-    if (self.db.profile.reasons[self.db.profile.reason.id].reason == value) then
+    if self.db.profile.reasons[self.db.profile.reason.id].reason == value then
         return
     else
-        tinsert(self.db.profile.reasons,
-            #self.db.profile.reasons + 1,
-            {
-                id = #self.db.profile.reasons + 1,
-                reason = value,
-                color = { r = 1, g = 1, b = 1 },
-                alert = true
-            })
+        tinsert(self.db.profile.reasons, #self.db.profile.reasons + 1, {
+            id = #self.db.profile.reasons + 1,
+            reason = value,
+            color = { r = 1, g = 1, b = 1 },
+            alert = true,
+        })
         self.db.profile.reason.id = #self.db.profile.reasons
         self:SelectedReason(info, self.db.profile.reason.id)
         self:GetReason(info)
@@ -488,7 +503,7 @@ end
 
 function PersonalPlayerNotes:SelectedReason(info, value)
     local r = self.db.profile.reasons[value]
-    if (not r) then
+    if not r then
         return
     end
     self.db.profile.reason[info[#info]] = value
@@ -504,7 +519,7 @@ function PersonalPlayerNotes:RemoveReason()
     PersonalPlayerNotes.db.profile.reason.reason = reasons[#reasons].reason
     PersonalPlayerNotes.db.profile.reason.color = reasons[#reasons].color
     PersonalPlayerNotes.db.profile.reason.alert = reasons[#reasons].alert
-    return true;
+    return true
 end
 
 function PersonalPlayerNotes:GetReasonColor(info)
@@ -543,7 +558,7 @@ end
 ]]
 function PersonalPlayerNotes:GetListedPlayer(name, realm)
     for index, value in pairs(self.db.profile.listedPlayers) do
-        if (tostring(name) == value.name and tostring(realm) == value.realm) then
+        if tostring(name) == value.name and tostring(realm) == value.realm then
             return self.db.profile.listedPlayers[index]
         end
     end
@@ -563,7 +578,7 @@ end
 function PersonalPlayerNotes:SetListedPlayerSelected(info, value)
     self.db.profile.listedPlayer[info[#info]] = value
     local player = self.db.profile.listedPlayers[self.db.profile.listedPlayer.id]
-    if (player) then
+    if player then
         self.db.profile.listedPlayer.id = value
         self.db.profile.listedPlayer.name = player.name
         self.db.profile.listedPlayer.realm = player.realm
@@ -582,7 +597,7 @@ function PersonalPlayerNotes:SetListedPlayerRealm(info, value)
     self.db.profile.listedPlayer[info[#info]] = value
     local player = PersonalPlayerNotes:GetListedPlayers()[self.db.profile.listedPlayer.id]
     --local player = PersonalPlayerNotes:GetListedPlayer(self.db.profile.listedPlayer.name, value)
-    if (player) then
+    if player then
         player.id = self.db.profile.listedPlayer.id
         player.name = self.db.profile.listedPlayer.name
         player.realm = value
@@ -601,7 +616,7 @@ function PersonalPlayerNotes:SetListedPlayerName(info, value)
     self.db.profile.listedPlayer[info[#info]] = value
     --local player = PersonalPlayerNotes:GetListedPlayers()[self.db.profile.listedPlayer.id]
     local player = PersonalPlayerNotes:GetListedPlayer(value, self.db.profile.listedPlayer.realm)
-    if (player) then
+    if player then
         player.id = self.db.profile.listedPlayer.id
         player.name = value
         player.realm = self.db.profile.listedPlayer.realm
@@ -668,7 +683,7 @@ function PersonalPlayerNotes:NewListedPlayer(name, realm, reason, description)
         reason = reason or 1,
         description = description or "",
         color = { r = 1, g = 1, b = 1 },
-        alert = true
+        alert = true,
     }
     tinsert(self.db.profile.listedPlayers, self.db.profile.listedPlayer.id, newPlayer)
     return newPlayer

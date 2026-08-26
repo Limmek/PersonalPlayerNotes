@@ -1,0 +1,16 @@
+### StyLua configuration for PersonalPlayerNotes.
+### https://github.com/JohnnyMorganz/StyLua
+###
+### Matches the repo's existing style (4-space indent, double-quoted strings)
+### as closely as possible instead of imposing a new one. Run `make format` to
+### apply, or `make format-check` to verify without writing (same as CI).
+
+column_width = 120
+line_endings = "Windows"
+indent_type = "Spaces"
+indent_width = 4
+quote_style = "AutoPreferDouble"
+call_parentheses = "Always"
+
+[sort_requires]
+enabled = false

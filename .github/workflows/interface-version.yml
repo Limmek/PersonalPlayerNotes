@@ -2,15 +2,8 @@ name: Update TOC Interface version(s)
 
 on:
   workflow_dispatch:
-  # push:
-  #   branches:
-  #     - master
-  # workflow_run:
-  #     workflows: ['Luacheck']
-  #     types:
-  #       - completed
-  # schedule:
-  #   - cron: 0 12 * * *
+  schedule:
+    - cron: 0 12 * * *
 
 jobs:
   run:
@@ -24,25 +17,21 @@ jobs:
         uses: p3lim/toc-interface-updater@v4
         with:
           flavor: vanilla
-          future: true
 
       - name: Checking Wrath
         uses: p3lim/toc-interface-updater@v4
         with:
           flavor: wrath
-          future: true
 
-      - name: Checking Cata
+      - name: Checking Mists
         uses: p3lim/toc-interface-updater@v4
         with:
-          flavor: cata
-          future: true
+          flavor: mists
 
       - name: Checking Retail
         uses: p3lim/toc-interface-updater@v4
         with:
           flavor: retail
-          future: true
       
       - name: Commit changes
         uses: EndBug/add-and-commit@v10
