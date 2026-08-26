@@ -98,4 +98,7 @@ jobs:
           name: PersonalPlayerNotes-build-${{ github.sha }}
           path: .release/*.zip
           retention-days: 14
+          # BigWigsMods/packager writes to a dotdir (.release) by default,
+          # and upload-artifact excludes hidden files/dirs unless told not to.
+          include-hidden-files: true
           if-no-files-found: error
