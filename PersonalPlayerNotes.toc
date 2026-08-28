@@ -1,6 +1,6 @@
 ## Interface: 120100
 ## Interface-Vanilla: 11509
-## Interface-Wrath: 38002
+## Interface-Titan: 38002
 ## Interface-TBC: 20506
 ## Interface-Mists: 50504
 ## Title : Personal Player Notes

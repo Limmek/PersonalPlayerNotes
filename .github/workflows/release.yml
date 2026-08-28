@@ -1,75 +1,30 @@
 name: Release
 
-# Branch model: `master` is where all regular development happens (direct
-# pushes or PRs); `release` is a persistent branch that only exists to cut
-# versioned releases. To ship a new version: open a PR from master into
-# release, label it patch/minor/major, and merge it.
-#
-# Only runs on merged PRs into the release branch (or manual dispatch).
-# Creates a new git tag + GitHub release ONLY when K-Phoen/semver-release-action
-# determines a new version is warranted (see its PR-label docs); if no new tag
-# is created, the package/publish job is skipped entirely - this workflow
-# does not publish on every push.
-#
-# `needs: tag` + `if: needs.tag.outputs.tag != ''` replaces the old
-# cross-workflow `workflow_run` trigger (which had no conclusion check and
-# could fire even if packaging should have been skipped).
-#
-# The `concurrency` group (without cancel-in-progress) makes sure two
-# merges landing close together are released one at a time instead of racing.
+# Branch model: `master` is the development branch; `release` is the
+# release branch. Push any commit to `release` to automatically cut a
+# new patch release (1.1.1 -> 1.1.2). The changelog.txt content is used
+# as the release body.
 
 on:
   workflow_dispatch:
-  pull_request:
-    types: [closed]
+  push:
+    branches:
+      - release
 
 concurrency:
   group: release
   cancel-in-progress: false
 
 jobs:
-  tag:
-    name: Tag new version
+  release:
+    name: Bump patch version, package and publish
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged && github.event.pull_request.base.ref == 'release')
-    outputs:
-      tag: ${{ steps.tag_and_prepare_release.outputs.tag }}
-    steps:
-      - name: Clone project
-        uses: actions/checkout@v4
 
-      - name: Tag and prepare release
-        id: tag_and_prepare_release
-        uses: K-Phoen/semver-release-action@v1.3.2
-        with:
-          release_branch: release
-          release_strategy: tag
-          tag_format: "%major%.%minor%.%patch%"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create GitHub release
-        if: steps.tag_and_prepare_release.outputs.tag
-        uses: Roang-zero1/github-create-release-action@v3
-        with:
-          created_tag: ${{ steps.tag_and_prepare_release.outputs.tag }}
-          # Without this, the release title defaults to the merged commit's
-          # message (e.g. "Merge pull request #29 from ...") instead of the
-          # version.
-          release_title: ${{ steps.tag_and_prepare_release.outputs.tag }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  package:
-    name: Package and publish
-    needs: tag
-    if: needs.tag.outputs.tag != ''
-    runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     env:
-      # Verified against BigWigsMods/packager v2.5.1's release.sh: it reads
-      # CF_API_KEY and GITHUB_OAUTH (not the newer CF_API_TOKEN/
-      # GITHUB_API_TOKEN names used by packager's unreleased main branch).
+      # BigWigsMods/packager v2.5.1 reads CF_API_KEY and GITHUB_OAUTH.
       CF_API_KEY: ${{ secrets.CF_API_KEY }}
       GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
 
@@ -79,7 +34,27 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Package and release
+      - name: Compute next patch version
+        id: version
+        run: |
+          LATEST=$(git tag --sort=-version:refname | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | head -n1)
+          if [ -z "$LATEST" ]; then
+            NEXT="1.0.1"
+          else
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$LATEST"
+            NEXT="${MAJOR}.${MINOR}.$((PATCH + 1))"
+          fi
+          echo "tag=${NEXT}" >> "$GITHUB_OUTPUT"
+          echo "Next version: ${NEXT}"
+
+      - name: Create and push tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "${{ steps.version.outputs.tag }}"
+          git push origin "${{ steps.version.outputs.tag }}"
+
+      - name: Package and publish
         uses: BigWigsMods/packager@v2.5.1
         with:
           args: -p 344967 -w 0 -a 0 -m .pkgmeta
