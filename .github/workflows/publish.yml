@@ -1,0 +1,38 @@
+name: Publish
+
+# Triggered when a version tag (e.g. 1.1.2) is pushed — which happens
+# automatically via release.yml. Runs BigWigsMods/packager to build the
+# addon zip, create the GitHub release (using changelog.txt as the body),
+# and upload to CurseForge.
+#
+# Runs on tag push so GITHUB_REF=refs/tags/1.1.2, which prevents
+# packager's built-in branch-push skip from firing.
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  publish:
+    name: Package and publish
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    env:
+      # BigWigsMods/packager v2.5.1 reads CF_API_KEY and GITHUB_OAUTH.
+      CF_API_KEY: ${{ secrets.CF_API_KEY }}
+      GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Clone project
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Package and publish
+        uses: BigWigsMods/packager@v2.5.1
+        with:
+          args: -p 344967 -w 0 -a 0 -m .pkgmeta

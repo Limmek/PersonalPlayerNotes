@@ -1,12 +1,12 @@
 name: Release
 
-# Branch model: `master` is the development branch; `release` is the
-# release branch. Push any commit to `release` to automatically cut a
-# new patch release (1.1.1 -> 1.1.2). The changelog.txt content is used
-# as the release body.
+# Triggered by a push to the `release` branch.
+# Computes the next patch version (1.1.1 -> 1.1.2), creates a git tag,
+# and pushes it. The tag push then triggers publish.yml which runs
+# BigWigsMods/packager to build, upload to CurseForge, and create the
+# GitHub release.
 
 on:
-  workflow_dispatch:
   push:
     branches:
       - release
@@ -16,17 +16,12 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  release:
-    name: Bump patch version, package and publish
+  tag:
+    name: Bump patch version and tag
     runs-on: ubuntu-latest
 
     permissions:
       contents: write
-
-    env:
-      # BigWigsMods/packager v2.5.1 reads CF_API_KEY and GITHUB_OAUTH.
-      CF_API_KEY: ${{ secrets.CF_API_KEY }}
-      GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Clone project
