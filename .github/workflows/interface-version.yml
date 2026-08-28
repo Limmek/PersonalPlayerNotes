@@ -32,9 +32,13 @@ jobs:
         uses: p3lim/toc-interface-updater@v4
         with:
           flavor: retail
-      
-      - name: Commit changes
-        uses: EndBug/add-and-commit@v10
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v7
         with:
-          message: 'Update TOC interface version(s)'
-          add: '.'
+          commit-message: 'Update TOC interface version(s)'
+          branch: 'ci/toc-interface-update'
+          delete-branch: true
+          title: 'Update TOC interface version(s)'
+          body: 'Automated TOC interface version update.'
+          labels: 'maintenance'
