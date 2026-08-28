@@ -1,22 +1,22 @@
 name: Publish
 
-# Triggered when a version tag (e.g. 1.1.2) is pushed — which happens
-# automatically via release.yml. Runs BigWigsMods/packager to build the
-# addon zip, create the GitHub release (using changelog.txt as the body),
-# and upload to CurseForge.
+# Triggered when the Release workflow completes successfully.
+# Using workflow_run instead of push:tags avoids a GitHub limitation:
+# tags pushed by GITHUB_TOKEN do not trigger other workflows.
 #
-# Runs on tag push so GITHUB_REF=refs/tags/1.1.2, which prevents
-# packager's built-in branch-push skip from firing.
+# GITHUB_EVENT_NAME is "workflow_run" (not "push"), so BigWigsMods/packager's
+# branch-push skip check never fires and it packages normally.
 
 on:
-  push:
-    tags:
-      - '[0-9]+.[0-9]+.[0-9]+'
+  workflow_run:
+    workflows: ["Release"]
+    types: [completed]
 
 jobs:
   publish:
     name: Package and publish
     runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
 
     permissions:
       contents: write
@@ -31,6 +31,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Package and publish
         uses: BigWigsMods/packager@v2.5.1
