@@ -83,16 +83,29 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Check if commit is a release tag
+        id: tag_check
+        run: |
+          TAG=$(git tag --points-at HEAD)
+          if [ -n "$TAG" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "HEAD is tagged as '${TAG}' — this is a release commit, skipping dry-run build."
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       # -d skips all uploading (CurseForge/WoWInterface/Wago/GitHub) - this
       # only proves the package builds. -p 0 unsets the CurseForge project id
       # for this dry run so it doesn't attempt any CurseForge API calls
       # (which would need CF_API_KEY, not available to PRs from forks).
       - name: Build package artifact
+        if: steps.tag_check.outputs.skip == 'false'
         uses: BigWigsMods/packager@v2.5.1
         with:
           args: -d -p 0 -w 0 -a 0 -m .pkgmeta
 
       - name: Upload build artifact
+        if: steps.tag_check.outputs.skip == 'false'
         uses: actions/upload-artifact@v7
         with:
           name: PersonalPlayerNotes-build-${{ github.sha }}
