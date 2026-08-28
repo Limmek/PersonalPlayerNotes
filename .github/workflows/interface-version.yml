@@ -5,6 +5,10 @@ on:
   schedule:
     - cron: 0 12 * * *
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   run:
     name: TOCcheck
@@ -12,23 +16,8 @@ jobs:
     steps:
       - name: Clone project
         uses: actions/checkout@v6
-      
-      - name: Checking Vanilla
-        uses: p3lim/toc-interface-updater@v4
-        with:
-          flavor: vanilla
 
-      - name: Checking Wrath
-        uses: p3lim/toc-interface-updater@v4
-        with:
-          flavor: wrath
-
-      - name: Checking Mists
-        uses: p3lim/toc-interface-updater@v4
-        with:
-          flavor: mists
-
-      - name: Checking Retail
+      - name: Update TOC Interface versions
         uses: p3lim/toc-interface-updater@v4
         with:
           flavor: retail
