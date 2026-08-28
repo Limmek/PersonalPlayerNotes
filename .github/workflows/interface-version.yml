@@ -22,6 +22,28 @@ jobs:
         with:
           flavor: retail
 
+      - name: Update badge JSON files
+        run: |
+          toc_to_version() {
+            local v="$1"
+            printf "%d.%d.%d" $((10#${v:0:-4})) $((10#${v: -4:2})) $((10#${v: -2:2}))
+          }
+
+          TOC="PersonalPlayerNotes.toc"
+          mkdir -p .github/badges
+
+          retail=$(grep -m1 '^## Interface: '          "$TOC" | sed 's/.*: //' | tr -d ' \r')
+          vanilla=$(grep -m1 '^## Interface-Vanilla: '  "$TOC" | sed 's/.*: //' | tr -d ' \r')
+          titan=$(grep -m1 '^## Interface-Titan: '     "$TOC" | sed 's/.*: //' | tr -d ' \r')
+          tbc=$(grep -m1 '^## Interface-TBC: '         "$TOC" | sed 's/.*: //' | tr -d ' \r')
+          mists=$(grep -m1 '^## Interface-Mists: '     "$TOC" | sed 's/.*: //' | tr -d ' \r')
+
+          [ -n "$retail" ]  && printf '{"schemaVersion":1,"label":"Retail","message":"%s","color":"0070DD","style":"flat-square"}\n'        "$(toc_to_version "$retail")"  > .github/badges/retail.json
+          [ -n "$vanilla" ] && printf '{"schemaVersion":1,"label":"Classic Era","message":"%s","color":"A335EE","style":"flat-square"}\n'    "$(toc_to_version "$vanilla")" > .github/badges/vanilla.json
+          [ -n "$titan" ]   && printf '{"schemaVersion":1,"label":"Wrath (CN)","message":"%s","color":"FF8000","style":"flat-square"}\n'     "$(toc_to_version "$titan")"   > .github/badges/titan.json
+          [ -n "$tbc" ]     && printf '{"schemaVersion":1,"label":"TBC Anniversary","message":"%s","color":"C69B3A","style":"flat-square"}\n' "$(toc_to_version "$tbc")"    > .github/badges/tbc.json
+          [ -n "$mists" ]   && printf '{"schemaVersion":1,"label":"Mists Classic","message":"%s","color":"1EFF00","style":"flat-square"}\n'  "$(toc_to_version "$mists")"   > .github/badges/mists.json
+
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v8
         with:
