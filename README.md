@@ -19,20 +19,14 @@ Tag players with personal notes and color-coded reasons so you always remember w
 
 ## Supported WoW clients
 
-<img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Limmek/PersonalPlayerNotes/master/.github/badges/retail.json" alt="Retail">
-<img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Limmek/PersonalPlayerNotes/master/.github/badges/vanilla.json" alt="Classic Era">
-<img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Limmek/PersonalPlayerNotes/master/.github/badges/titan.json" alt="Wrath CN">
-<img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Limmek/PersonalPlayerNotes/master/.github/badges/tbc.json" alt="TBC Anniversary">
-<img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Limmek/PersonalPlayerNotes/master/.github/badges/mists.json" alt="Mists Classic">
-
-| Client                                  | Status |
-|------------------------------------------|--------|
-| Retail                                   | ✅ Supported |
-| Classic Era (incl. Hardcore, SoM, SoD)  | ✅ Supported |
-| Wrath Classic (CN/Titan servers)         | ✅ Supported |
-| Burning Crusade Classic (Anniversary)    | ✅ Supported |
-| Mists of Pandaria Classic                | ✅ Supported |
-| Cataclysm Classic                        | ❌ Retired by Blizzard — all realms moved to Mists of Pandaria Classic on 2025-07-01 |
+| Client | Version |
+|--------|---------|
+| Retail | <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Limmek/PersonalPlayerNotes/master/.github/badges/retail.json" alt="Retail"> |
+| Classic Era (incl. Hardcore, SoM, SoD) | <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Limmek/PersonalPlayerNotes/master/.github/badges/vanilla.json" alt="Classic Era"> |
+| Wrath Classic (CN/Titan servers) | <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Limmek/PersonalPlayerNotes/master/.github/badges/titan.json" alt="Wrath CN"> |
+| Burning Crusade Classic (Anniversary) | <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Limmek/PersonalPlayerNotes/master/.github/badges/tbc.json" alt="TBC Anniversary"> |
+| Mists of Pandaria Classic | <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Limmek/PersonalPlayerNotes/master/.github/badges/mists.json" alt="Mists Classic"> |
+| Cataclysm Classic | ❌ Retired by Blizzard — all realms moved to Mists of Pandaria Classic on 2025-07-01 |
 
 ## Installation
 
