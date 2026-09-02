@@ -24,5 +24,6 @@ embeds.xml
 Locales\Locales.xml
 
 PersonalPlayerNotes.lua
+Sounds\Manifest.lua
 PersonalPlayerNotesUtils.lua
 PersonalPlayerNotesConfig.lua

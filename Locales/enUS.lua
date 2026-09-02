@@ -65,8 +65,21 @@ L["PPN_SETTINGS_ALERT"] = "Alert"
 L["PPN_SETTINGS_ALERT_DESC"] = "Alert when a listed player is found."
 L["PPN_SETTINGS_ALERT_ENABLED"] = "Enabled"
 L["PPN_SETTINGS_ALERT_ENABLED_DESC"] = ""
+L["PPN_SETTINGS_ALERT_SESSION_ONLY"] = "Once per session"
+L["PPN_SETTINGS_ALERT_SESSION_ONLY_DESC"] =
+    "Only alert once per listed player for the rest of this session, instead of repeating every Delay seconds. Reset on /reload or when you switch profiles."
 L["PPN_SETTINGS_ALERT_SOUNDS"] = "Sounds"
-L["PPN_SETTINGS_ALERT_SOUNDS_DESC"] = "Select the sound to be played."
+L["PPN_SETTINGS_ALERT_SOUNDS_DESC"] =
+    "Select the global sound to be played. Reasons and Listed Players can override this with their own sound."
+L["PPN_SETTINGS_ALERT_CUSTOM_SOUND"] = "Add Custom Sound"
+L["PPN_SETTINGS_ALERT_CUSTOM_SOUND_DESC"] =
+    "Filename (with .mp3 or .ogg extension) of a sound file you've placed in this addon's Sounds folder yourself. Confirm to make it selectable in every sound dropdown."
+L["PPN_SOUND_TEST"] = "Test"
+L["PPN_SOUND_TEST_DESC"] = "Play a preview of the sound that would actually be used here."
+L["PPN_SOUND_REMOVE_CUSTOM"] = "Remove"
+L["PPN_SOUND_REMOVE_CUSTOM_DESC"] =
+    "Remove the currently selected sound from your custom sounds. Only enabled while a custom sound is selected."
+L["PPN_SOUND_INHERIT"] = "Use default"
 L["PPN_SETTINGS_ALERT_DELAY"] = "Delay"
 L["PPN_SETTINGS_ALERT_DELAY_DESC"] = "How many seconds to sleep before a new alert for the same player is played."
 
@@ -79,6 +92,9 @@ L["PPN_REASON_REMOVE_CONFIRMATION"] = "Do you really want to remove reason:\n|cf
 L["PPN_REASON_COLOR"] = "Select a color"
 L["PPN_REASON_ALERT_ENABLED"] = "Alert"
 L["PPN_REASON_ALERT_ENABLED_DESC"] = "Toggle sound effect for all players with this reason."
+L["PPN_REASON_SOUND"] = "Sound"
+L["PPN_REASON_SOUND_DESC"] =
+    'Override the alert sound for every player with this reason. Leave as "Use default" to use the global Alert sound.'
 L["PPN_DEFAULT_REASON"] = "None"
 
 L["PPN_LISTED_PLAYERS_TITLE"] = "Personal Player Notes - Listed Players"
@@ -94,6 +110,9 @@ L["PPN_LISTED_PLAYER_COLOR"] = "Color"
 L["PPN_LISTED_PLAYER_ALERT_ENABLED"] = "Alert"
 L["PPN_LISTED_PLAYER_ALERT_ENABLED_DESC"] =
     "Toggle sound effect for a specific player. If a sound effect is disabled on a pre defined reason then this has no effect."
+L["PPN_LISTED_PLAYER_SOUND"] = "Sound"
+L["PPN_LISTED_PLAYER_SOUND_DESC"] =
+    'Override the alert sound for this specific player. Leave as "Use default" to use the reason\'s (or global) sound. Takes priority over both.'
 L["PPN_LISTED_PLAYERS_EXAMPLE_NAME"] = "Example"
 L["PPN_LISTED_PLAYERS_EXAMPLE_REALM"] = "Silvermoon"
 L["PPN_LISTED_PLAYERS_EXAMPLE_DESC"] = "None"

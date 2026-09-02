@@ -230,20 +230,52 @@ end
 
 -- MigrateSavedVariablesSchema
 do
-    PersonalPlayerNotes.db = { profile = { schemaVersion = nil } }
+    PersonalPlayerNotes.db = {
+        profile = {
+            schemaVersion = nil,
+            alert = { sound = 1, sounds = { "alarmbeep", "alarmbuzz", "alarmbuzzer", "alarmdouble" }, last = {} },
+        },
+    }
     PersonalPlayerNotes:MigrateSavedVariablesSchema()
     check(
         "MigrateSavedVariablesSchema stamps a fresh profile with SCHEMA_VERSION",
         PersonalPlayerNotes.db.profile.schemaVersion,
         PersonalPlayerNotes.SCHEMA_VERSION
     )
+    check(
+        "MigrateSavedVariablesSchema resets the old numeric alert.sound to the new default filename",
+        PersonalPlayerNotes.db.profile.alert.sound,
+        "default.mp3"
+    )
+    check(
+        "MigrateSavedVariablesSchema drops the now-unused alert.sounds array",
+        PersonalPlayerNotes.db.profile.alert.sounds,
+        nil
+    )
+    check(
+        "MigrateSavedVariablesSchema fills in an empty alert.customSounds list",
+        #PersonalPlayerNotes.db.profile.alert.customSounds,
+        0
+    )
+    check(
+        "MigrateSavedVariablesSchema fills in a blank alert.newCustomSound",
+        PersonalPlayerNotes.db.profile.alert.newCustomSound,
+        ""
+    )
 
-    PersonalPlayerNotes.db = { profile = { schemaVersion = PersonalPlayerNotes.SCHEMA_VERSION } }
+    PersonalPlayerNotes.db = {
+        profile = { schemaVersion = PersonalPlayerNotes.SCHEMA_VERSION, alert = { sound = "default.mp3" } },
+    }
     PersonalPlayerNotes:MigrateSavedVariablesSchema()
     check(
         "MigrateSavedVariablesSchema leaves an already-current profile at SCHEMA_VERSION",
         PersonalPlayerNotes.db.profile.schemaVersion,
         PersonalPlayerNotes.SCHEMA_VERSION
+    )
+    check(
+        "MigrateSavedVariablesSchema does not touch an already-migrated alert.sound",
+        PersonalPlayerNotes.db.profile.alert.sound,
+        "default.mp3"
     )
 end
 

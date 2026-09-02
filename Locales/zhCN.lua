@@ -69,8 +69,21 @@ L["PPN_SETTINGS_ALERT_DESC"] = "配置当发现已关注的玩家时播放的提
 L["PPN_SETTINGS_ALERT_ENABLED"] = "启用提示音"
 L["PPN_SETTINGS_ALERT_ENABLED_DESC"] =
     "勾选此选项以启用提示音功能. 当发现已关注的玩家时, 将播放配置的提示音."
+L["PPN_SETTINGS_ALERT_SESSION_ONLY"] = "每次会话仅一次"
+L["PPN_SETTINGS_ALERT_SESSION_ONLY_DESC"] =
+    "每个已关注的玩家在本次会话中只提示一次, 而不是每隔提示间隔秒数重复提示. 在 /reload 或切换配置文件后重置."
 L["PPN_SETTINGS_ALERT_SOUNDS"] = "声音列表"
-L["PPN_SETTINGS_ALERT_SOUNDS_DESC"] = "选择当发现已关注的玩家时要播放的声音."
+L["PPN_SETTINGS_ALERT_SOUNDS_DESC"] =
+    "选择全局默认要播放的声音. 分组分类和已关注的玩家可以各自设置自己的声音来覆盖此设置."
+L["PPN_SETTINGS_ALERT_CUSTOM_SOUND"] = "添加自定义声音"
+L["PPN_SETTINGS_ALERT_CUSTOM_SOUND_DESC"] =
+    "输入你自行放入本插件 Sounds 文件夹内的声音文件名(需带 .mp3 或 .ogg 后缀). 确认后即可在任意声音下拉菜单中选择."
+L["PPN_SOUND_TEST"] = "试听"
+L["PPN_SOUND_TEST_DESC"] = "试听此处实际会播放的声音."
+L["PPN_SOUND_REMOVE_CUSTOM"] = "删除"
+L["PPN_SOUND_REMOVE_CUSTOM_DESC"] =
+    "从自定义声音中删除当前选中的声音. 仅在选中了自定义声音时可用."
+L["PPN_SOUND_INHERIT"] = "使用默认"
 L["PPN_SETTINGS_ALERT_DELAY"] = "提示间隔"
 L["PPN_SETTINGS_ALERT_DELAY_DESC"] =
     "设置在为同一玩家播放下一个提示音之前需要等待的时间(秒). 这有助于防止在短时间内重复播放相同的提示音."
@@ -85,6 +98,9 @@ L["PPN_REASON_COLOR"] = "选择颜色(此分组在鼠标提示中的颜色)"
 L["PPN_REASON_ALERT_ENABLED"] = "启用分组提示音"
 L["PPN_REASON_ALERT_ENABLED_DESC"] =
     "当前分组提示音效开关. 启用后, 当发现此分组内的玩家时, 将播放配置的提示音."
+L["PPN_REASON_SOUND"] = "声音"
+L["PPN_REASON_SOUND_DESC"] =
+    '为此分组内的所有玩家设置专属提示音, 覆盖全局声音. 保持"使用默认"则使用全局提示音.'
 L["PPN_DEFAULT_REASON"] = "默认"
 
 L["PPN_LISTED_PLAYERS_TITLE"] = "关注名单 - 已关注的玩家"
@@ -100,6 +116,9 @@ L["PPN_LISTED_PLAYER_COLOR"] = "文字颜色(此附加描述在鼠标提示中�
 L["PPN_LISTED_PLAYER_ALERT_ENABLED"] = "启用玩家提示音"
 L["PPN_LISTED_PLAYER_ALERT_ENABLED_DESC"] =
     "为该玩家启用或禁用提示音. 如果该玩家所在的分组分类已禁用了提示音, 则不能开启."
+L["PPN_LISTED_PLAYER_SOUND"] = "声音"
+L["PPN_LISTED_PLAYER_SOUND_DESC"] =
+    '为该玩家设置专属提示音, 覆盖分组分类(或全局)的声音, 优先级最高. 保持"使用默认"则不覆盖.'
 L["PPN_LISTED_PLAYERS_EXAMPLE_NAME"] = "变异骷髅"
 L["PPN_LISTED_PLAYERS_EXAMPLE_REALM"] = "灰烬使者"
 L["PPN_LISTED_PLAYERS_EXAMPLE_DESC"] = "关注名单汉化先行者!RESPECT!"

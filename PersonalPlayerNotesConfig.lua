@@ -1,6 +1,31 @@
 local personalPlayerNotes = ...
 local L = LibStub("AceLocale-3.0"):GetLocale(personalPlayerNotes, true)
 
+--[[
+    Builds the `values` table for an alert-sound-selection dropdown: every
+    filename in PersonalPlayerNotes.SoundManifest (the sounds shipped with
+    the addon, regenerated from Sounds/ by Tools/generate-sounds-manifest.lua
+    - see Sounds/Manifest.lua), plus every filename the user has added
+    themselves via AddCustomSound() (self.db.profile.alert.customSounds).
+    When includeInherit is true (used by the Reasons/ListedPlayers dropdowns,
+    not the global one), an extra "__inherit__" entry is prepended for "use
+    the level above's sound"; Get/SetReasonSound() and
+    Get/SetListedPlayerSound() map that sentinel to/from a nil `sound` field.
+]]
+local function AlertSoundChoices(includeInherit)
+    local choices = {}
+    if includeInherit then
+        choices["__inherit__"] = L["PPN_SOUND_INHERIT"]
+    end
+    for _, file in ipairs(PersonalPlayerNotes.SoundManifest or {}) do
+        choices[file] = file
+    end
+    for _, file in ipairs(PersonalPlayerNotes.db.profile.alert.customSounds) do
+        choices[file] = file
+    end
+    return choices
+end
+
 PersonalPlayerNotes.defaults = {
     profile = {
         schemaVersion = PersonalPlayerNotes.SCHEMA_VERSION,
@@ -10,8 +35,23 @@ PersonalPlayerNotes.defaults = {
         alert = {
             delay = 10,
             enabled = true,
-            sound = 1,
-            sounds = { "alarmbeep", "alarmbuzz", "alarmbuzzer", "alarmdouble" },
+            -- When true, an alert only ever plays once per listed player for
+            -- the whole session (cleared on /reload or profile change, see
+            -- LoadConfig()); when false (default), it repeats every time
+            -- `delay` seconds have passed since the last alert for them.
+            sessionOnly = false,
+            -- Filename (with extension) of the global alert sound, resolved
+            -- from PersonalPlayerNotes.SoundManifest (see Sounds/Manifest.lua)
+            -- or from the user's own customSounds below. Reasons/listedPlayers
+            -- may set their own `sound` field to override this; nil there
+            -- means "inherit".
+            sound = "default.mp3",
+            -- Filenames the user has added themselves via AddCustomSound();
+            -- these show up as real entries in every sound dropdown
+            -- alongside PersonalPlayerNotes.SoundManifest.
+            customSounds = {},
+            -- Scratch field for the "add a custom sound" text input.
+            newCustomSound = "",
             last = {},
         },
         reasons = {
@@ -238,11 +278,48 @@ PersonalPlayerNotes.options = {
                         name = L["PPN_SETTINGS_ALERT_SOUNDS"],
                         desc = L["PPN_SETTINGS_ALERT_SOUNDS_DESC"],
                         values = function()
-                            return PersonalPlayerNotes.db.profile.alert.sounds
+                            return AlertSoundChoices(false)
                         end,
                         width = 1,
                         set = "SetAlertSoundEffect",
                         get = "GetAlertSoundEffect",
+                    },
+                    testSound = {
+                        type = "execute",
+                        order = 2.1,
+                        name = L["PPN_SOUND_TEST"],
+                        desc = L["PPN_SOUND_TEST_DESC"],
+                        width = 0.5,
+                        func = "TestAlertSound",
+                    },
+                    newCustomSound = {
+                        type = "input",
+                        order = 2.2,
+                        name = L["PPN_SETTINGS_ALERT_CUSTOM_SOUND"],
+                        desc = L["PPN_SETTINGS_ALERT_CUSTOM_SOUND_DESC"],
+                        width = 2,
+                        get = function(info)
+                            local sound = PersonalPlayerNotes.db.profile.alert.sound
+                            if PersonalPlayerNotes:IsCustomSound(sound) then
+                                return sound
+                            end
+                            return PersonalPlayerNotes.db.profile.alert.newCustomSound
+                        end,
+                        set = function(info, value)
+                            PersonalPlayerNotes.db.profile.alert.newCustomSound = value
+                            PersonalPlayerNotes:AddCustomSound()
+                        end,
+                    },
+                    removeCustomSound = {
+                        type = "execute",
+                        order = 2.3,
+                        name = L["PPN_SOUND_REMOVE_CUSTOM"],
+                        desc = L["PPN_SOUND_REMOVE_CUSTOM_DESC"],
+                        width = 1,
+                        func = "RemoveCustomSound",
+                        disabled = function()
+                            return not PersonalPlayerNotes:IsCustomSound(PersonalPlayerNotes.db.profile.alert.sound)
+                        end,
                     },
                     delay = {
                         type = "range",
@@ -252,6 +329,16 @@ PersonalPlayerNotes.options = {
                         step = 1,
                         name = L["PPN_SETTINGS_ALERT_DELAY"],
                         desc = L["PPN_SETTINGS_ALERT_DELAY_DESC"],
+                        width = 1,
+                        disabled = function()
+                            return PersonalPlayerNotes.db.profile.alert.sessionOnly
+                        end,
+                    },
+                    sessionOnly = {
+                        type = "toggle",
+                        order = 4,
+                        name = L["PPN_SETTINGS_ALERT_SESSION_ONLY"],
+                        desc = L["PPN_SETTINGS_ALERT_SESSION_ONLY_DESC"],
                         width = 1,
                     },
                 },
@@ -330,6 +417,26 @@ PersonalPlayerNotes.options = {
                 desc = L["PPN_REASON_ALERT_ENABLED_DESC"],
                 get = "GetReasonAlert",
                 set = "SetReasonAlert",
+            },
+            sound = {
+                type = "select",
+                order = 6,
+                width = 1.6,
+                name = L["PPN_REASON_SOUND"],
+                desc = L["PPN_REASON_SOUND_DESC"],
+                values = function()
+                    return AlertSoundChoices(true)
+                end,
+                get = "GetReasonSound",
+                set = "SetReasonSound",
+            },
+            testSound = {
+                type = "execute",
+                order = 7,
+                width = 1,
+                name = L["PPN_SOUND_TEST"],
+                desc = L["PPN_SOUND_TEST_DESC"],
+                func = "TestReasonSound",
             },
         },
     },
@@ -430,6 +537,26 @@ PersonalPlayerNotes.options = {
                     return not PersonalPlayerNotes.db.profile.reasons[PersonalPlayerNotes.db.profile.listedPlayer.reason].alert
                 end,
             },
+            sound = {
+                type = "select",
+                order = 9,
+                width = 1.6,
+                name = L["PPN_LISTED_PLAYER_SOUND"],
+                desc = L["PPN_LISTED_PLAYER_SOUND_DESC"],
+                values = function()
+                    return AlertSoundChoices(true)
+                end,
+                get = "GetListedPlayerSound",
+                set = "SetListedPlayerSound",
+            },
+            testSound = {
+                type = "execute",
+                order = 10,
+                width = 1,
+                name = L["PPN_SOUND_TEST"],
+                desc = L["PPN_SOUND_TEST_DESC"],
+                func = "TestListedPlayerSound",
+            },
         },
     },
 }
@@ -453,16 +580,18 @@ function PersonalPlayerNotes:SetAlert(info, value)
 end
 
 --[[
-    Returns the index of the currently selected alert sound effect within
-    self.db.profile.alert.sounds.
+    Returns the filename (e.g. "default.mp3") of the currently selected
+    global alert sound effect - either one shipped with the addon
+    (PersonalPlayerNotes.SoundManifest) or one the user added themselves
+    (self.db.profile.alert.customSounds, see AddCustomSound()).
 ]]
 function PersonalPlayerNotes:GetAlertSoundEffect(info)
     return self.db.profile.alert.sound
 end
 
 --[[
-    Selects a new alert sound effect by index, playing it immediately as a
-    preview.
+    Selects a new global alert sound effect by filename, playing it
+    immediately as a preview.
 ]]
 function PersonalPlayerNotes:SetAlertSoundEffect(info, value)
     self:PlayAlertSoundEffect(value)
@@ -470,17 +599,102 @@ function PersonalPlayerNotes:SetAlertSoundEffect(info, value)
 end
 
 --[[
-    Plays one of the addon's bundled alert sound effects. Defaults to the
-    currently selected effect/master channel when effect/channel are omitted.
+    Plays an alert sound effect file from this addon's Sounds/ folder.
+    `effect` is a filename (with extension, shipped or custom-added), or nil
+    to fall back to the currently selected global sound effect
+    (GetAlertSoundEffect()). Silently does nothing if the resolved filename
+    is missing/blank.
 ]]
 function PersonalPlayerNotes:PlayAlertSoundEffect(effect, channel)
-    PlaySoundFile(
-        "Interface\\AddOns\\"
-            .. personalPlayerNotes
-            .. "\\Sounds\\"
-            .. PersonalPlayerNotes.db.profile.alert.sounds[effect or self:GetAlertSoundEffect()]
-            .. ".ogg",
-        channel or "master"
+    local sound = effect or self:GetAlertSoundEffect()
+    if not sound or sound == "" then
+        return
+    end
+    PlaySoundFile("Interface\\AddOns\\" .. personalPlayerNotes .. "\\Sounds\\" .. sound, channel or "master")
+end
+
+--[[
+    Returns whether `sound` (a filename) is one the user added themselves
+    via AddCustomSound(), as opposed to one shipped with the addon
+    (PersonalPlayerNotes.SoundManifest).
+]]
+function PersonalPlayerNotes:IsCustomSound(sound)
+    for _, file in ipairs(self.db.profile.alert.customSounds) do
+        if file == sound then
+            return true
+        end
+    end
+    return false
+end
+
+--[[
+    Adds the filename currently typed into alert.newCustomSound as a new
+    selectable sound - it then shows up in every sound dropdown alongside
+    PersonalPlayerNotes.SoundManifest - and clears the input. Called by
+    options.Settings.args.alert.args.newCustomSound's own `set` handler,
+    which stores the typed value first, so this runs whenever the input is
+    confirmed (Enter or its built-in accept button). No-ops for a
+    blank/whitespace-only name, or one that's already available (either
+    shipped or already added).
+]]
+function PersonalPlayerNotes:AddCustomSound()
+    local name = (self.db.profile.alert.newCustomSound or ""):match("^%s*(.-)%s*$")
+    self.db.profile.alert.newCustomSound = ""
+    if name == "" or self:IsCustomSound(name) then
+        return
+    end
+    for _, file in ipairs(self.SoundManifest or {}) do
+        if file == name then
+            return
+        end
+    end
+    tinsert(self.db.profile.alert.customSounds, name)
+end
+
+--[[
+    Removes the currently selected global sound (self.db.profile.alert.sound)
+    from the custom sounds list, resetting the selection back to the default
+    sound. A no-op if the current selection isn't a custom sound - see
+    options.Settings.args.alert.args.removeCustomSound.disabled, which
+    disables the button in that case.
+]]
+function PersonalPlayerNotes:RemoveCustomSound()
+    local sound = self.db.profile.alert.sound
+    for index, file in ipairs(self.db.profile.alert.customSounds) do
+        if file == sound then
+            tremove(self.db.profile.alert.customSounds, index)
+            self.db.profile.alert.sound = self.defaults.profile.alert.sound
+            return
+        end
+    end
+end
+
+--[[
+    Test button handler for the global Alert sound dropdown: previews
+    exactly the currently selected global sound (or custom file).
+]]
+function PersonalPlayerNotes:TestAlertSound()
+    self:PlayAlertSoundEffect()
+end
+
+--[[
+    Test button handler for a Reason's sound dropdown: previews the sound
+    that would actually be used for that reason (its own override, or the
+    global sound if left at "Use default").
+]]
+function PersonalPlayerNotes:TestReasonSound()
+    self:PlayAlertSoundEffect(self.db.profile.reason.sound or self.db.profile.alert.sound)
+end
+
+--[[
+    Test button handler for a Listed Player's sound dropdown: previews the
+    sound that would actually be used for that player, following the same
+    player > reason > global priority as the real alert (see GameTooltip()).
+]]
+function PersonalPlayerNotes:TestListedPlayerSound()
+    local reason = self:GetReasons()[self.db.profile.listedPlayer.reason]
+    self:PlayAlertSoundEffect(
+        self.db.profile.listedPlayer.sound or (reason and reason.sound) or self.db.profile.alert.sound
     )
 end
 
@@ -542,6 +756,7 @@ function PersonalPlayerNotes:SelectedReason(info, value)
     self.db.profile.reason.reason = r.reason
     self.db.profile.reason.color = r.color
     self.db.profile.reason.alert = r.alert
+    self.db.profile.reason.sound = r.sound
 end
 
 --[[
@@ -556,6 +771,7 @@ function PersonalPlayerNotes:RemoveReason()
     self.db.profile.reason.reason = reasons[#reasons].reason
     self.db.profile.reason.color = reasons[#reasons].color
     self.db.profile.reason.alert = reasons[#reasons].alert
+    self.db.profile.reason.sound = reasons[#reasons].sound
     return true
 end
 
@@ -592,6 +808,28 @@ function PersonalPlayerNotes:SetReasonAlert(info, value)
     self.db.profile.reason[info[#info]] = value
     local reason = self:GetReasons()[self.db.profile.reason.id]
     reason.alert = value
+end
+
+--[[
+    Returns the selected reason's sound override, or "__inherit__" if it
+    has none set (meaning "use the global alert sound").
+]]
+function PersonalPlayerNotes:GetReasonSound(info)
+    return self.db.profile.reason.sound or "__inherit__"
+end
+
+--[[
+    Writes the selected reason's sound override ( "__inherit__" is stored as
+    nil, meaning "use the global alert sound"), syncing both the reason
+    mirror and its backing reasons[] entry.
+]]
+function PersonalPlayerNotes:SetReasonSound(info, value)
+    if value == "__inherit__" then
+        value = nil
+    end
+    self.db.profile.reason.sound = value
+    local reason = self:GetReasons()[self.db.profile.reason.id]
+    reason.sound = value
 end
 
 --#endregion
@@ -638,6 +876,7 @@ function PersonalPlayerNotes:SetListedPlayerSelected(info, value)
         self.db.profile.listedPlayer.description = player.description
         self.db.profile.listedPlayer.color = player.color
         self.db.profile.listedPlayer.alert = player.alert
+        self.db.profile.listedPlayer.sound = player.sound
     end
 end
 
@@ -661,6 +900,7 @@ function PersonalPlayerNotes:SetListedPlayerRealm(info, value)
         player.description = self.db.profile.listedPlayer.description
         player.color = self.db.profile.listedPlayer.color
         player.alert = self.db.profile.listedPlayer.alert
+        player.sound = self.db.profile.listedPlayer.sound
     end
 end
 
@@ -685,6 +925,7 @@ function PersonalPlayerNotes:SetListedPlayerName(info, value)
         player.description = self.db.profile.listedPlayer.description
         player.color = self.db.profile.listedPlayer.color
         player.alert = self.db.profile.listedPlayer.alert
+        player.sound = self.db.profile.listedPlayer.sound
     else
         local new = PersonalPlayerNotes:NewListedPlayer(value, self.db.profile.listedPlayer.realm)
         PersonalPlayerNotes:SetListedPlayerSelected(info, new.id)
@@ -711,6 +952,7 @@ function PersonalPlayerNotes:RemoveListedPlayer()
         self.db.profile.listedPlayer.description = last.description
         self.db.profile.listedPlayer.color = last.color
         self.db.profile.listedPlayer.alert = last.alert
+        self.db.profile.listedPlayer.sound = last.sound
     else
         self.db.profile.listedPlayer.id = 0
         self.db.profile.listedPlayer.name = ""
@@ -719,6 +961,7 @@ function PersonalPlayerNotes:RemoveListedPlayer()
         self.db.profile.listedPlayer.description = ""
         self.db.profile.listedPlayer.color = { r = 1, g = 1, b = 1 }
         self.db.profile.listedPlayer.alert = true
+        self.db.profile.listedPlayer.sound = nil
     end
     return true
 end
@@ -802,6 +1045,28 @@ function PersonalPlayerNotes:SetListedPlayerAlert(info, value)
     self.db.profile.listedPlayer[info[#info]] = value
     local player = PersonalPlayerNotes:GetListedPlayers()[self.db.profile.listedPlayer.id]
     player.alert = value
+end
+
+--[[
+    Returns the selected player's sound override, or "__inherit__" if it has
+    none set (meaning "use the reason's sound, or the global one").
+]]
+function PersonalPlayerNotes:GetListedPlayerSound(info)
+    return self.db.profile.listedPlayer.sound or "__inherit__"
+end
+
+--[[
+    Writes the selected player's sound override ("__inherit__" is stored as
+    nil, meaning "use the reason's sound, or the global one"), syncing both
+    the listedPlayer mirror and its backing listedPlayers[] entry.
+]]
+function PersonalPlayerNotes:SetListedPlayerSound(info, value)
+    if value == "__inherit__" then
+        value = nil
+    end
+    self.db.profile.listedPlayer.sound = value
+    local player = PersonalPlayerNotes:GetListedPlayers()[self.db.profile.listedPlayer.id]
+    player.sound = value
 end
 
 --#endregion

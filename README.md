@@ -13,7 +13,7 @@ Tag players with personal notes and color-coded reasons so you always remember w
 - **Notes** — write a free-text note on any player
 - **Reasons** — define reusable categories (e.g. "Great healer", "Ninja looter") with their own color and alert sound
 - **Tooltip integration** — note and reason are shown the moment you hover over a listed player
-- **Alert sounds** — optionally play a sound when you first encounter a listed player in a session
+- **Alert sounds** — optionally play a sound when you encounter a listed player, either once per session or repeating after a configurable cooldown; supports adding your own custom sound files
 - **Minimap button** — quick access to all settings and lists
 - **Context menu** — right-click any player (unit frame, chat link, etc.) to add or edit a note instantly
 

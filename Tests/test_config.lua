@@ -39,7 +39,12 @@ do
     check("defaults.minimap.minimapPos starts at 240", profile.minimap.minimapPos, 240)
     check("defaults.alert.delay starts at 10", profile.alert.delay, 10)
     check("defaults.alert.enabled starts true", profile.alert.enabled, true)
-    check("defaults.alert.sounds has 4 entries", #profile.alert.sounds, 4)
+    check("defaults.alert.sessionOnly starts false", profile.alert.sessionOnly, false)
+    check("defaults.alert.sound starts at default.mp3", profile.alert.sound, "default.mp3")
+    check("defaults.alert.customSounds starts empty", #profile.alert.customSounds, 0)
+    check("defaults.alert.newCustomSound starts empty", profile.alert.newCustomSound, "")
+    check("SoundManifest has 5 entries", #PersonalPlayerNotes.SoundManifest, 5)
+    check("SoundManifest lists default.mp3 first", PersonalPlayerNotes.SoundManifest[1], "default.mp3")
     check("defaults.reasons has exactly 1 entry", #profile.reasons, 1)
     check("defaults.reasons[1].id is 1", profile.reasons[1].id, 1)
     check("defaults.listedPlayers has exactly 1 entry", #profile.listedPlayers, 1)
@@ -64,30 +69,92 @@ do
     PersonalPlayerNotes:SetAlert({ "delay" }, 25)
     check("SetAlert writes the requested alert field", PersonalPlayerNotes:GetAlert({ "delay" }), 25)
 
-    check("GetAlertSoundEffect reads the current sound index", PersonalPlayerNotes:GetAlertSoundEffect(), 1)
+    check(
+        "GetAlertSoundEffect reads the current sound filename",
+        PersonalPlayerNotes:GetAlertSoundEffect(),
+        "default.mp3"
+    )
 
     PersonalPlayerNotes:PlayAlertSoundEffect()
     check(
         "PlayAlertSoundEffect plays the currently selected sound file",
         playedPath,
-        "Interface\\AddOns\\PersonalPlayerNotes\\Sounds\\alarmbeep.ogg"
+        "Interface\\AddOns\\PersonalPlayerNotes\\Sounds\\default.mp3"
     )
     check("PlayAlertSoundEffect defaults to the master channel", playedChannel, "master")
 
-    PersonalPlayerNotes:PlayAlertSoundEffect(2, "sfx")
+    PersonalPlayerNotes:PlayAlertSoundEffect("alarmbuzz.ogg", "sfx")
     check(
-        "PlayAlertSoundEffect accepts an explicit effect index",
+        "PlayAlertSoundEffect accepts an explicit effect filename",
         playedPath,
         "Interface\\AddOns\\PersonalPlayerNotes\\Sounds\\alarmbuzz.ogg"
     )
     check("PlayAlertSoundEffect accepts an explicit channel", playedChannel, "sfx")
 
-    PersonalPlayerNotes:SetAlertSoundEffect({ "sound" }, 3)
-    check("SetAlertSoundEffect writes the sound index", PersonalPlayerNotes.db.profile.alert.sound, 3)
+    PersonalPlayerNotes:SetAlertSoundEffect({ "sound" }, "alarmbuzzer.ogg")
+    check(
+        "SetAlertSoundEffect writes the sound filename",
+        PersonalPlayerNotes.db.profile.alert.sound,
+        "alarmbuzzer.ogg"
+    )
     check(
         "SetAlertSoundEffect also plays the newly selected sound",
         playedPath,
         "Interface\\AddOns\\PersonalPlayerNotes\\Sounds\\alarmbuzzer.ogg"
+    )
+
+    PersonalPlayerNotes.db.profile.alert.newCustomSound = "  mine.mp3  "
+    PersonalPlayerNotes:AddCustomSound()
+    check(
+        "AddCustomSound trims and adds the typed filename",
+        PersonalPlayerNotes.db.profile.alert.customSounds[1],
+        "mine.mp3"
+    )
+    check("AddCustomSound clears the input field", PersonalPlayerNotes.db.profile.alert.newCustomSound, "")
+    check("IsCustomSound recognizes an added custom sound", PersonalPlayerNotes:IsCustomSound("mine.mp3"), true)
+    check("IsCustomSound is false for a shipped sound", PersonalPlayerNotes:IsCustomSound("default.mp3"), false)
+
+    PersonalPlayerNotes.db.profile.alert.newCustomSound = "mine.mp3"
+    PersonalPlayerNotes:AddCustomSound()
+    check("AddCustomSound does not add a duplicate", #PersonalPlayerNotes.db.profile.alert.customSounds, 1)
+
+    PersonalPlayerNotes.db.profile.alert.newCustomSound = "default.mp3"
+    PersonalPlayerNotes:AddCustomSound()
+    check(
+        "AddCustomSound does not add a name already in the shipped manifest",
+        #PersonalPlayerNotes.db.profile.alert.customSounds,
+        1
+    )
+
+    PersonalPlayerNotes.db.profile.alert.newCustomSound = "   "
+    PersonalPlayerNotes:AddCustomSound()
+    check("AddCustomSound ignores a blank/whitespace-only name", #PersonalPlayerNotes.db.profile.alert.customSounds, 1)
+
+    PersonalPlayerNotes:SetAlertSoundEffect({ "sound" }, "mine.mp3")
+    check(
+        "PlayAlertSoundEffect plays a custom-added sound directly by filename",
+        playedPath,
+        "Interface\\AddOns\\PersonalPlayerNotes\\Sounds\\mine.mp3"
+    )
+
+    PersonalPlayerNotes:RemoveCustomSound()
+    check(
+        "RemoveCustomSound removes the currently selected custom sound",
+        #PersonalPlayerNotes.db.profile.alert.customSounds,
+        0
+    )
+    check(
+        "RemoveCustomSound resets the global selection back to the default sound",
+        PersonalPlayerNotes.db.profile.alert.sound,
+        "default.mp3"
+    )
+
+    PersonalPlayerNotes.db.profile.alert.sound = "default.mp3"
+    PersonalPlayerNotes:RemoveCustomSound()
+    check(
+        "RemoveCustomSound is a no-op when the current selection isn't a custom sound",
+        PersonalPlayerNotes.db.profile.alert.sound,
+        "default.mp3"
     )
 
     _G.PlaySoundFile = nil
@@ -201,6 +268,32 @@ do
         "SetReasonAlert also updates the matching entry in reasons[]",
         PersonalPlayerNotes:GetReasons()[PersonalPlayerNotes.db.profile.reason.id].alert,
         true
+    )
+end
+
+do
+    PersonalPlayerNotes.db = freshDb()
+    check(
+        "GetReasonSound defaults to __inherit__ when unset",
+        PersonalPlayerNotes:GetReasonSound({ "sound" }),
+        "__inherit__"
+    )
+
+    PersonalPlayerNotes:SetReasonSound({ "sound" }, "alarmbuzz.ogg")
+    check("SetReasonSound writes the sound on reason", PersonalPlayerNotes.db.profile.reason.sound, "alarmbuzz.ogg")
+    check(
+        "SetReasonSound also updates the matching entry in reasons[]",
+        PersonalPlayerNotes:GetReasons()[PersonalPlayerNotes.db.profile.reason.id].sound,
+        "alarmbuzz.ogg"
+    )
+    check("GetReasonSound reads the overridden sound", PersonalPlayerNotes:GetReasonSound({ "sound" }), "alarmbuzz.ogg")
+
+    PersonalPlayerNotes:SetReasonSound({ "sound" }, "__inherit__")
+    check("SetReasonSound(__inherit__) stores nil", PersonalPlayerNotes.db.profile.reason.sound, nil)
+    check(
+        "GetReasonSound reports __inherit__ again after clearing",
+        PersonalPlayerNotes:GetReasonSound({ "sound" }),
+        "__inherit__"
     )
 end
 
@@ -440,6 +533,25 @@ do
         PersonalPlayerNotes:GetListedPlayerAlert({ "alert" }),
         true
     )
+
+    check(
+        "GetListedPlayerSound defaults to __inherit__ when unset",
+        PersonalPlayerNotes:GetListedPlayerSound({ "sound" }),
+        "__inherit__"
+    )
+    PersonalPlayerNotes:SetListedPlayerSound({ "sound" }, "alarmdouble.ogg")
+    check(
+        "SetListedPlayerSound writes the stored player's sound",
+        PersonalPlayerNotes:GetListedPlayers()[1].sound,
+        "alarmdouble.ogg"
+    )
+    check(
+        "GetListedPlayerSound reads back the selected-player mirror",
+        PersonalPlayerNotes:GetListedPlayerSound({ "sound" }),
+        "alarmdouble.ogg"
+    )
+    PersonalPlayerNotes:SetListedPlayerSound({ "sound" }, "__inherit__")
+    check("SetListedPlayerSound(__inherit__) stores nil", PersonalPlayerNotes:GetListedPlayers()[1].sound, nil)
 end
 
 do

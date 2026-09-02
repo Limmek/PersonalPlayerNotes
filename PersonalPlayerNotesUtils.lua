@@ -5,7 +5,7 @@ local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 -- Current SavedVariables schema version. Bump this and extend
 -- MigrateSavedVariablesSchema() whenever the profile table shape changes
 -- in a way that requires converting existing user data.
-PersonalPlayerNotes.SCHEMA_VERSION = 1
+PersonalPlayerNotes.SCHEMA_VERSION = 2
 
 --#region Client feature detection
 
@@ -105,6 +105,25 @@ function PersonalPlayerNotes:MigrateSavedVariablesSchema()
 
     if fromVersion < 1 then
         -- Initial schema version, nothing to convert yet.
+    end
+
+    if fromVersion < 2 then
+        -- alert.sound used to be a 1-4 index into a per-profile alert.sounds
+        -- array; sounds are now selected by filename instead, sourced from
+        -- the global PersonalPlayerNotes.SoundManifest (see
+        -- Sounds/Manifest.lua) rather than stored per-profile. Reset
+        -- everyone to the new default sound rather than trying to map old
+        -- indices to filenames, and drop the now-unused sounds array.
+        -- (Not read from PersonalPlayerNotes.defaults here: this file's own
+        -- unit tests load it in isolation, without PersonalPlayerNotesConfig.lua.)
+        profile.alert.sound = "default.mp3"
+        profile.alert.sounds = nil
+        -- Superseded by alert.customSounds (a list the user can add/remove
+        -- entries from) before this ever shipped, so there's no old value to
+        -- carry over - just make sure both new fields exist.
+        profile.alert.customSoundFile = nil
+        profile.alert.customSounds = profile.alert.customSounds or {}
+        profile.alert.newCustomSound = profile.alert.newCustomSound or ""
     end
 
     profile.schemaVersion = PersonalPlayerNotes.SCHEMA_VERSION

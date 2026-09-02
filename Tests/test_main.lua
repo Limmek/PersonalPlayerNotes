@@ -384,10 +384,12 @@ do
     addon.ScheduleTimer = function(_, callbackName, delay, name)
         scheduled = { callbackName = callbackName, delay = delay, name = name }
     end
-    local played = false
-    addon.PlayAlertSoundEffect = function()
+    local played, playedSound
+    addon.PlayAlertSoundEffect = function(_, sound)
         played = true
+        playedSound = sound
     end
+    addon.db.profile.alert.sound = "default.mp3"
 
     local tooltip = newFakeTooltip("Thrall", "target")
     addon.GameTooltip(tooltip)
@@ -395,7 +397,57 @@ do
     check("GameTooltip's alert timer targets AlertDelayTimer", scheduled.callbackName, "AlertDelayTimer")
     check("GameTooltip's alert timer uses the profile's alert delay", scheduled.delay, 10)
     check("GameTooltip plays the alert sound effect", played, true)
+    check("GameTooltip falls back to the global sound when reason/player have none", playedSound, "default.mp3")
     check("GameTooltip records the alert cooldown expiry", addon.db.profile.alert.last["Thrall"], 1010)
+end
+
+do
+    local addon = freshGameTooltipAddon()
+    _G.UnitIsPlayer = function()
+        return true
+    end
+    _G.UnitFullName = function()
+        return "Thrall", "Frostmourne"
+    end
+    _G.GetRealmName = function()
+        return "Frostmourne"
+    end
+
+    local playedSound
+    addon.PlayAlertSoundEffect = function(_, sound)
+        playedSound = sound
+    end
+    addon.db.profile.alert.sound = "default.mp3"
+    addon.db.profile.reasons[1].sound = "alarmbuzz.ogg"
+
+    local tooltip = newFakeTooltip("Thrall", "target")
+    addon.GameTooltip(tooltip)
+    check("GameTooltip prefers the reason's sound over the global default", playedSound, "alarmbuzz.ogg")
+end
+
+do
+    local addon = freshGameTooltipAddon()
+    _G.UnitIsPlayer = function()
+        return true
+    end
+    _G.UnitFullName = function()
+        return "Thrall", "Frostmourne"
+    end
+    _G.GetRealmName = function()
+        return "Frostmourne"
+    end
+
+    local playedSound
+    addon.PlayAlertSoundEffect = function(_, sound)
+        playedSound = sound
+    end
+    addon.db.profile.alert.sound = "default.mp3"
+    addon.db.profile.reasons[1].sound = "alarmbuzz.ogg"
+    addon.db.profile.listedPlayers[1].sound = "alarmdouble.ogg"
+
+    local tooltip = newFakeTooltip("Thrall", "target")
+    addon.GameTooltip(tooltip)
+    check("GameTooltip prefers the player's sound over the reason's and global default", playedSound, "alarmdouble.ogg")
 end
 
 do
@@ -419,6 +471,39 @@ do
     local tooltip = newFakeTooltip("Thrall", "target")
     addon.GameTooltip(tooltip)
     check("GameTooltip does not re-trigger the alert within its cooldown", scheduled, false)
+end
+
+do
+    local addon = freshGameTooltipAddon()
+    addon.db.profile.alert.sessionOnly = true
+    _G.UnitIsPlayer = function()
+        return true
+    end
+    _G.UnitFullName = function()
+        return "Thrall", "Frostmourne"
+    end
+    _G.GetRealmName = function()
+        return "Frostmourne"
+    end
+
+    local scheduled = false
+    addon.ScheduleTimer = function()
+        scheduled = true
+    end
+    local played = false
+    addon.PlayAlertSoundEffect = function()
+        played = true
+    end
+
+    local tooltip = newFakeTooltip("Thrall", "target")
+    addon.GameTooltip(tooltip)
+    check("GameTooltip's sessionOnly alert does not schedule an AlertDelayTimer", scheduled, false)
+    check("GameTooltip's sessionOnly alert still plays the sound the first time", played, true)
+    check("GameTooltip's sessionOnly alert marks the player as alerted", addon.db.profile.alert.last["Thrall"], true)
+
+    played = false
+    addon.GameTooltip(tooltip)
+    check("GameTooltip's sessionOnly alert does not repeat for the same player", played, false)
 end
 
 do

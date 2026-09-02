@@ -301,7 +301,7 @@ function PersonalPlayerNotes:SelectListedPlayerAndOpenDialog(player)
     AceConfigDialog:CloseAll()
     local AceGUI = self:AceGUIDefaults()
     AceGUI:SetTitle(L["PPN_LISTED_PLAYERS_TITLE"])
-    AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Listed_Players", 500, 300)
+    AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Listed_Players", 500, 350)
     AceConfigDialog:Open("PersonalPlayerNotesSettings Listed_Players")
 end
 
@@ -434,9 +434,11 @@ end
     Tooltip hook body, registered via TooltipDataProcessor.AddTooltipPostCall()
     or GameTooltip:HookScript("OnTooltipSetUnit", ...) from OnEnable(). Called
     with the real tooltip frame as `self`. Adds the reason/description lines
-    for a listed player being hovered, and schedules a one-shot alert (sound
-    + AlertDelayTimer cooldown) the first time a player with alerts enabled
-    is seen.
+    for a listed player being hovered, and plays an alert sound the first
+    time a player with alerts enabled is seen. Unless alert.sessionOnly is
+    set, an AlertDelayTimer cooldown lets the alert repeat every alert.delay
+    seconds for the same player; with alert.sessionOnly, it only ever plays
+    once per player until /reload or a profile change (see LoadConfig()).
 ]]
 function PersonalPlayerNotes:GameTooltip()
     local _name, unit = self:GetUnit()
@@ -501,16 +503,29 @@ function PersonalPlayerNotes:GameTooltip()
     local alert = PersonalPlayerNotes.db.profile.alert
     if alert.enabled and reason.alert then
         if listedPlayer.alert and not alert.last[name] then
-            alert.last[name] = time + alert.delay
-            PersonalPlayerNotes:ScheduleTimer("AlertDelayTimer", alert.delay, name)
-            PersonalPlayerNotes:PlayAlertSoundEffect()
-            PersonalPlayerNotes:PrintDebug(
-                "|cffff0000<ALERT>|cffffffff Sound effect disabled for player",
-                name,
-                "for",
-                alert.delay,
-                "seconds."
-            )
+            if alert.sessionOnly then
+                -- Never cleared until LoadConfig() resets alert.last on
+                -- /reload or profile change, so this player won't alert
+                -- again for the rest of the session.
+                alert.last[name] = true
+                PersonalPlayerNotes:PrintDebug(
+                    "|cffff0000<ALERT>|cffffffff Sound effect disabled for player",
+                    name,
+                    "for the rest of the session."
+                )
+            else
+                alert.last[name] = time + alert.delay
+                PersonalPlayerNotes:ScheduleTimer("AlertDelayTimer", alert.delay, name)
+                PersonalPlayerNotes:PrintDebug(
+                    "|cffff0000<ALERT>|cffffffff Sound effect disabled for player",
+                    name,
+                    "for",
+                    alert.delay,
+                    "seconds."
+                )
+            end
+            -- Player-specific sound wins, then the reason's, then the global default.
+            PersonalPlayerNotes:PlayAlertSoundEffect(listedPlayer.sound or reason.sound or alert.sound)
         end
     end
 end
@@ -545,15 +560,15 @@ function PersonalPlayerNotes:MiniMapIcon()
                 local AceGUI = PersonalPlayerNotes:AceGUIDefaults()
                 if IsShiftKeyDown() then
                     AceGUI:SetTitle(L["PPN_REASONS_TITLE"])
-                    AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Reasons", 500, 200)
+                    AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Reasons", 500, 250)
                     AceConfigDialog:Open("PersonalPlayerNotesSettings Reasons")
                 elseif IsControlKeyDown() then
                     AceGUI:SetTitle(L["PPN_LISTED_PLAYERS_TITLE"])
-                    AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Listed_Players", 500, 300)
+                    AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Listed_Players", 500, 350)
                     AceConfigDialog:Open("PersonalPlayerNotesSettings Listed_Players")
                 else
                     AceGUI:SetTitle(L["PPN_SETTINGS_TITLE"])
-                    AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Options", 500, 350)
+                    AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Options", 500, 400)
                     AceConfigDialog:Open("PersonalPlayerNotesSettings Options")
                 end
             end
