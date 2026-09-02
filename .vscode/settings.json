@@ -38,8 +38,6 @@
 		"ShitlistDB",
 		"ReloadUI",
 		"UnitPopup_ShowMenu",
-		"LoadAddOn",
-		"DisableAddOn",
 		"os",
 		"io",
 		"debug",

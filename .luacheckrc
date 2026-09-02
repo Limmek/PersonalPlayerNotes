@@ -84,6 +84,10 @@ read_globals = {
     "UnitFullName",
     "GetRealmName",
 
+    -- Secret values (Patch 12.0.0+): detects unit tokens that can't be
+    -- inspected by insecure addon code (e.g. world cursor tooltips).
+    "issecretvalue",
+
     -- Static popups
     "StaticPopup_Show",
 

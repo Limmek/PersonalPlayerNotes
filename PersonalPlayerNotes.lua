@@ -413,7 +413,11 @@ end
 
 function PersonalPlayerNotes:GameTooltip()
     local _name, unit = self:GetUnit()
-    if not (unit and UnitIsPlayer(unit)) then
+    if not unit or PersonalPlayerNotes:IsSecretUnit(unit) then
+        return
+    end
+
+    if not UnitIsPlayer(unit) then
         return
     end
 

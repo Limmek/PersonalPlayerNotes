@@ -45,6 +45,21 @@ function PersonalPlayerNotes:HasModernUIReloadAPI()
 end
 
 --[[
+    Patch 12.0.0 (Midnight) introduced "secret values": some unit tokens
+    (e.g. those tied to world cursor tooltips over terrain/world objects) can
+    no longer be inspected by insecure addon code. Passing one to an API like
+    UnitIsPlayer() throws a hard Lua error ("Secret values are only allowed
+    during untainted execution for this argument") instead of just returning
+    a value, so it must be checked for and skipped rather than caught after
+    the fact. issecretvalue() is the client API added to detect this; it may
+    not exist on older clients, hence the feature check.
+    https://warcraft.wiki.gg/wiki/Secret_Values
+]]
+function PersonalPlayerNotes:IsSecretUnit(unit)
+    return type(issecretvalue) == "function" and issecretvalue(unit) == true
+end
+
+--[[
     Opens the Blizzard options window to this addon's category, falling back
     to opening the Ace3 config dialog directly on clients without the modern
     Settings API.
