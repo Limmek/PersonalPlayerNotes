@@ -32,27 +32,22 @@ local function findSoundFiles()
     local files = {}
     -- io.popen isn't guaranteed everywhere, but is available on the GitHub
     -- Actions runners and typical local dev machines this targets (same
-    -- approach as Tools/validate-toc.lua's findTocFiles()).
-    local list = io.popen('dir /b "' .. soundsDir .. '" 2>nul') -- Windows
-    local first = list and list:read("*l")
+    -- approach as Tools/validate-toc.lua's findTocFiles()). Pick the right
+    -- listing command up front instead of probing with the Windows form and
+    -- falling back on empty output: on Linux, GNU coreutils ships its own
+    -- unrelated `dir` command, so `dir /b "<path>"` doesn't fail empty like
+    -- it does on Windows - `/b` and the path are parsed as two separate
+    -- operands, the path one succeeds, and `dir` prints a multi-column,
+    -- space-separated listing (plus a header) that gets misread as a single
+    -- bogus file name instead of triggering the POSIX fallback.
+    local isWindows = package.config:sub(1, 1) == "\\"
+    local list = isWindows and io.popen('dir /b "' .. soundsDir .. '" 2>nul')
+        or io.popen('ls -1 "' .. soundsDir .. '" 2>/dev/null')
     if list then
-        if first then
-            files[#files + 1] = first
-            for line in list:lines() do
-                files[#files + 1] = line
-            end
+        for line in list:lines() do
+            files[#files + 1] = line
         end
         list:close()
-    end
-    if #files == 0 then
-        -- Fall back to a POSIX shell (Linux/macOS runners).
-        local posixList = io.popen('ls "' .. soundsDir .. '" 2>/dev/null')
-        if posixList then
-            for line in posixList:lines() do
-                files[#files + 1] = line
-            end
-            posixList:close()
-        end
     end
 
     local sounds = {}

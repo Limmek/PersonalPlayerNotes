@@ -44,26 +44,19 @@ local function findTocFiles()
     local files = {}
     -- io.popen isn't guaranteed everywhere, but is available on the
     -- GitHub Actions runners and typical local dev machines this targets.
-    local list = io.popen('dir /b "' .. repoRoot .. '\\*.toc" 2>nul') -- Windows
-    local ok = list and list:read("*l")
+    -- Pick the right listing command up front instead of probing with the
+    -- Windows form and falling back on empty output - see the comment in
+    -- Tools/generate-sounds-manifest.lua's findSoundFiles() for why that
+    -- probe can silently produce garbled output on Linux instead of
+    -- failing empty.
+    local isWindows = package.config:sub(1, 1) == "\\"
+    local list = isWindows and io.popen('dir /b "' .. repoRoot .. '\\*.toc" 2>nul')
+        or io.popen('ls -1 "' .. repoRoot .. '" 2>/dev/null | grep "\\.toc$"')
     if list then
-        if ok then
-            files[#files + 1] = ok
-            for line in list:lines() do
-                files[#files + 1] = line
-            end
+        for line in list:lines() do
+            files[#files + 1] = line
         end
         list:close()
-    end
-    if #files == 0 then
-        -- Fall back to a POSIX shell (Linux/macOS runners).
-        local posixList = io.popen('ls "' .. repoRoot .. '" 2>/dev/null | grep "\\.toc$"')
-        if posixList then
-            for line in posixList:lines() do
-                files[#files + 1] = line
-            end
-            posixList:close()
-        end
     end
     return files
 end
