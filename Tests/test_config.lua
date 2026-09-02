@@ -115,6 +115,8 @@ do
     PersonalPlayerNotes.db = freshDb()
     local originalReasonText = PersonalPlayerNotes.db.profile.reason.reason
 
+    check("GetReason reads the current reason field", PersonalPlayerNotes:GetReason({ "reason" }), originalReasonText)
+
     -- Re-submitting the same text is a no-op: no new reason is added.
     PersonalPlayerNotes:SetReason({ "reason" }, originalReasonText)
     check("SetReason with the same text does not add a new reason", #PersonalPlayerNotes:GetReasons(), 1)
@@ -266,6 +268,12 @@ do
     PersonalPlayerNotes.db.profile.listedPlayers = { player }
     selectPlayerForEditing(player)
 
+    check(
+        "GetListedPlayerRealm reads the selected-player mirror",
+        PersonalPlayerNotes:GetListedPlayerRealm({ "realm" }),
+        "Frostmourne"
+    )
+
     PersonalPlayerNotes:SetListedPlayerRealm({ "realm" }, "Stormrage")
     check(
         "SetListedPlayerRealm updates the stored player's realm",
@@ -292,6 +300,12 @@ do
     }
     PersonalPlayerNotes.db.profile.listedPlayers = { player }
     selectPlayerForEditing(player)
+
+    check(
+        "GetListedPlayerName reads the selected-player mirror",
+        PersonalPlayerNotes:GetListedPlayerName({ "name" }),
+        "Thrall"
+    )
 
     -- Renaming to a name that already exists at the same realm should sync
     -- fields onto the existing entry instead of creating a duplicate.
@@ -369,6 +383,11 @@ do
     check(
         "SetListedPlayerSelectedDescription writes description on the stored player",
         PersonalPlayerNotes:GetListedPlayers()[1].description,
+        "Ninja looted raid gear"
+    )
+    check(
+        "GetListedPlayerSelectedDescription reads back the selected-player mirror",
+        PersonalPlayerNotes:GetListedPlayerSelectedDescription({ "description" }),
         "Ninja looted raid gear"
     )
 

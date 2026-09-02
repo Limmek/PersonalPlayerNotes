@@ -63,6 +63,24 @@ do
     check("returns nil for a non-string key (realm)", realm, nil)
 end
 
+do
+    -- Realm names can contain spaces (e.g. "Emerald Dream"); the pattern
+    -- only splits on the hyphen, so spaces pass through untouched.
+    local name, realm = PersonalPlayerNotes:ParseLegacyPlayerKey("Thrall-Emerald Dream")
+    check("parses a Name-Realm key with a spaced realm (name)", name, "Thrall")
+    check("parses a Name-Realm key with a spaced realm (realm)", realm, "Emerald Dream")
+end
+
+do
+    -- The match pattern "([^-]+)-([^-]+)" only captures the first two
+    -- hyphen-delimited segments, so a key with more than one hyphen is
+    -- truncated rather than erroring or capturing everything after the
+    -- first hyphen. This documents that actual (surprising) behavior.
+    local name, realm = PersonalPlayerNotes:ParseLegacyPlayerKey("A-B-C")
+    check("a multi-hyphen key only captures the first segment as name", name, "A")
+    check("a multi-hyphen key only captures the second segment as realm", realm, "B")
+end
+
 -- Feature detection: must not error and must default to false when the
 -- corresponding WoW globals don't exist.
 check("HasModernMenuAPI is false without a Menu global", PersonalPlayerNotes:HasModernMenuAPI(), false)
@@ -79,12 +97,34 @@ _G.Menu = { ModifyMenu = function() end }
 check("HasModernMenuAPI is true once Menu.ModifyMenu exists", PersonalPlayerNotes:HasModernMenuAPI(), true)
 _G.Menu = nil
 
+-- Some Classic clients pick up part of the modern API surface before the
+-- rest (e.g. the Menu table exists but ModifyMenu isn't implemented yet),
+-- so each Has*API() check must require the full surface, not just the
+-- presence of the parent table.
+_G.Menu = {}
+check(
+    "HasModernMenuAPI is false when Menu exists but ModifyMenu doesn't",
+    PersonalPlayerNotes:HasModernMenuAPI(),
+    false
+)
+_G.Menu = nil
+
 _G.TooltipDataProcessor = { AddTooltipPostCall = function() end }
 _G.Enum = { TooltipDataType = { Unit = 1 } }
 check(
     "HasModernTooltipAPI is true once TooltipDataProcessor/Enum exist",
     PersonalPlayerNotes:HasModernTooltipAPI(),
     true
+)
+_G.TooltipDataProcessor = nil
+_G.Enum = nil
+
+_G.TooltipDataProcessor = { AddTooltipPostCall = function() end }
+_G.Enum = {}
+check(
+    "HasModernTooltipAPI is false when Enum exists but TooltipDataType doesn't",
+    PersonalPlayerNotes:HasModernTooltipAPI(),
+    false
 )
 _G.TooltipDataProcessor = nil
 _G.Enum = nil
@@ -105,9 +145,39 @@ check(
 )
 _G.C_AddOns = nil
 
+_G.C_AddOns = { LoadAddOn = function() end }
+check(
+    "HasModernAddOnAPI is false when only C_AddOns.LoadAddOn exists (missing DisableAddOn)",
+    PersonalPlayerNotes:HasModernAddOnAPI(),
+    false
+)
+_G.C_AddOns = nil
+
 _G.C_UI = { Reload = function() end }
 check("HasModernUIReloadAPI is true once C_UI.Reload exists", PersonalPlayerNotes:HasModernUIReloadAPI(), true)
 _G.C_UI = nil
+
+-- IsSecretUnit
+check("IsSecretUnit is false without an issecretvalue global", PersonalPlayerNotes:IsSecretUnit("player"), false)
+
+_G.issecretvalue = function()
+    return true
+end
+check(
+    "IsSecretUnit is true once issecretvalue exists and reports true",
+    PersonalPlayerNotes:IsSecretUnit("player"),
+    true
+)
+
+_G.issecretvalue = function()
+    return false
+end
+check(
+    "IsSecretUnit is false once issecretvalue exists but reports false",
+    PersonalPlayerNotes:IsSecretUnit("player"),
+    false
+)
+_G.issecretvalue = nil
 
 -- Metadata getters: thin wrappers around C_AddOns.GetAddOnMetadata(), each
 -- falling back to L["PPN_NA"] ("" with this file's locale stub) when the
@@ -237,6 +307,54 @@ do
         openedKey,
         "PersonalPlayerNotesSettings Info"
     )
+end
+
+-- Print / PrintDebug
+do
+    local realPrint = print
+
+    local function captureArgs(fn)
+        local captured
+        _G.print = function(...)
+            captured = { n = select("#", ...), ... }
+        end
+        fn()
+        _G.print = realPrint
+        return captured
+    end
+
+    PersonalPlayerNotes.db = nil
+    local args = captureArgs(function()
+        PersonalPlayerNotes:Print("hello", "world")
+    end)
+    check("Print works without a db (self.db is nil)", args ~= nil, true)
+    check("Print forwards call args without a db", args[3], "world")
+
+    PersonalPlayerNotes.db = { profile = { debug = false } }
+    args = captureArgs(function()
+        PersonalPlayerNotes:Print("normal")
+    end)
+    check("Print forwards call args when debug is off", args[2], "normal")
+
+    PersonalPlayerNotes.db.profile.debug = true
+    args = captureArgs(function()
+        PersonalPlayerNotes:Print("debug-mode")
+    end)
+    check("Print forwards call args when debug is on", args[2], "debug-mode")
+
+    PersonalPlayerNotes.db.profile.debug = false
+    args = captureArgs(function()
+        PersonalPlayerNotes:PrintDebug("should not print")
+    end)
+    check("PrintDebug is a no-op when debug is off", args, nil)
+
+    PersonalPlayerNotes.db.profile.debug = true
+    args = captureArgs(function()
+        PersonalPlayerNotes:PrintDebug("should print")
+    end)
+    check("PrintDebug forwards to Print when debug is on", args[2], "should print")
+
+    PersonalPlayerNotes.db = nil
 end
 
 if failures > 0 then
