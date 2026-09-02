@@ -10,13 +10,18 @@ PersonalPlayerNotes = LibStub("AceAddon-3.0"):NewAddon(
 local L = LibStub("AceLocale-3.0"):GetLocale(personalPlayerNotes, true)
 local AceConfig = LibStub("AceConfig-3.0")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
-local AceConfigRegistry = LibStub("AceConfigRegistry-3.0")
 local LibDataBroker = LibStub("LibDataBroker-1.1")
 local LibDBIcon = LibStub("LibDBIcon-1.0")
 
 local IS_RETAIL = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE or false
 PersonalPlayerNotes.IsRetail = IS_RETAIL
 
+--[[
+    Ace3 lifecycle callback, fired once when the addon's SavedVariables have
+    been loaded and it's about to be enabled. Sets up the AceDB profile,
+    registers all Ace3 config panels/chat commands, migrates legacy Shitlist
+    data if present, and does the initial LoadConfig().
+]]
 function PersonalPlayerNotes:OnInitialize()
     -- uses the "Default" profile instead of character-specific profiles
     -- https://www.wowace.com/projects/ace3/pages/api/ace-db-3-0
@@ -94,6 +99,12 @@ function PersonalPlayerNotes:OnInitialize()
     self:LoadConfig()
 end
 
+--[[
+    Ace3 lifecycle callback, fired after OnInitialize() once the addon is
+    actually enabled. Prints the startup banner and hooks whichever unit-menu
+    and tooltip APIs this client actually supports (see the feature-detection
+    helpers in PersonalPlayerNotesUtils.lua).
+]]
 function PersonalPlayerNotes:OnEnable()
     self:Print(L["PPN_CONFIG_LOADING"])
     self:Print(L["PPN_CONFIG_VERSION"], _G["ORANGE_FONT_COLOR_CODE"], self:GetVersion())
@@ -126,10 +137,21 @@ function PersonalPlayerNotes:OnEnable()
     self:Print(L["PPN_CONFIG_LOADED"])
 end
 
+--[[
+    Ace3 lifecycle callback, fired when the addon is disabled (e.g. via
+    /reload with the addon unchecked, or a manual :Disable() call).
+]]
 function PersonalPlayerNotes:OnDisable()
     self:Print(L["PPN_DISABLE"])
 end
 
+--[[
+    Refreshes runtime state from the (possibly just-changed) AceDB profile:
+    clears the alert cooldown table and shows/hides the minimap icon.
+    Registered as the callback for AceDB's OnNewProfile/OnProfileChanged/
+    OnProfileCopied/OnProfileReset events, and also called directly whenever
+    a minimap-related setting changes.
+]]
 function PersonalPlayerNotes:LoadConfig()
     self.db.profile.alert.last = {}
 
@@ -144,6 +166,14 @@ function PersonalPlayerNotes:LoadConfig()
     self:PrintDebug("Mini Map Icon:", _G["GREEN_FONT_COLOR_CODE"], not self.db.profile.minimap.hide)
 end
 
+--[[
+    One-time migration from the old "Shitlist" addon's SavedVariables
+    (ShitlistDB) into this addon's reasons/listedPlayers tables. Called from
+    OnInitialize() only after Shitlist itself was successfully loaded.
+    Migrates the legacy Reasons/ListedPlayers tables directly, and offers a
+    MIGRATE_PROFILES popup to copy over Shitlist's full AceDB profiles if
+    ShitlistDB.profiles exists.
+]]
 function PersonalPlayerNotes:GetOldConfigData()
     -- Shitlist may be loadable without ever having saved any data (e.g. a fresh account).
     if not ShitlistDB then
@@ -252,6 +282,37 @@ function PersonalPlayerNotes:GetOldConfigData()
     end
 end
 
+--[[
+    Copies a listedPlayers[] entry's fields onto the self.db.profile.listedPlayer
+    mirror table and opens the "Listed Players" AceConfig dialog focused on it.
+    Shared by the Add/Edit menu actions in both DropDownMenuInitialize() (modern
+    Menu API) and UnitPopup_ShowMenu() (legacy dropdown API) to avoid
+    duplicating this sync-then-open sequence in 4 separate closures.
+]]
+function PersonalPlayerNotes:SelectListedPlayerAndOpenDialog(player)
+    self.db.profile.listedPlayer.id = player.id
+    self.db.profile.listedPlayer.name = player.name
+    self.db.profile.listedPlayer.realm = player.realm
+    self.db.profile.listedPlayer.reason = player.reason
+    self.db.profile.listedPlayer.description = player.description
+    self.db.profile.listedPlayer.color = player.color
+    self.db.profile.listedPlayer.alert = player.alert
+
+    AceConfigDialog:CloseAll()
+    local AceGUI = self:AceGUIDefaults()
+    AceGUI:SetTitle(L["PPN_LISTED_PLAYERS_TITLE"])
+    AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Listed_Players", 500, 300)
+    AceConfigDialog:Open("PersonalPlayerNotesSettings Listed_Players")
+end
+
+--[[
+    Registers the modern Menu API (Retail 11.0.0+) unit-menu entries for
+    player/enemy-player/friend units, via Menu.ModifyMenu(). Only called from
+    OnEnable() when HasModernMenuAPI() is true. Shares the same "Add"/"Edit"
+    decision logic as the legacy UnitPopup_ShowMenu() fallback below, just
+    driven by a rootDescription:CreateButton() menu instead of
+    UIDropDownMenu_AddButton().
+]]
 function PersonalPlayerNotes:DropDownMenuInitialize()
     local DropDownMenu = function(ownerRegion, rootDescription, contextData)
         -- verify the unit
@@ -273,37 +334,13 @@ function PersonalPlayerNotes:DropDownMenuInitialize()
                 PersonalPlayerNotes:Print(L["PPN_POPUP_NEW_ADDED"], name, realm)
 
                 local new_player = PersonalPlayerNotes:NewListedPlayer(name, realm)
-                PersonalPlayerNotes.db.profile.listedPlayer.id = new_player.id
-                PersonalPlayerNotes.db.profile.listedPlayer.name = new_player.name
-                PersonalPlayerNotes.db.profile.listedPlayer.realm = new_player.realm
-                PersonalPlayerNotes.db.profile.listedPlayer.reason = new_player.reason
-                PersonalPlayerNotes.db.profile.listedPlayer.description = new_player.description
-                PersonalPlayerNotes.db.profile.listedPlayer.color = new_player.color
-                PersonalPlayerNotes.db.profile.listedPlayer.alert = new_player.alert
-
-                AceConfigDialog:CloseAll()
-                local AceGUI = PersonalPlayerNotes:AceGUIDefaults()
-                AceGUI:SetTitle(L["PPN_LISTED_PLAYERS_TITLE"])
-                AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Listed_Players", 500, 300)
-                AceConfigDialog:Open("PersonalPlayerNotesSettings Listed_Players")
+                PersonalPlayerNotes:SelectListedPlayerAndOpenDialog(new_player)
             end)
         else
             rootDescription:CreateDivider()
             rootDescription:CreateTitle(L["PPN"])
             rootDescription:CreateButton(L["PPN_POPUP_EDIT"], function()
-                PersonalPlayerNotes.db.profile.listedPlayer.id = listedPlayer.id
-                PersonalPlayerNotes.db.profile.listedPlayer.name = listedPlayer.name
-                PersonalPlayerNotes.db.profile.listedPlayer.realm = listedPlayer.realm
-                PersonalPlayerNotes.db.profile.listedPlayer.reason = listedPlayer.reason
-                PersonalPlayerNotes.db.profile.listedPlayer.description = listedPlayer.description
-                PersonalPlayerNotes.db.profile.listedPlayer.color = listedPlayer.color
-                PersonalPlayerNotes.db.profile.listedPlayer.alert = listedPlayer.alert
-
-                AceConfigDialog:CloseAll()
-                local AceGUI = PersonalPlayerNotes:AceGUIDefaults()
-                AceGUI:SetTitle(L["PPN_LISTED_PLAYERS_TITLE"])
-                AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Listed_Players", 500, 300)
-                AceConfigDialog:Open("PersonalPlayerNotesSettings Listed_Players")
+                PersonalPlayerNotes:SelectListedPlayerAndOpenDialog(listedPlayer)
             end)
         end
     end
@@ -319,6 +356,12 @@ function PersonalPlayerNotes:DropDownMenuInitialize()
 end
 
 -- Classic Deprecated
+--[[
+    Legacy pre-Menu-API unit-menu handler, SecureHooked onto Blizzard's
+    global UnitPopup_ShowMenu() from OnEnable() when HasModernMenuAPI() is
+    false. Adds an "Add"/submenu entry for the targeted unit at the dropdown
+    root, and an "Edit" button one level down for already-listed players.
+]]
 function PersonalPlayerNotes:UnitPopup_ShowMenu(target, unit, menuList)
     PersonalPlayerNotes:PrintDebug("Unit: ", unit, ", Target: ", target)
     -- verify the target
@@ -357,19 +400,7 @@ function PersonalPlayerNotes:UnitPopup_ShowMenu(target, unit, menuList)
                 func = function()
                     PersonalPlayerNotes:Print(L["PPN_POPUP_NEW_ADDED"], name, realm)
                     local new_player = PersonalPlayerNotes:NewListedPlayer(name, realm)
-                    PersonalPlayerNotes.db.profile.listedPlayer.id = new_player.id
-                    PersonalPlayerNotes.db.profile.listedPlayer.name = new_player.name
-                    PersonalPlayerNotes.db.profile.listedPlayer.realm = new_player.realm
-                    PersonalPlayerNotes.db.profile.listedPlayer.reason = new_player.reason
-                    PersonalPlayerNotes.db.profile.listedPlayer.description = new_player.description
-                    PersonalPlayerNotes.db.profile.listedPlayer.color = new_player.color
-                    PersonalPlayerNotes.db.profile.listedPlayer.alert = new_player.alert
-
-                    AceConfigDialog:CloseAll()
-                    local AceGUI = PersonalPlayerNotes:AceGUIDefaults()
-                    AceGUI:SetTitle(L["PPN_LISTED_PLAYERS_TITLE"])
-                    AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Listed_Players", 500, 300)
-                    AceConfigDialog:Open("PersonalPlayerNotesSettings Listed_Players")
+                    PersonalPlayerNotes:SelectListedPlayerAndOpenDialog(new_player)
                 end,
             }, UIDROPDOWNMENU_MENU_LEVEL)
         end
@@ -392,25 +423,21 @@ function PersonalPlayerNotes:UnitPopup_ShowMenu(target, unit, menuList)
         menuItem.value = listedPlayer
         menuItem.func = function()
             if listedPlayer then
-                PersonalPlayerNotes.db.profile.listedPlayer.id = listedPlayer.id
-                PersonalPlayerNotes.db.profile.listedPlayer.name = listedPlayer.name
-                PersonalPlayerNotes.db.profile.listedPlayer.realm = listedPlayer.realm
-                PersonalPlayerNotes.db.profile.listedPlayer.reason = listedPlayer.reason
-                PersonalPlayerNotes.db.profile.listedPlayer.description = listedPlayer.description
-                PersonalPlayerNotes.db.profile.listedPlayer.color = listedPlayer.color
-                PersonalPlayerNotes.db.profile.listedPlayer.alert = listedPlayer.alert
-
-                AceConfigDialog:CloseAll()
-                local AceGUI = PersonalPlayerNotes:AceGUIDefaults()
-                AceGUI:SetTitle(L["PPN_LISTED_PLAYERS_TITLE"])
-                AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Listed_Players", 500, 300)
-                AceConfigDialog:Open("PersonalPlayerNotesSettings Listed_Players")
+                PersonalPlayerNotes:SelectListedPlayerAndOpenDialog(listedPlayer)
             end
         end
         UIDropDownMenu_AddButton(menuItem, UIDROPDOWNMENU_MENU_LEVEL)
     end
 end
 
+--[[
+    Tooltip hook body, registered via TooltipDataProcessor.AddTooltipPostCall()
+    or GameTooltip:HookScript("OnTooltipSetUnit", ...) from OnEnable(). Called
+    with the real tooltip frame as `self`. Adds the reason/description lines
+    for a listed player being hovered, and schedules a one-shot alert (sound
+    + AlertDelayTimer cooldown) the first time a player with alerts enabled
+    is seen.
+]]
 function PersonalPlayerNotes:GameTooltip()
     local _name, unit = self:GetUnit()
     if not unit or PersonalPlayerNotes:IsSecretUnit(unit) then
@@ -497,6 +524,9 @@ end
 function PersonalPlayerNotes:MiniMapIcon()
     -- Create minimap launcher
     -- https://github.com/tekkub/libdatabroker-1-1/wiki/How-to-provide-a-dataobject
+    -- OnClick: right-click opens the Blizzard options fallback; left-click
+    -- opens Settings/Reasons/Listed Players depending on shift/ctrl held.
+    -- OnTooltipShow: renders the minimap icon's hover tooltip.
     return LibDataBroker:NewDataObject(personalPlayerNotes, {
         type = "launcher",
         text = L["PPN"],
@@ -542,11 +572,18 @@ function PersonalPlayerNotes:MiniMapIcon()
     })
 end
 
+--[[
+    Toggles the minimap icon's visibility (bound to /ppnm and /ppnminimap)
+    and refreshes it via LoadConfig().
+]]
 function PersonalPlayerNotes:ToggleMiniMapIcon()
     self.db.profile.minimap.hide = not self.db.profile.minimap.hide
     self:LoadConfig()
 end
 
+--[[
+    Toggles debug logging (bound to /ppndebug) and refreshes via LoadConfig().
+]]
 function PersonalPlayerNotes:ToggleDebug()
     self.db.profile.debug = not self.db.profile.debug
     self:LoadConfig()

@@ -13,7 +13,6 @@ PersonalPlayerNotes.defaults = {
             sound = 1,
             sounds = { "alarmbeep", "alarmbuzz", "alarmbuzzer", "alarmdouble" },
             last = {},
-            time = 0,
         },
         reasons = {
             { id = 1, reason = L["PPN_DEFAULT_REASON"], color = { r = 1, g = 1, b = 1 }, alert = false },
@@ -437,23 +436,43 @@ PersonalPlayerNotes.options = {
 
 --#region Sound
 
+--[[
+    Generic AceConfig get handler for self.db.profile.alert.* fields (enabled,
+    delay, ...): the option's arg name (last segment of `info`) is used as
+    the field key.
+]]
 function PersonalPlayerNotes:GetAlert(info)
     return self.db.profile.alert[info[#info]]
 end
 
+--[[
+    Generic AceConfig set handler counterpart to GetAlert().
+]]
 function PersonalPlayerNotes:SetAlert(info, value)
     self.db.profile.alert[info[#info]] = value
 end
 
+--[[
+    Returns the index of the currently selected alert sound effect within
+    self.db.profile.alert.sounds.
+]]
 function PersonalPlayerNotes:GetAlertSoundEffect(info)
     return self.db.profile.alert.sound
 end
 
+--[[
+    Selects a new alert sound effect by index, playing it immediately as a
+    preview.
+]]
 function PersonalPlayerNotes:SetAlertSoundEffect(info, value)
     self:PlayAlertSoundEffect(value)
     self.db.profile.alert.sound = value
 end
 
+--[[
+    Plays one of the addon's bundled alert sound effects. Defaults to the
+    currently selected effect/master channel when effect/channel are omitted.
+]]
 function PersonalPlayerNotes:PlayAlertSoundEffect(effect, channel)
     PlaySoundFile(
         "Interface\\AddOns\\"
@@ -480,10 +499,19 @@ function PersonalPlayerNotes:SetReasons(data)
     self.db.profile.reasons = data
 end
 
+--[[
+    Returns a field of the currently selected reason mirror
+    (self.db.profile.reason), keyed by the AceConfig option's arg name.
+]]
 function PersonalPlayerNotes:GetReason(info)
     return self.db.profile.reason[info[#info]]
 end
 
+--[[
+    Writes the reason text field. If it doesn't match the currently selected
+    reasons[] entry's text, a brand new reason entry is created and selected
+    instead of renaming the existing one in place.
+]]
 function PersonalPlayerNotes:SetReason(info, value)
     self.db.profile.reason[info[#info]] = value
     if self.db.profile.reasons[self.db.profile.reason.id].reason == value then
@@ -501,6 +529,10 @@ function PersonalPlayerNotes:SetReason(info, value)
     end
 end
 
+--[[
+    Selects a reason by id, syncing the self.db.profile.reason mirror from
+    the matching reasons[] entry. A no-op if the id doesn't exist.
+]]
 function PersonalPlayerNotes:SelectedReason(info, value)
     local r = self.db.profile.reasons[value]
     if not r then
@@ -512,30 +544,50 @@ function PersonalPlayerNotes:SelectedReason(info, value)
     self.db.profile.reason.alert = r.alert
 end
 
+--[[
+    Removes the currently selected reason and re-selects the new last entry.
+    The UI disables this action for the default (built-in) reason, see
+    options.Reasons.args.remove.disabled.
+]]
 function PersonalPlayerNotes:RemoveReason()
-    tremove(PersonalPlayerNotes.db.profile.reasons, PersonalPlayerNotes.db.profile.reason.id)
-    local reasons = PersonalPlayerNotes:GetReasons()
-    PersonalPlayerNotes.db.profile.reason.id = #reasons
-    PersonalPlayerNotes.db.profile.reason.reason = reasons[#reasons].reason
-    PersonalPlayerNotes.db.profile.reason.color = reasons[#reasons].color
-    PersonalPlayerNotes.db.profile.reason.alert = reasons[#reasons].alert
+    tremove(self.db.profile.reasons, self.db.profile.reason.id)
+    local reasons = self:GetReasons()
+    self.db.profile.reason.id = #reasons
+    self.db.profile.reason.reason = reasons[#reasons].reason
+    self.db.profile.reason.color = reasons[#reasons].color
+    self.db.profile.reason.alert = reasons[#reasons].alert
     return true
 end
 
+--[[
+    Returns the selected reason's r/g/b color, defaulting any missing
+    channel to 1.
+]]
 function PersonalPlayerNotes:GetReasonColor(info)
     local c = self.db.profile.reason[info[#info]]
     return c.r or 1, c.g or 1, c.b or 1
 end
 
+--[[
+    Writes the selected reason's r/g/b color, defaulting any omitted channel
+    to 1.
+]]
 function PersonalPlayerNotes:SetReasonColor(info, r, g, b)
     local c = self.db.profile.reason[info[#info]]
     c.r, c.g, c.b = r or 1, g or 1, b or 1
 end
 
+--[[
+    Returns whether the selected reason currently triggers alerts.
+]]
 function PersonalPlayerNotes:GetReasonAlert(info)
     return self.db.profile.reason[info[#info]]
 end
 
+--[[
+    Writes the selected reason's alert flag, syncing both the reason mirror
+    and its backing reasons[] entry.
+]]
 function PersonalPlayerNotes:SetReasonAlert(info, value)
     self.db.profile.reason[info[#info]] = value
     local reason = self:GetReasons()[self.db.profile.reason.id]
@@ -593,6 +645,10 @@ function PersonalPlayerNotes:GetListedPlayerRealm(info)
     return self.db.profile.listedPlayer[info[#info]]
 end
 
+--[[
+    Writes the selected player's realm field, syncing the backing
+    listedPlayers[] entry in place.
+]]
 function PersonalPlayerNotes:SetListedPlayerRealm(info, value)
     self.db.profile.listedPlayer[info[#info]] = value
     local player = PersonalPlayerNotes:GetListedPlayers()[self.db.profile.listedPlayer.id]
@@ -612,6 +668,11 @@ function PersonalPlayerNotes:GetListedPlayerName(info)
     return self.db.profile.listedPlayer[info[#info]]
 end
 
+--[[
+    Writes the selected player's name field. If no listedPlayers[] entry
+    matches the new name/realm pair, a brand new player entry is created and
+    selected instead of renaming the existing one in place.
+]]
 function PersonalPlayerNotes:SetListedPlayerName(info, value)
     self.db.profile.listedPlayer[info[#info]] = value
     --local player = PersonalPlayerNotes:GetListedPlayers()[self.db.profile.listedPlayer.id]
@@ -631,16 +692,34 @@ function PersonalPlayerNotes:SetListedPlayerName(info, value)
     end
 end
 
+--[[
+    Removes the currently selected listed player and re-selects the new last
+    entry. Unlike RemoveReason(), listedPlayers[] is allowed to become empty
+    (there's no built-in/default entry to protect), so the listedPlayer
+    mirror is reset to a blank placeholder instead of indexing a nil last
+    entry when the list is emptied.
+]]
 function PersonalPlayerNotes:RemoveListedPlayer()
     tremove(self.db.profile.listedPlayers, self.db.profile.listedPlayer.id)
-    local listedPlayers = PersonalPlayerNotes:GetListedPlayers()
-    self.db.profile.listedPlayer.id = #listedPlayers
-    self.db.profile.listedPlayer.name = listedPlayers[#listedPlayers].name
-    self.db.profile.listedPlayer.realm = listedPlayers[#listedPlayers].realm
-    self.db.profile.listedPlayer.reason = listedPlayers[#listedPlayers].reason
-    self.db.profile.listedPlayer.description = listedPlayers[#listedPlayers].description
-    self.db.profile.listedPlayer.color = listedPlayers[#listedPlayers].color
-    self.db.profile.listedPlayer.alert = listedPlayers[#listedPlayers].alert
+    local listedPlayers = self:GetListedPlayers()
+    local last = listedPlayers[#listedPlayers]
+    if last then
+        self.db.profile.listedPlayer.id = #listedPlayers
+        self.db.profile.listedPlayer.name = last.name
+        self.db.profile.listedPlayer.realm = last.realm
+        self.db.profile.listedPlayer.reason = last.reason
+        self.db.profile.listedPlayer.description = last.description
+        self.db.profile.listedPlayer.color = last.color
+        self.db.profile.listedPlayer.alert = last.alert
+    else
+        self.db.profile.listedPlayer.id = 0
+        self.db.profile.listedPlayer.name = ""
+        self.db.profile.listedPlayer.realm = ""
+        self.db.profile.listedPlayer.reason = 1
+        self.db.profile.listedPlayer.description = ""
+        self.db.profile.listedPlayer.color = { r = 1, g = 1, b = 1 }
+        self.db.profile.listedPlayer.alert = true
+    end
     return true
 end
 
@@ -648,6 +727,10 @@ function PersonalPlayerNotes:GetListedPlayerSelectedReason(info)
     return self.db.profile.listedPlayer[info[#info]]
 end
 
+--[[
+    Writes the selected player's reason id, syncing the backing
+    listedPlayers[] entry in place.
+]]
 function PersonalPlayerNotes:SetListedPlayerSelectedReason(info, value)
     self.db.profile.listedPlayer[info[#info]] = value
     local player = PersonalPlayerNotes:GetListedPlayers()[self.db.profile.listedPlayer.id]
@@ -658,22 +741,40 @@ function PersonalPlayerNotes:GetListedPlayerSelectedDescription(info)
     return self.db.profile.listedPlayer[info[#info]]
 end
 
+--[[
+    Writes the selected player's description field, syncing the backing
+    listedPlayers[] entry in place.
+]]
 function PersonalPlayerNotes:SetListedPlayerSelectedDescription(info, value)
     self.db.profile.listedPlayer[info[#info]] = value
     local player = PersonalPlayerNotes:GetListedPlayers()[self.db.profile.listedPlayer.id]
     player.description = value
 end
 
+--[[
+    Returns the selected player's r/g/b color, defaulting any missing
+    channel to 1.
+]]
 function PersonalPlayerNotes:GetListedPlayerColor(info)
     local c = self.db.profile.listedPlayer[info[#info]]
     return c.r or 1, c.g or 1, c.b or 1
 end
 
+--[[
+    Writes the selected player's r/g/b color, defaulting any omitted channel
+    to 1.
+]]
 function PersonalPlayerNotes:SetListedPlayerColor(info, r, g, b)
     local c = self.db.profile.listedPlayer[info[#info]]
     c.r, c.g, c.b = r or 1, g or 1, b or 1
 end
 
+--[[
+    Appends a new listed player entry and returns it. Any field left nil
+    falls back to the current listedPlayer mirror's value (name/realm) or a
+    sane default (reason 1, empty description). Does not select the new
+    entry - callers sync self.db.profile.listedPlayer themselves afterward.
+]]
 function PersonalPlayerNotes:NewListedPlayer(name, realm, reason, description)
     self.db.profile.listedPlayer.id = #self.db.profile.listedPlayers + 1
     local newPlayer = {
@@ -693,6 +794,10 @@ function PersonalPlayerNotes:GetListedPlayerAlert(info)
     return self.db.profile.listedPlayer[info[#info]]
 end
 
+--[[
+    Writes the selected player's alert flag, syncing the backing
+    listedPlayers[] entry in place.
+]]
 function PersonalPlayerNotes:SetListedPlayerAlert(info, value)
     self.db.profile.listedPlayer[info[#info]] = value
     local player = PersonalPlayerNotes:GetListedPlayers()[self.db.profile.listedPlayer.id]

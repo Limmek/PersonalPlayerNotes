@@ -353,6 +353,30 @@ do
 end
 
 do
+    -- Removing the very last listed player must not crash (listedPlayers[0]
+    -- used to be indexed here, erroring "attempt to index a nil value").
+    PersonalPlayerNotes.db = freshDb()
+    PersonalPlayerNotes.db.profile.listedPlayers = {
+        {
+            id = 1,
+            name = "Thrall",
+            realm = "Frostmourne",
+            reason = 1,
+            description = "",
+            color = { r = 1, g = 1, b = 1 },
+            alert = true,
+        },
+    }
+    PersonalPlayerNotes.db.profile.listedPlayer.id = 1
+
+    local ok = PersonalPlayerNotes:RemoveListedPlayer()
+    check("RemoveListedPlayer does not error when removing the last player", ok, true)
+    check("RemoveListedPlayer allows listedPlayers to become empty", #PersonalPlayerNotes:GetListedPlayers(), 0)
+    check("RemoveListedPlayer resets the mirror's id to 0 when the list is empty", PersonalPlayerNotes.db.profile.listedPlayer.id, 0)
+    check("RemoveListedPlayer resets the mirror's name to blank when the list is empty", PersonalPlayerNotes.db.profile.listedPlayer.name, "")
+end
+
+do
     PersonalPlayerNotes.db = freshDb()
     PersonalPlayerNotes.db.profile.listedPlayers = {
         {

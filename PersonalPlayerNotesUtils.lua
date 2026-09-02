@@ -112,38 +112,80 @@ end
 
 --#endregion
 
+--#region Addon metadata
+
+--[[
+    All of the following read a single field from the .toc's metadata via
+    C_AddOns.GetAddOnMetadata(), falling back to L["PPN_NA"] if the field is
+    missing (e.g. an optional .toc field like X-Website wasn't set).
+]]
+
+--[[
+    Returns the addon's Version .toc field, wrapped in tostring() since
+    GetAddOnMetadata() can hand back a bare number for numeric-looking
+    version strings.
+]]
 function PersonalPlayerNotes:GetVersion()
     return tostring(C_AddOns.GetAddOnMetadata(personalPlayerNotes, "Version")) or L["PPN_NA"]
 end
 
+--[[
+    Returns the addon's Title .toc field.
+]]
 function PersonalPlayerNotes:GetTitle()
     return C_AddOns.GetAddOnMetadata(personalPlayerNotes, "Title") or L["PPN_NA"]
 end
 
+--[[
+    Returns the addon's Author .toc field.
+]]
 function PersonalPlayerNotes:GetAuthor()
     return C_AddOns.GetAddOnMetadata(personalPlayerNotes, "Author") or L["PPN_NA"]
 end
 
+--[[
+    Returns the addon's Notes .toc field.
+]]
 function PersonalPlayerNotes:GetNotes()
     return C_AddOns.GetAddOnMetadata(personalPlayerNotes, "Notes") or L["PPN_NA"]
 end
 
+--[[
+    Returns the addon's X-Localizations .toc field.
+]]
 function PersonalPlayerNotes:GetLocalizations()
     return C_AddOns.GetAddOnMetadata(personalPlayerNotes, "X-Localizations") or L["PPN_NA"]
 end
 
+--[[
+    Returns the addon's X-Category .toc field.
+]]
 function PersonalPlayerNotes:GetCategory()
     return C_AddOns.GetAddOnMetadata(personalPlayerNotes, "X-Category") or L["PPN_NA"]
 end
 
+--[[
+    Returns the addon's X-Website .toc field.
+]]
 function PersonalPlayerNotes:GetWebsite()
     return C_AddOns.GetAddOnMetadata(personalPlayerNotes, "X-Website") or L["PPN_NA"]
 end
 
+--[[
+    Returns the addon's X-License .toc field.
+]]
 function PersonalPlayerNotes:GetLicense()
     return C_AddOns.GetAddOnMetadata(personalPlayerNotes, "X-License") or L["PPN_NA"]
 end
 
+--#endregion
+
+--[[
+    Creates a bare AceGUI-3.0 Frame widget preconfigured the way this addon's
+    dropdown/minimap-icon "Add"/"Edit" popups expect it: releases itself on
+    close, fills its container, and hides the (unused) status bar text/frame.
+    Callers are expected to still call :SetTitle() before showing it.
+]]
 function PersonalPlayerNotes:AceGUIDefaults()
     local aceGUI = LibStub("AceGUI-3.0"):Create("Frame")
     aceGUI:SetCallback("OnClose", function(widget)
@@ -157,6 +199,11 @@ function PersonalPlayerNotes:AceGUIDefaults()
     return aceGUI
 end
 
+--[[
+    Prints to the default chat frame, prefixed with L["PPN_DEBUG"] instead of
+    L["PPN_PRINT"] when debug mode is on (self.db.profile.debug). Safe to
+    call before self.db exists (e.g. very early during load).
+]]
 function PersonalPlayerNotes:Print(...)
     if self.db and self.db.profile.debug then
         return print(L["PPN_DEBUG"], ...)
@@ -164,6 +211,10 @@ function PersonalPlayerNotes:Print(...)
     return print(L["PPN_PRINT"], ...)
 end
 
+--[[
+    Forwards to Print() only while debug mode is enabled; a no-op otherwise.
+    Used for verbose logging that shouldn't show up for regular users.
+]]
 function PersonalPlayerNotes:PrintDebug(...)
     if self.db and self.db.profile.debug then
         self:Print(...)
