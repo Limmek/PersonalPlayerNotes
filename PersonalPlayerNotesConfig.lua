@@ -265,81 +265,117 @@ PersonalPlayerNotes.options = {
                         order = 0,
                         name = L["PPN_SETTINGS_ALERT_DESC"],
                     },
-                    enabled = {
-                        type = "toggle",
+                    -- AceConfigDialog wraps widgets onto a new row purely based on
+                    -- each widget's pixel width vs. the container's actual pixel
+                    -- width (see width_multiplier in AceConfigDialog-3.0.lua) - that
+                    -- differs between the Blizzard options panel (wide) and the
+                    -- standalone AceGUI window (narrower), so plain sibling widgets
+                    -- would wrap onto different rows depending on which one is open.
+                    -- Nesting each intended row in its own unnamed inline group
+                    -- (renders as a plain, borderless SimpleGroup - see
+                    -- AceConfigDialog-3.0.lua's FeedOptions) forces a hard row break
+                    -- around it regardless of the container's width.
+                    row1 = {
+                        type = "group",
+                        inline = true,
+                        name = "",
                         order = 1,
-                        name = L["PPN_SETTINGS_ALERT_ENABLED"],
-                        desc = L["PPN_SETTINGS_ALERT_ENABLED_DESC"],
-                        width = 0.5,
+                        args = {
+                            enabled = {
+                                type = "toggle",
+                                order = 1,
+                                name = L["PPN_SETTINGS_ALERT_ENABLED"],
+                                desc = L["PPN_SETTINGS_ALERT_ENABLED_DESC"],
+                                width = 0.5,
+                            },
+                            sounds = {
+                                type = "select",
+                                order = 2,
+                                name = L["PPN_SETTINGS_ALERT_SOUNDS"],
+                                desc = L["PPN_SETTINGS_ALERT_SOUNDS_DESC"],
+                                values = function()
+                                    return AlertSoundChoices(false)
+                                end,
+                                width = 1,
+                                set = "SetAlertSoundEffect",
+                                get = "GetAlertSoundEffect",
+                            },
+                            testSound = {
+                                type = "execute",
+                                order = 3,
+                                name = L["PPN_SOUND_TEST"],
+                                desc = L["PPN_SOUND_TEST_DESC"],
+                                width = 0.5,
+                                func = "TestAlertSound",
+                            },
+                        },
                     },
-                    sounds = {
-                        type = "select",
+                    row2 = {
+                        type = "group",
+                        inline = true,
+                        name = "",
                         order = 2,
-                        name = L["PPN_SETTINGS_ALERT_SOUNDS"],
-                        desc = L["PPN_SETTINGS_ALERT_SOUNDS_DESC"],
-                        values = function()
-                            return AlertSoundChoices(false)
-                        end,
-                        width = 1,
-                        set = "SetAlertSoundEffect",
-                        get = "GetAlertSoundEffect",
+                        args = {
+                            newCustomSound = {
+                                type = "input",
+                                order = 1,
+                                name = L["PPN_SETTINGS_ALERT_CUSTOM_SOUND"],
+                                desc = L["PPN_SETTINGS_ALERT_CUSTOM_SOUND_DESC"],
+                                width = 1.5,
+                                get = function(info)
+                                    local sound = PersonalPlayerNotes.db.profile.alert.sound
+                                    if PersonalPlayerNotes:IsCustomSound(sound) then
+                                        return sound
+                                    end
+                                    return PersonalPlayerNotes.db.profile.alert.newCustomSound
+                                end,
+                                set = function(info, value)
+                                    PersonalPlayerNotes.db.profile.alert.newCustomSound = value
+                                    PersonalPlayerNotes:AddCustomSound()
+                                end,
+                            },
+                            removeCustomSound = {
+                                type = "execute",
+                                order = 2,
+                                name = L["PPN_SOUND_REMOVE_CUSTOM"],
+                                desc = L["PPN_SOUND_REMOVE_CUSTOM_DESC"],
+                                width = 0.5,
+                                func = "RemoveCustomSound",
+                                disabled = function()
+                                    return not PersonalPlayerNotes:IsCustomSound(
+                                        PersonalPlayerNotes.db.profile.alert.sound
+                                    )
+                                end,
+                            },
+                        },
                     },
-                    testSound = {
-                        type = "execute",
-                        order = 2.1,
-                        name = L["PPN_SOUND_TEST"],
-                        desc = L["PPN_SOUND_TEST_DESC"],
-                        width = 0.5,
-                        func = "TestAlertSound",
-                    },
-                    newCustomSound = {
-                        type = "input",
-                        order = 2.2,
-                        name = L["PPN_SETTINGS_ALERT_CUSTOM_SOUND"],
-                        desc = L["PPN_SETTINGS_ALERT_CUSTOM_SOUND_DESC"],
-                        width = 2,
-                        get = function(info)
-                            local sound = PersonalPlayerNotes.db.profile.alert.sound
-                            if PersonalPlayerNotes:IsCustomSound(sound) then
-                                return sound
-                            end
-                            return PersonalPlayerNotes.db.profile.alert.newCustomSound
-                        end,
-                        set = function(info, value)
-                            PersonalPlayerNotes.db.profile.alert.newCustomSound = value
-                            PersonalPlayerNotes:AddCustomSound()
-                        end,
-                    },
-                    removeCustomSound = {
-                        type = "execute",
-                        order = 2.3,
-                        name = L["PPN_SOUND_REMOVE_CUSTOM"],
-                        desc = L["PPN_SOUND_REMOVE_CUSTOM_DESC"],
-                        width = 1,
-                        func = "RemoveCustomSound",
-                        disabled = function()
-                            return not PersonalPlayerNotes:IsCustomSound(PersonalPlayerNotes.db.profile.alert.sound)
-                        end,
-                    },
-                    delay = {
-                        type = "range",
+                    row3 = {
+                        type = "group",
+                        inline = true,
+                        name = "",
                         order = 3,
-                        min = 1,
-                        max = 60,
-                        step = 1,
-                        name = L["PPN_SETTINGS_ALERT_DELAY"],
-                        desc = L["PPN_SETTINGS_ALERT_DELAY_DESC"],
-                        width = 1,
-                        disabled = function()
-                            return PersonalPlayerNotes.db.profile.alert.sessionOnly
-                        end,
-                    },
-                    sessionOnly = {
-                        type = "toggle",
-                        order = 4,
-                        name = L["PPN_SETTINGS_ALERT_SESSION_ONLY"],
-                        desc = L["PPN_SETTINGS_ALERT_SESSION_ONLY_DESC"],
-                        width = 1,
+                        args = {
+                            delay = {
+                                type = "range",
+                                order = 1,
+                                min = 1,
+                                max = 60,
+                                step = 1,
+                                name = L["PPN_SETTINGS_ALERT_DELAY"],
+                                desc = L["PPN_SETTINGS_ALERT_DELAY_DESC"],
+                                width = 1,
+                                disabled = function()
+                                    return PersonalPlayerNotes.db.profile.alert.sessionOnly
+                                end,
+                            },
+                            sessionOnly = {
+                                type = "toggle",
+                                order = 2,
+                                name = L["PPN_SETTINGS_ALERT_SESSION_ONLY"],
+                                desc = L["PPN_SETTINGS_ALERT_SESSION_ONLY_DESC"],
+                                width = 1,
+                            },
+                        },
                     },
                 },
             },

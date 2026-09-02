@@ -364,7 +364,7 @@ do
     addon.GameTooltip(tooltip)
     check("GameTooltip adds the reason/description lines for a listed player", #tooltip.calls, 3)
     check("GameTooltip's first added line is a blank separator", tooltip.calls[1].kind, "AddLine")
-    check("GameTooltip's double line shows the reason text", tooltip.calls[2].left, "Ninja looter")
+    check("GameTooltip's reason line shows the reason text", tooltip.calls[2].text, "Ninja looter")
     check("GameTooltip's last line shows the player's description", tooltip.calls[3].text, "Stole the raid loot")
 end
 

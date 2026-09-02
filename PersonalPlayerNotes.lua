@@ -482,13 +482,7 @@ function PersonalPlayerNotes:GameTooltip()
     -- Tooltip
     if not (_reason.reason == "None" and _listedPlayer.description == "") then
         self:AddLine("\n")
-        self:AddDoubleLine(
-            _reason.reason:gsub("None", ""),
-            "|T" .. PersonalPlayerNotes.db.profile.icon .. ":0|t",
-            _reason.color.r or 1,
-            _reason.color.g or 1,
-            _reason.color.b or 1
-        )
+        self:AddLine(_reason.reason:gsub("None", ""), _reason.color.r or 1, _reason.color.g or 1, _reason.color.b or 1)
         self:AddLine(
             _listedPlayer.description,
             _listedPlayer.color.r or 1,
