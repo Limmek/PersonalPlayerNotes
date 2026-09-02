@@ -372,8 +372,16 @@ do
     local ok = PersonalPlayerNotes:RemoveListedPlayer()
     check("RemoveListedPlayer does not error when removing the last player", ok, true)
     check("RemoveListedPlayer allows listedPlayers to become empty", #PersonalPlayerNotes:GetListedPlayers(), 0)
-    check("RemoveListedPlayer resets the mirror's id to 0 when the list is empty", PersonalPlayerNotes.db.profile.listedPlayer.id, 0)
-    check("RemoveListedPlayer resets the mirror's name to blank when the list is empty", PersonalPlayerNotes.db.profile.listedPlayer.name, "")
+    check(
+        "RemoveListedPlayer resets the mirror's id to 0 when the list is empty",
+        PersonalPlayerNotes.db.profile.listedPlayer.id,
+        0
+    )
+    check(
+        "RemoveListedPlayer resets the mirror's name to blank when the list is empty",
+        PersonalPlayerNotes.db.profile.listedPlayer.name,
+        ""
+    )
 end
 
 do
