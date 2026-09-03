@@ -16,7 +16,7 @@ Keep private reminders about players you meet. Add an optional note or color-cod
 - **Remember players** — save a personal note, choose a reason, or use both; each is optional.
 - **See it at a glance** — your notes and color-coded reasons appear when you hover over a player.
 - **Organize your list** — create your own reasons, such as "Met in a dungeon", "Helpful player", "Crafter", or "Alchemy".
-- **Add an icon** — pick an icon for a reason or an individual player from a searchable picker, shown next to it in the tooltip.
+- **Add an icon** — pick an icon for a reason or an individual player from a searchable picker, shown next to it in the tooltip; you can also add your own icon image files, which always appear first in the picker.
 - **Know when they are nearby** — play an alert sound when you encounter someone on your list.
 - **Choose how alerts repeat** — hear an alert once per session, or let it repeat after a delay.
 - **Make alerts recognisable** — choose different sounds for your whole list, a reason, or an individual player; you can also add your own sound files.
@@ -106,6 +106,8 @@ Reasons are reusable categories (e.g. "Met in a dungeon", "Helpful player", "Cra
 - Alert sound override (optional)
 
 Listed players can also set their own icon and override the sound of their reason (or the global default) individually — color, icon, and sound are all optional for both reasons and listed players.
+
+You can add your own icons from the general settings by dropping an image file (`.blp`, `.jpg`/`.jpeg`, `.png`, or `.tga`, with power-of-two dimensions e.g. 32x32 or 64x64) into this addon's `Images/` folder and registering its filename — custom icons always appear first in the icon picker, ahead of the game's own icons.
 
 A reason is entirely optional — a listed player with no reason assigned just shows their note, with no color or alert sound override.
 

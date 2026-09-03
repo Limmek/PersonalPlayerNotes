@@ -565,13 +565,13 @@ function PersonalPlayerNotes:MiniMapIcon()
                 PersonalPlayerNotes:OpenBlizzardOptions()
             elseif button == "LeftButton" then
                 if IsShiftKeyDown() then
-                    AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Reasons", 500, 300)
+                    AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Reasons", 500, 250)
                     PersonalPlayerNotes:OpenDialog("PersonalPlayerNotesSettings Reasons")
                 elseif IsControlKeyDown() then
-                    AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Listed_Players", 500, 400)
+                    AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Listed_Players", 500, 340)
                     PersonalPlayerNotes:OpenDialog("PersonalPlayerNotesSettings Listed_Players")
                 else
-                    AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Options", 500, 400)
+                    AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Options", 500, 540)
                     PersonalPlayerNotes:OpenDialog("PersonalPlayerNotesSettings Options")
                 end
             end

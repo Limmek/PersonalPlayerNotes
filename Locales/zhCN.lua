@@ -90,7 +90,7 @@ L["PPN_SETTINGS_ALERT_DELAY_DESC"] =
 
 L["PPN_SETTINGS_ICONS"] = "自定义图标"
 L["PPN_SETTINGS_ICONS_DESC"] =
-    "为分组分类和已关注的玩家添加你自己的图标. 将图标图片文件(例如 .png, .tga 或 .blp)放入本插件的 Images 文件夹, 然后在下方输入其文件名, 即可在图标选择器中选择它."
+    "为分组分类和已关注的玩家添加你自己的图标. 将图标图片文件(.blp, .jpg/.jpeg, .png 或 .tga, 尺寸需为2的幂, 例如 32x32 或 64x64)放入本插件的 Images 文件夹, 然后在下方输入其文件名, 即可在图标选择器中选择它."
 L["PPN_SETTINGS_ICON_ADD"] = "添加自定义图标"
 L["PPN_SETTINGS_ICON_ADD_DESC"] =
     "输入你自行放入本插件 Images 文件夹内的图标图片文件名(需带扩展名). 确认后即可在图标选择器中选择."

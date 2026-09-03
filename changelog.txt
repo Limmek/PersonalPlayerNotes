@@ -1,5 +1,6 @@
 Added an icon picker for Reasons and Listed Players; the chosen icon is shown next to the reason and note in tooltips.
-Added support for custom alert sounds, selectable from every sound dropdown.
+Added support for custom icons: place an image file (.blp/.jpg/.jpeg/.png/.tga) in the addon's Images folder, then register its filename in the new settings panel to make it selectable, always shown first in the icon picker.
+Added support for custom alert sounds: place a sound file (.mp3/.ogg) in the addon's Sounds folder, then register its filename in the settings to make it selectable from every sound dropdown.
 Added a "Once per session" alert option, so a listed player only ever alerts once instead of repeating on a delay.
 Fixed a bug where removing the last Listed Player could throw a Lua error; the Listed Players list can now be emptied safely.
 Removed unused/dead code (an unreferenced AceConfigRegistry lookup and an unused alert.time setting) and de-duplicated the Add/Edit Listed Player menu logic shared between the modern and legacy unit menus.
