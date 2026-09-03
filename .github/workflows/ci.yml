@@ -28,7 +28,11 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           version: "2.5.2"
-          args: --check .
+          # SoundsManifest.lua/ChangelogManifest.lua are auto-generated (see
+          # Tools/generate-*-manifest.lua) and excluded here for the same
+          # reason as in Tools/dev.ps1/Makefile: StyLua's AutoPreferDouble
+          # quote-style conflicts with the generators' raw string.format("%q", ...) output.
+          args: --check --glob '**/*.lua' --glob '!SoundsManifest.lua' --glob '!ChangelogManifest.lua' .
 
   luacheck:
     name: Luacheck
