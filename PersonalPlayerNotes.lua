@@ -16,6 +16,13 @@ local LibDBIcon = LibStub("LibDBIcon-1.0")
 local IS_RETAIL = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE or false
 PersonalPlayerNotes.IsRetail = IS_RETAIL
 
+local function IconPrefix(icon)
+    if not icon or icon == "" then
+        return ""
+    end
+    return "|T" .. icon .. ":0|t "
+end
+
 --[[
     Ace3 lifecycle callback, fired once when the addon's SavedVariables have
     been loaded and it's about to be enabled. Sets up the AceDB profile,
@@ -218,6 +225,7 @@ function PersonalPlayerNotes:GetOldConfigData()
                                 reason = reason,
                                 color = { r = 1, g = 1, b = 1 },
                                 alert = true,
+                                icon = nil,
                             }
                         end
 
@@ -230,6 +238,7 @@ function PersonalPlayerNotes:GetOldConfigData()
                             description = description,
                             color = { r = 1, g = 1, b = 1 },
                             alert = true,
+                            icon = nil,
                         }
 
                         self:Print(L["PPN_CONFIG_ADDED_OLD_DATA"], name .. "-" .. realm)
@@ -297,12 +306,13 @@ function PersonalPlayerNotes:SelectListedPlayerAndOpenDialog(player)
     self.db.profile.listedPlayer.description = player.description
     self.db.profile.listedPlayer.color = player.color
     self.db.profile.listedPlayer.alert = player.alert
+    self.db.profile.listedPlayer.sound = player.sound
+    self.db.profile.listedPlayer.icon = player.icon
 
     AceConfigDialog:CloseAll()
-    local AceGUI = self:AceGUIDefaults()
-    AceGUI:SetTitle(L["PPN_LISTED_PLAYERS_TITLE"])
+    self:CloseAllDialogs()
     AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Listed_Players", 500, 350)
-    AceConfigDialog:Open("PersonalPlayerNotesSettings Listed_Players")
+    self:OpenDialog("PersonalPlayerNotesSettings Listed_Players")
 end
 
 --[[
@@ -481,10 +491,12 @@ function PersonalPlayerNotes:GameTooltip()
 
     -- Tooltip
     if not (_reason.reason == "None" and _listedPlayer.description == "") then
+        local reasonText = IconPrefix(_reason.icon) .. _reason.reason:gsub("None", "")
+        local noteText = IconPrefix(_listedPlayer.icon) .. _listedPlayer.description
         self:AddLine("\n")
-        self:AddLine(_reason.reason:gsub("None", ""), _reason.color.r or 1, _reason.color.g or 1, _reason.color.b or 1)
+        self:AddLine(reasonText, _reason.color.r or 1, _reason.color.g or 1, _reason.color.b or 1)
         self:AddLine(
-            _listedPlayer.description,
+            noteText,
             _listedPlayer.color.r or 1,
             _listedPlayer.color.g or 1,
             _listedPlayer.color.b or 1,
@@ -548,22 +560,19 @@ function PersonalPlayerNotes:MiniMapIcon()
                 HideUIPanel(GameMenuFrame)
             end
             AceConfigDialog:CloseAll()
+            PersonalPlayerNotes:CloseAllDialogs()
             if button == "RightButton" then
                 PersonalPlayerNotes:OpenBlizzardOptions()
             elseif button == "LeftButton" then
-                local AceGUI = PersonalPlayerNotes:AceGUIDefaults()
                 if IsShiftKeyDown() then
-                    AceGUI:SetTitle(L["PPN_REASONS_TITLE"])
-                    AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Reasons", 500, 250)
-                    AceConfigDialog:Open("PersonalPlayerNotesSettings Reasons")
+                    AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Reasons", 500, 300)
+                    PersonalPlayerNotes:OpenDialog("PersonalPlayerNotesSettings Reasons")
                 elseif IsControlKeyDown() then
-                    AceGUI:SetTitle(L["PPN_LISTED_PLAYERS_TITLE"])
-                    AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Listed_Players", 500, 350)
-                    AceConfigDialog:Open("PersonalPlayerNotesSettings Listed_Players")
+                    AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Listed_Players", 500, 400)
+                    PersonalPlayerNotes:OpenDialog("PersonalPlayerNotesSettings Listed_Players")
                 else
-                    AceGUI:SetTitle(L["PPN_SETTINGS_TITLE"])
                     AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Options", 500, 400)
-                    AceConfigDialog:Open("PersonalPlayerNotesSettings Options")
+                    PersonalPlayerNotes:OpenDialog("PersonalPlayerNotesSettings Options")
                 end
             end
         end,

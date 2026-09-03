@@ -43,12 +43,16 @@ do
     check("defaults.alert.sound starts at default.mp3", profile.alert.sound, "default.mp3")
     check("defaults.alert.customSounds starts empty", #profile.alert.customSounds, 0)
     check("defaults.alert.newCustomSound starts empty", profile.alert.newCustomSound, "")
-    check("SoundManifest has 5 entries", #PersonalPlayerNotes.SoundManifest, 5)
+    check("SoundManifest has 1 entry", #PersonalPlayerNotes.SoundManifest, 1)
     check("SoundManifest lists default.mp3 first", PersonalPlayerNotes.SoundManifest[1], "default.mp3")
     check("defaults.reasons has exactly 1 entry", #profile.reasons, 1)
     check("defaults.reasons[1].id is 1", profile.reasons[1].id, 1)
+    check("defaults.reasons[1].icon starts nil", profile.reasons[1].icon, nil)
+    check("defaults.reason.icon starts nil", profile.reason.icon, nil)
     check("defaults.listedPlayers has exactly 1 entry", #profile.listedPlayers, 1)
     check("defaults.listedPlayer.id is 1", profile.listedPlayer.id, 1)
+    check("defaults.listedPlayer.icon starts nil", profile.listedPlayer.icon, nil)
+    check("defaults.listedPlayers[1].icon starts nil", profile.listedPlayers[1].icon, nil)
 end
 
 --#endregion
@@ -295,6 +299,29 @@ do
         PersonalPlayerNotes:GetReasonSound({ "sound" }),
         "__inherit__"
     )
+
+    check("GetReasonIcon defaults to blank input when unset", PersonalPlayerNotes:GetReasonIcon({ "icon" }), "")
+
+    PersonalPlayerNotes:SetReasonIcon({ "icon" }, "Interface\\Icons\\INV_Misc_QuestionMark")
+    check(
+        "SetReasonIcon writes the icon on reason",
+        PersonalPlayerNotes.db.profile.reason.icon,
+        "Interface\\Icons\\INV_Misc_QuestionMark"
+    )
+    check(
+        "SetReasonIcon also updates the matching entry in reasons[]",
+        PersonalPlayerNotes:GetReasons()[PersonalPlayerNotes.db.profile.reason.id].icon,
+        "Interface\\Icons\\INV_Misc_QuestionMark"
+    )
+
+    PersonalPlayerNotes:SetReasonIcon({ "icon" }, "")
+    check("SetReasonIcon(blank) stores nil", PersonalPlayerNotes.db.profile.reason.icon, nil)
+
+    PersonalPlayerNotes:SetReasonIcon({ "icon" }, "12345")
+    check("SetReasonIcon accepts numeric fileIDs", PersonalPlayerNotes.db.profile.reason.icon, "12345")
+
+    PersonalPlayerNotes:SetReasonIcon({ "icon" }, "|Tbad|t")
+    check("SetReasonIcon rejects unsafe texture tags", PersonalPlayerNotes.db.profile.reason.icon, nil)
 end
 
 --#endregion
@@ -329,6 +356,27 @@ do
 
     local notFound = PersonalPlayerNotes:GetListedPlayer("Jaina", "Frostmourne")
     check("GetListedPlayer returns nil for an unlisted player", notFound, nil)
+
+    check(
+        "GetListedPlayerIcon defaults to blank input when unset",
+        PersonalPlayerNotes:GetListedPlayerIcon({ "icon" }),
+        ""
+    )
+
+    PersonalPlayerNotes:SetListedPlayerIcon({ "icon" }, "Interface\\Icons\\INV_Sword_04")
+    check(
+        "SetListedPlayerIcon writes the icon on listedPlayer",
+        PersonalPlayerNotes.db.profile.listedPlayer.icon,
+        "Interface\\Icons\\INV_Sword_04"
+    )
+    check(
+        "SetListedPlayerIcon also updates the backing listedPlayers[] entry",
+        PersonalPlayerNotes.db.profile.listedPlayers[1].icon,
+        "Interface\\Icons\\INV_Sword_04"
+    )
+
+    PersonalPlayerNotes:SetListedPlayerIcon({ "icon" }, "")
+    check("SetListedPlayerIcon(blank) stores nil", PersonalPlayerNotes.db.profile.listedPlayer.icon, nil)
 end
 
 -- SetListedPlayerRealm/SetListedPlayerName sync ALL fields from the

@@ -105,6 +105,18 @@ read_globals = {
 
     -- Sound
     "PlaySoundFile",
+
+    -- Frame + icon picker APIs
+    "CreateFrame",
+    "UIParent",
+    "GameFontHighlight",
+    "GetNumMacroIcons",
+    "GetMacroIconInfo",
+    "GetMacroIcons",
+    "GetMacroItemIcons",
+    "GetLooseMacroIcons",
+    "GetLooseMacroItemIcons",
+    "CLOSE",
 }
 
 -- The Tests/ suite intentionally pokes _G to stub out WoW/Ace3 globals so

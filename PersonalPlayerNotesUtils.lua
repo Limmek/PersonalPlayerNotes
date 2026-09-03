@@ -207,6 +207,17 @@ end
 ]]
 function PersonalPlayerNotes:AceGUIDefaults()
     local aceGUI = LibStub("AceGUI-3.0"):Create("Frame")
+    -- AceGUIContainer-Frame's OnAcquire calls self:Show(), so the frame
+    -- starts out visible. Hide it here, BEFORE registering the OnClose
+    -- callback below: :Hide() fires OnHide -> Fire("OnClose") synchronously,
+    -- and if the release-on-close callback were already registered at that
+    -- point it would immediately release this brand-new widget back into
+    -- AceGUI's pool (silently, since Release() is otherwise a no-op-looking
+    -- call here) before the caller ever gets to configure/show it. A later
+    -- :Release() call on the same stale reference (e.g. a guard-clause that
+    -- closes a previous popup before opening a new one) would then hit
+    -- AceGUI's "Attempt to Release Widget that is already released" error.
+    aceGUI:Hide()
     aceGUI:SetCallback("OnClose", function(widget)
         aceGUI:Release()
     end)
@@ -214,8 +225,82 @@ function PersonalPlayerNotes:AceGUIDefaults()
     aceGUI:SetStatusText(nil)
     aceGUI.statustext:Hide()
     aceGUI.statustext:GetParent():Hide()
-    aceGUI:Hide()
     return aceGUI
+end
+
+--[[
+    Opens an AceConfig options table (appName) inside a frame built by
+    AceGUIDefaults() instead of letting AceConfigDialog:Open() create its own
+    bare "Frame" widget - AceConfigDialog's own auto-created frame shows a
+    plain, unstyled (black) status bar strip along the bottom that none of
+    this addon's other windows have; AceGUIDefaults() hides that.
+
+    AceConfigDialog:Open(appName, container) only reuses/de-dupes via its own
+    internal self.OpenFrames[appName] cache when NO container argument is
+    passed - passing one every time (as this addon used to) bypassed that
+    entirely, so every call created a brand new, untracked frame that never
+    got cleaned up (windows stacking endlessly, and :CloseAll() couldn't see
+    them to close them either, since it only walks OpenFrames).
+
+    self.customDialogFrames mirrors that same cache, keyed by appName, so
+    repeat opens reuse the same frame (refeeding it via AceConfigDialog:Open)
+    instead of creating a new one, and the entry is cleared (mirroring
+    AceConfigDialog's own internal FrameOnClose behavior) whenever the frame
+    closes, so a closed/released frame is never handed back to
+    AceConfigDialog:Open() again.
+]]
+function PersonalPlayerNotes:OpenDialog(appName)
+    self.customDialogFrames = self.customDialogFrames or {}
+    local frame = self.customDialogFrames[appName]
+    if not frame then
+        frame = self:AceGUIDefaults()
+        frame:SetCallback("OnClose", function(widget)
+            if PersonalPlayerNotes.customDialogFrames[appName] == widget then
+                PersonalPlayerNotes.customDialogFrames[appName] = nil
+            end
+            widget:Release()
+        end)
+        self.customDialogFrames[appName] = frame
+    end
+    AceConfigDialog:Open(appName, frame)
+    frame:Show()
+end
+
+--[[
+    Closes every dialog opened via OpenDialog() above. AceConfigDialog:CloseAll()
+    only knows about frames it created itself (self.OpenFrames), so it can't
+    see or close these custom AceGUIDefaults()-backed containers - callers
+    that used to rely on :CloseAll() to reset to a clean slate before opening
+    a different window need to call this too.
+]]
+function PersonalPlayerNotes:CloseAllDialogs()
+    if not self.customDialogFrames then
+        return
+    end
+    for _, frame in pairs(self.customDialogFrames) do
+        frame:Hide()
+    end
+end
+
+--[[
+    Re-feeds a dialog previously opened via OpenDialog(), if it's currently
+    open, so option widgets whose displayed value changed elsewhere (e.g.
+    the Reasons/Listed Players "Icon" label after picking a new icon in
+    OpenIconPicker()) refresh immediately instead of only on the next open.
+
+    AceConfigDialog normally handles this itself via
+    AceConfigRegistry:NotifyChange(appName) - it listens for that and
+    refeeds any currently open dialog - but only for frames it tracks in
+    its own self.OpenFrames cache (see OpenDialog()'s comment above); frames
+    passed in as a custom container (ours) are invisible to that mechanism,
+    so callers that call AceConfigRegistry:NotifyChange(appName) need to
+    call this too.
+]]
+function PersonalPlayerNotes:RefreshDialog(appName)
+    local frame = self.customDialogFrames and self.customDialogFrames[appName]
+    if frame then
+        AceConfigDialog:Open(appName, frame)
+    end
 end
 
 --[[

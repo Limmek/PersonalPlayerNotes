@@ -1,5 +1,19 @@
+<#
+.SYNOPSIS
+    Runs the full local dev pipeline: format, lint, unit tests, TOC/sounds
+    validation and a local packager dry-run build.
+
+.PARAMETER UpdateLibs
+    Force the packager to re-fetch every external (Ace3, LibStub, ...) into
+    .release/ even if they were already fetched by a previous run. By default,
+    once .release/<addon>/Libs/LibStub/LibStub.lua exists from a prior run,
+    the external checkout step is skipped since it's the slowest part of the
+    pipeline (an svn checkout per library) and the externals rarely change.
+#>
 [CmdletBinding()]
-param()
+param(
+    [switch] $UpdateLibs
+)
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
@@ -249,7 +263,14 @@ Install a Subversion CLI (for example Slik Subversion) so the packager can fetch
         $env:PATH = "$SvnDir;$env:PATH"
     }
 
-    Invoke-CheckedCommand -ToolPath $Bash -Arguments @($ReleaseScript, '-d', '-p', '0', '-w', '0', '-a', '0', '-m', '.pkgmeta')
+    $LibStubMarker = Join-Path $RepoRoot '.release\PersonalPlayerNotes\Libs\LibStub\LibStub.lua'
+    $ReleaseArgs = @($ReleaseScript, '-d', '-p', '0', '-w', '0', '-a', '0', '-m', '.pkgmeta')
+    if ((Test-Path -LiteralPath $LibStubMarker) -and -not $UpdateLibs) {
+        Write-Host 'Libs/ were already fetched by a previous run - skipping external checkout (use -UpdateLibs to force a re-fetch).'
+        $ReleaseArgs += '-e'
+    }
+
+    Invoke-CheckedCommand -ToolPath $Bash -Arguments $ReleaseArgs
 }
 
 Write-Host ''

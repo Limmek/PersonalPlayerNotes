@@ -1,5 +1,14 @@
 # AGENTS
 
+## Critical Guardrails (read first)
+
+- **Never do a wholesale/regenerated rewrite of a config file.** [.vscode/settings.json](../.vscode/settings.json) and [.luacheckrc](../.luacheckrc) in particular must only be changed via small, targeted, additive edits (add the one new key/global you need). Re-typing or reconstructing the whole file from memory is how existing entries (e.g. `LoadAddOn`, `DisableAddOn`, other globals) have been accidentally dropped before. If you must touch one of these files, read it in full first, then edit the smallest possible span, then read it back to confirm nothing else changed.
+- **Two separate, independent globals lists must always be kept in sync, by hand, in the same change:** `.luacheckrc`'s `read_globals`/`globals` (drives the real Luacheck CLI) and [.vscode/settings.json](../.vscode/settings.json)'s `Lua.diagnostics.globals` (drives the editor's live Lua language-server diagnostics). Neither tool reads the other's config. Adding a new WoW API global to only one of them causes either a false "undefined global" in the editor or a real Luacheck CI failure — always add to both, then verify with `get_errors` (editor) and a `.\Tools\dev.ps1` run (Luacheck) before considering the change done.
+- **The only validation command to run for this repo is `.\Tools\dev.ps1`, invoked directly** (e.g. `.\Tools\dev.ps1` or `Tools/dev.ps1`), never wrapped in `powershell -NoProfile -ExecutionPolicy Bypass -File ...` or similar. Do not substitute a partial check (only luacheck, only stylua, only the lua test files) for the full pipeline when finishing a piece of work — run the whole thing and read through to the literal "All local checks completed successfully." line (or an explicit failure) before reporting success.
+- **Stay strictly inside the scope of what was asked.** Do not refactor, "clean up", rename, or restructure unrelated code, add speculative error handling, add comments/docstrings to untouched code, or introduce new abstractions "just in case" while fixing a specific bug or adding a specific feature. If a fix reveals a second, unrelated issue, mention it and ask before touching it rather than silently expanding the change.
+- **Don't loop on the same failing approach.** If an edit, test run, or tool call fails or produces an unexpected result twice, stop and re-read the actual current file state (don't trust your own summary of what you think you wrote) before trying a third variation. Prefer reading the real file/output over re-deriving it from memory or from a prior message.
+- When editing generated/derived files (`Sounds/Manifest.lua`, anything produced by a `Tools/*.lua` generator), regenerate via the tool instead of hand-editing the output.
+
 ## Project Scope
 
 PersonalPlayerNotes is a World of Warcraft addon written in Lua 5.1 with Ace3.

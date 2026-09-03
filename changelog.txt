@@ -1,3 +1,4 @@
+Added an icon picker for Reasons and Listed Players; the chosen icon is shown next to the reason and note in tooltips.
 Added support for custom alert sounds, selectable from every sound dropdown.
 Added a "Once per session" alert option, so a listed player only ever alerts once instead of repeating on a delay.
 Fixed a bug where removing the last Listed Player could throw a Lua error; the Listed Players list can now be emptied safely.

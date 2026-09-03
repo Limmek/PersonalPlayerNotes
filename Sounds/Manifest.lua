@@ -5,8 +5,4 @@ local personalPlayerNotes = ...
 
 PersonalPlayerNotes.SoundManifest = {
     "default.mp3",
-    "alarmbeep.ogg",
-    "alarmbuzz.ogg",
-    "alarmbuzzer.ogg",
-    "alarmdouble.ogg",
 }

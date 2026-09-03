@@ -370,6 +370,56 @@ end
 
 do
     local addon = freshGameTooltipAddon()
+    addon.db.profile.reasons[1].icon = "Interface\\Icons\\INV_Misc_QuestionMark"
+    _G.UnitIsPlayer = function()
+        return true
+    end
+    _G.UnitFullName = function()
+        return "Thrall", "Frostmourne"
+    end
+    _G.GetRealmName = function()
+        return "Frostmourne"
+    end
+
+    local tooltip = newFakeTooltip("Thrall", "target")
+    addon.GameTooltip(tooltip)
+    check(
+        "GameTooltip prefixes the reason line with the reason icon",
+        tooltip.calls[2].text,
+        "|TInterface\\Icons\\INV_Misc_QuestionMark:0|t Ninja looter"
+    )
+    check(
+        "GameTooltip does not show a note icon when player icon is unset",
+        tooltip.calls[3].text,
+        "Stole the raid loot"
+    )
+end
+
+do
+    local addon = freshGameTooltipAddon()
+    addon.db.profile.reasons[1].icon = "Interface\\Icons\\INV_Misc_QuestionMark"
+    addon.db.profile.listedPlayers[1].icon = "Interface\\Icons\\INV_Sword_04"
+    _G.UnitIsPlayer = function()
+        return true
+    end
+    _G.UnitFullName = function()
+        return "Thrall", "Frostmourne"
+    end
+    _G.GetRealmName = function()
+        return "Frostmourne"
+    end
+
+    local tooltip = newFakeTooltip("Thrall", "target")
+    addon.GameTooltip(tooltip)
+    check(
+        "GameTooltip shows the player's icon on the note line when set",
+        tooltip.calls[3].text,
+        "|TInterface\\Icons\\INV_Sword_04:0|t Stole the raid loot"
+    )
+end
+
+do
+    local addon = freshGameTooltipAddon()
     _G.UnitIsPlayer = function()
         return true
     end
@@ -571,8 +621,15 @@ local function freshMiniMapIconAddon()
     -- AceGUIDefaults() creates a real AceGUI-3.0 Frame widget - the one
     -- genuine boundary that can't be usefully faked, so it's stubbed here
     -- exactly like LibStub()-returned libraries are stubbed elsewhere.
+    -- OpenDialog() (in PersonalPlayerNotesUtils.lua) additionally calls
+    -- SetCallback()/Show() on the returned frame, so the stub needs those
+    -- too, not just SetTitle().
     addon.AceGUIDefaults = function()
-        return { SetTitle = function() end }
+        return {
+            SetTitle = function() end,
+            SetCallback = function() end,
+            Show = function() end,
+        }
     end
     return addon
 end
@@ -870,7 +927,11 @@ local function freshModernMenuAddon()
         },
     }
     addon.AceGUIDefaults = function()
-        return { SetTitle = function() end }
+        return {
+            SetTitle = function() end,
+            SetCallback = function() end,
+            Show = function() end,
+        }
     end
     return addon
 end

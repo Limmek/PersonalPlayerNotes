@@ -86,7 +86,7 @@ L["PPN_SETTINGS_ALERT_DELAY_DESC"] = "How many seconds to sleep before a new ale
 L["PPN_REASONS_TITLE"] = "Personal Player Notes - Reasons"
 L["PPN_REASONS"] = "Reasons"
 L["PPN_REASON"] = "Reason"
-L["PPN_REASON_DESCRIPTION"] = "Here you can Edit, Add or Remove differrent reasons.\n"
+L["PPN_REASON_DESCRIPTION"] = "Here you can Edit, Add or Remove different reasons.\n"
 L["PPN_REASON_REMOVE"] = "Remove Reason"
 L["PPN_REASON_REMOVE_CONFIRMATION"] = "Do you really want to remove reason:\n|cffffd700"
 L["PPN_REASON_COLOR"] = "Select a color"
@@ -95,6 +95,9 @@ L["PPN_REASON_ALERT_ENABLED_DESC"] = "Toggle sound effect for all players with t
 L["PPN_REASON_SOUND"] = "Sound"
 L["PPN_REASON_SOUND_DESC"] =
     'Override the alert sound for every player with this reason. Leave as "Use default" to use the global Alert sound.'
+L["PPN_REASON_ICON"] = "Icon"
+L["PPN_REASON_ICON_DESC"] =
+    "Click to open the in-game icon picker. Use the None button there to clear the icon. This icon is used as fallback for listed players that have no icon set."
 L["PPN_DEFAULT_REASON"] = "None"
 
 L["PPN_LISTED_PLAYERS_TITLE"] = "Personal Player Notes - Listed Players"
@@ -113,6 +116,8 @@ L["PPN_LISTED_PLAYER_ALERT_ENABLED_DESC"] =
 L["PPN_LISTED_PLAYER_SOUND"] = "Sound"
 L["PPN_LISTED_PLAYER_SOUND_DESC"] =
     'Override the alert sound for this specific player. Leave as "Use default" to use the reason\'s (or global) sound. Takes priority over both.'
+L["PPN_LISTED_PLAYER_ICON"] = "Icon"
+L["PPN_LISTED_PLAYER_ICON_DESC"] = "Click to open the in-game icon picker. Use the None button there to clear the icon."
 L["PPN_LISTED_PLAYERS_EXAMPLE_NAME"] = "Example"
 L["PPN_LISTED_PLAYERS_EXAMPLE_REALM"] = "Silvermoon"
 L["PPN_LISTED_PLAYERS_EXAMPLE_DESC"] = "None"
@@ -120,6 +125,8 @@ L["PPN_LISTED_PLAYERS_EXAMPLE_DESC"] = "None"
 L["PPN_POPUP_ADD"] = "Add Player"
 L["PPN_POPUP_EDIT"] = "Edit Player"
 L["PPN_POPUP_NEW_ADDED"] = "Added"
+L["PPN_ICON_PICKER_TITLE"] = "Choose an Icon"
+L["PPN_ICON_PICKER_NONE"] = "None"
 
 L["PPN_MINIMAP_TOOLTIP_TITLE"] = "Personal Player Notes"
 L["PPN_MINIMAP_TOOLTIP_RIGHT_CLICK"] = "|cFFD2B48C Right-Click|cff00ff00 to open Blizzard options."

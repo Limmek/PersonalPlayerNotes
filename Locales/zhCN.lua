@@ -101,6 +101,9 @@ L["PPN_REASON_ALERT_ENABLED_DESC"] =
 L["PPN_REASON_SOUND"] = "声音"
 L["PPN_REASON_SOUND_DESC"] =
     '为此分组内的所有玩家设置专属提示音, 覆盖全局声音. 保持"使用默认"则使用全局提示音.'
+L["PPN_REASON_ICON"] = "图标"
+L["PPN_REASON_ICON_DESC"] =
+    "点击打开游戏内图标选择器. 点击其中的 无 按钮可清除图标. 当玩家未设置专属图标时, 会回退使用该分组图标."
 L["PPN_DEFAULT_REASON"] = "默认"
 
 L["PPN_LISTED_PLAYERS_TITLE"] = "关注名单 - 已关注的玩家"
@@ -119,6 +122,8 @@ L["PPN_LISTED_PLAYER_ALERT_ENABLED_DESC"] =
 L["PPN_LISTED_PLAYER_SOUND"] = "声音"
 L["PPN_LISTED_PLAYER_SOUND_DESC"] =
     '为该玩家设置专属提示音, 覆盖分组分类(或全局)的声音, 优先级最高. 保持"使用默认"则不覆盖.'
+L["PPN_LISTED_PLAYER_ICON"] = "图标"
+L["PPN_LISTED_PLAYER_ICON_DESC"] = "点击打开游戏内图标选择器. 点击其中的 无 按钮可清除图标."
 L["PPN_LISTED_PLAYERS_EXAMPLE_NAME"] = "变异骷髅"
 L["PPN_LISTED_PLAYERS_EXAMPLE_REALM"] = "灰烬使者"
 L["PPN_LISTED_PLAYERS_EXAMPLE_DESC"] = "关注名单汉化先行者!RESPECT!"
@@ -126,6 +131,8 @@ L["PPN_LISTED_PLAYERS_EXAMPLE_DESC"] = "关注名单汉化先行者!RESPECT!"
 L["PPN_POPUP_ADD"] = "添加到关注名单"
 L["PPN_POPUP_EDIT"] = "编辑关注信息"
 L["PPN_POPUP_NEW_ADDED"] = "已成功添加到关注名单"
+L["PPN_ICON_PICKER_TITLE"] = "选择图标"
+L["PPN_ICON_PICKER_NONE"] = "无"
 
 L["PPN_MINIMAP_TOOLTIP_TITLE"] = "关注名单"
 L["PPN_MINIMAP_TOOLTIP_RIGHT_CLICK"] = "|cFFD2B48C 右键点击|cff00ff00 打开插件选项."
