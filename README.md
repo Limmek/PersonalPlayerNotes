@@ -7,26 +7,22 @@
 
 **Remember who they are.**
 
-Tag players with personal notes and color-coded reasons so you always know who you're dealing with. Notes and reasons appear directly in their tooltip, with an optional sound alert the next time you run into them.
+Keep private reminders about players you meet. Add an optional note or color-coded reason for your own reference, then see it in their tooltip the next time you meet. Your information remains local to your computer and is never shared.
 
 **Download**: [CurseForge](https://www.curseforge.com/wow/addons/personal-player-notes) · [GitHub Releases](https://github.com/Limmek/PersonalPlayerNotes/releases)
 
-<img src="Images/tooltip-example.png" alt="Tooltip showing a listed player's note and reason" width="320">
-
-*Hovering a listed player shows your note and reason directly in their tooltip.*
-
 ## Features
 
-- **Notes** — write a free-text note on any player
-- **Reasons** — define reusable, color-coded categories (e.g. "Great healer", "Ninja looter")
-- **Tooltip integration** — note and reason are shown the moment you hover over a listed player
-- **Alert sounds** — play a sound when you encounter a listed player, either once per session or repeating after a configurable cooldown
-- **Custom sounds** — add your own sound files, configurable globally, per reason, or per player
-- **Per-player overrides** — a player's own settings take priority over their reason's, which take priority over the global default
-- **Profiles** — per-character or shared profiles via Ace3's standard profile management (copy, reset, delete)
-- **Minimap button** — quick access to all settings and lists, with configurable click shortcuts, and can be hidden or repositioned
-- **Context menu** — right-click any player (unit frame, chat link, etc.) to add or edit a note instantly
-- **Local data** — everything stays in your WoW SavedVariables; nothing is sent externally
+- **Remember players** — save a personal note, choose a reason, or use both; each is optional.
+- **See it at a glance** — your notes and color-coded reasons appear when you hover over a player.
+- **Organize your list** — create your own reasons, such as "Met in a dungeon", "Helpful player", "Crafter", or "Alchemy".
+- **Know when they are nearby** — play an alert sound when you encounter someone on your list.
+- **Choose how alerts repeat** — hear an alert once per session, or let it repeat after a delay.
+- **Make alerts recognisable** — choose different sounds for your whole list, a reason, or an individual player; you can also add your own sound files.
+- **Add players quickly** — right-click players from unit frames, chat links, and other supported places to add or edit them.
+- **Easy access** — use the minimap button or slash commands to open your settings, reasons, and player list.
+- **Use separate lists if you want** — keep different lists for different characters, or share one across them.
+- **Keep your data private** — your notes and settings stay on your computer; nothing is sent anywhere.
 
 ## Supported WoW clients
 
@@ -101,7 +97,7 @@ Any of the three levels can use one of the built-in sounds, or your own custom `
 
 ## Reasons
 
-Reasons are reusable categories (e.g. "Great healer", "Ninja looter") that make your listed players easier to tell apart at a glance. Each reason has its own:
+Reasons are reusable categories (e.g. "Met in a dungeon", "Helpful player", "Crafter", or "Alchemy") that make your private reminders easier to tell apart at a glance. Each reason has its own:
 
 - Name and tooltip color
 - Alert on/off toggle
@@ -109,13 +105,15 @@ Reasons are reusable categories (e.g. "Great healer", "Ninja looter") that make 
 
 Listed players can also override the sound of their reason (or the global default) individually.
 
+A reason is entirely optional — a listed player with no reason assigned just shows their note, with no color or alert sound override.
+
 ## Profiles
 
 Settings, reasons, and listed players are all stored per-profile via Ace3's standard profile system — use a separate profile per character, or share one profile across every character on your account. Profiles can be copied, reset, or deleted from the general settings.
 
 ## Data storage
 
-All data is stored in the `PersonalPlayerNotesDB` SavedVariables file, which contains your reasons, player notes, and all settings. Nothing is sent externally.
+All data is stored locally in the `PersonalPlayerNotesDB` SavedVariables file, which contains your reasons, player notes, and settings. The addon has no sharing, publishing, or communication feature, and nothing is sent externally.
 
 ## License
 

@@ -43,6 +43,7 @@
 		"UnitPopup_ShowMenu",
 		"os",
 		"io",
+		"package",
 		"debug",
 		"loadfile",
 		"dofile",

@@ -48,6 +48,7 @@ read_globals = {
     "time",
     "tinsert",
     "tremove",
+    "package",
 
     -- Client/build identification
     "WOW_PROJECT_ID",
