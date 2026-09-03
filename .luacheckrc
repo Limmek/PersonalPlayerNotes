@@ -16,6 +16,7 @@ max_comment_line_length = false
 
 exclude_files = {
     "Libs/",
+    ".release/",
     ".luacheckrc"
 }
 

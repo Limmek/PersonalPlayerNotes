@@ -48,6 +48,21 @@
             ],
             "group": "build",
             "problemMatcher": []
+        },
+        {
+            "label": "Run Local Dev Pipeline",
+            "detail": "Format, lint, test, validate, and build the addon locally from PowerShell.",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}/Tools/dev.ps1"
+            ],
+            "group": "build",
+            "problemMatcher": []
         }
     ]
 }

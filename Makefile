@@ -5,7 +5,8 @@
 # (or set STYLUA=/path/to/stylua), and luacheck on PATH.
 #
 # On Windows, run these via Git Bash/WSL, or invoke the equivalent commands
-# directly (see README.md / CONTRIBUTING.md).
+# directly (see README.md / CONTRIBUTING.md). `make dev` is a Windows-friendly
+# alias that runs the PowerShell pipeline in Tools/dev.ps1.
 
 LUA        ?= lua5.1
 STYLUA     ?= stylua
@@ -18,7 +19,7 @@ LUA_FILES  := PersonalPlayerNotes.lua PersonalPlayerNotesConfig.lua PersonalPlay
 
 TEST_FILES := Tests/test_utils.lua Tests/test_config.lua Tests/test_main.lua
 
-.PHONY: format format-check lint test validate build check clean
+.PHONY: format format-check lint test validate build check dev clean
 
 format: ## Format all Lua files in-place with StyLua
 	$(STYLUA) $(LUA_FILES)
@@ -54,6 +55,9 @@ build: ## Build a local, unsigned addon zip without uploading anywhere (requires
 	.release/release.sh -d -p 0 -w 0 -a 0 -m .pkgmeta
 
 check: format-check lint test validate sounds-check ## Run every local check (does not build a package)
+
+dev: ## Run the full local Windows dev pipeline (format, lint, test, validate, sounds-check, build)
+	powershell -NoProfile -ExecutionPolicy Bypass -File Tools/dev.ps1
 
 clean: ## Remove local build output
 	rm -rf .release
