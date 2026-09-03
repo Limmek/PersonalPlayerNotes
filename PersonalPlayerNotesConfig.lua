@@ -6,7 +6,7 @@ local AceConfigRegistry = LibStub("AceConfigRegistry-3.0", true)
     Builds the `values` table for an alert-sound-selection dropdown: every
     filename in PersonalPlayerNotes.SoundManifest (the sounds shipped with
     the addon, regenerated from Sounds/ by Tools/generate-sounds-manifest.lua
-    - see Sounds/Manifest.lua), plus every filename the user has added
+    - see SoundsManifest.lua), plus every filename the user has added
     themselves via AddCustomSound() (self.db.profile.alert.customSounds).
     When includeInherit is true (used by the Reasons/ListedPlayers dropdowns,
     not the global one), an extra "__inherit__" entry is prepended for "use
@@ -187,7 +187,7 @@ PersonalPlayerNotes.defaults = {
             -- `delay` seconds have passed since the last alert for them.
             sessionOnly = false,
             -- Filename (with extension) of the global alert sound, resolved
-            -- from PersonalPlayerNotes.SoundManifest (see Sounds/Manifest.lua)
+            -- from PersonalPlayerNotes.SoundManifest (see SoundsManifest.lua)
             -- or from the user's own customSounds below. Reasons/listedPlayers
             -- may set their own `sound` field to override this; nil there
             -- means "inherit".
@@ -611,6 +611,9 @@ PersonalPlayerNotes.options = {
                                 set = function(info, value)
                                     PersonalPlayerNotes.db.profile.customIconSelected = value
                                 end,
+                                disabled = function()
+                                    return #PersonalPlayerNotes.db.profile.customIcons == 0
+                                end,
                             },
                             removeCustomIcon = {
                                 type = "execute",
@@ -907,6 +910,23 @@ PersonalPlayerNotes.options = {
                 name = L["PPN_SOUND_TEST"],
                 desc = L["PPN_SOUND_TEST_DESC"],
                 func = "TestListedPlayerSound",
+            },
+        },
+    },
+    Changelog = {
+        type = "group",
+        order = 4,
+        name = L["PPN_MENU_CHANGELOG"],
+        inline = false,
+        args = {
+            text = {
+                type = "description",
+                order = 0,
+                width = "full",
+                fontSize = "medium",
+                name = function()
+                    return (PersonalPlayerNotes.Changelog or "") .. "\n"
+                end,
             },
         },
     },

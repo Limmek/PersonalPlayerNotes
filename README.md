@@ -31,7 +31,6 @@ Keep private reminders about players you meet. Add an optional note or color-cod
 |--------|---------|
 | Retail | <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Limmek/PersonalPlayerNotes/master/.github/badges/retail.json" alt="Retail"> |
 | Classic Era (incl. Hardcore, SoM, SoD) | <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Limmek/PersonalPlayerNotes/master/.github/badges/vanilla.json" alt="Classic Era"> |
-| Wrath Classic (CN/Titan servers) | <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Limmek/PersonalPlayerNotes/master/.github/badges/titan.json" alt="Wrath CN"> |
 | Burning Crusade Classic (Anniversary) | <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Limmek/PersonalPlayerNotes/master/.github/badges/tbc.json" alt="TBC Anniversary"> |
 | Mists of Pandaria Classic | <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Limmek/PersonalPlayerNotes/master/.github/badges/mists.json" alt="Mists Classic"> |
 | Cataclysm Classic | Retired by Blizzard — all realms moved to Mists of Pandaria Classic on 2025-07-01 |

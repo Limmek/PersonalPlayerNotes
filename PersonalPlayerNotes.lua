@@ -84,6 +84,17 @@ function PersonalPlayerNotes:OnInitialize()
         personalPlayerNotes
     )
 
+    AceConfig:RegisterOptionsTable(
+        "PersonalPlayerNotesSettings Changelog",
+        self.options.Changelog,
+        { "ppnc", "ppnchangelog" }
+    )
+    AceConfigDialog:AddToBlizOptions(
+        "PersonalPlayerNotesSettings Changelog",
+        L["PPN_MENU_CHANGELOG"],
+        personalPlayerNotes
+    )
+
     LibDBIcon:Register(personalPlayerNotes, self:MiniMapIcon(), self.db.profile.minimap)
 
     self:RegisterChatCommand("ppn", function()

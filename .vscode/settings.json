@@ -97,6 +97,14 @@
 		"~\\.vscode\\extensions\\ketho.wow-api-0.22.3\\Annotations\\Core"
 	],
 	"chat.tools.terminal.autoApprove": {
-		"lua5.1": true
+		"lua5.1": true,
+		"/^lua Tools/generate-changelog-manifest\\.lua$/": {
+			"approve": true,
+			"matchCommandLine": true
+		},
+		"/^lua Tools/validate-toc\\.lua|lua Tools/generate-sounds-manifest\\.lua; lua Tools/generate-changelog-manifest\\.lua$/": {
+			"approve": true,
+			"matchCommandLine": true
+		}
 	},
 }

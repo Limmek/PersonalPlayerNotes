@@ -73,8 +73,11 @@ jobs:
       - name: Validate .toc files
         run: lua5.1 Tools/validate-toc.lua
 
-      - name: Verify Sounds/Manifest.lua is up to date
+      - name: Verify SoundsManifest.lua is up to date
         run: lua5.1 Tools/generate-sounds-manifest.lua --check
+
+      - name: Verify ChangelogManifest.lua is up to date
+        run: lua5.1 Tools/generate-changelog-manifest.lua --check
 
   build:
     name: Build package (no upload)

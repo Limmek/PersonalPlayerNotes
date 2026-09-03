@@ -1,16 +1,16 @@
 --[[
-    Regenerates Sounds/Manifest.lua from the actual contents of Sounds/.
+    Regenerates SoundsManifest.lua from the actual contents of Sounds/.
 
     WoW addons can't list a directory at runtime (no filesystem API exposed
     to the sandboxed client Lua), so the addon can't "dynamically" discover
     new .mp3/.ogg files while the game is running. Instead, this script runs
     outside the client (pure Lua 5.1, like Tools/validate-toc.lua) at
     development/packaging time: drop a new sound file into Sounds/, run this
-    script (or `make sounds`), commit the regenerated Sounds/Manifest.lua,
+    script (or `make sounds`), commit the regenerated SoundsManifest.lua,
     and the new file shows up as a selectable alert sound in-game.
 
     Usage:
-        lua5.1 Tools/generate-sounds-manifest.lua           -- write Sounds/Manifest.lua
+        lua5.1 Tools/generate-sounds-manifest.lua           -- write SoundsManifest.lua
         lua5.1 Tools/generate-sounds-manifest.lua --check    -- verify it's already up to date (CI), no write
 
     Exits 0 on success (or an up-to-date --check), 1 on failure/out-of-date.
@@ -26,7 +26,7 @@ end
 -- Repo root is the parent of this script's directory (Tools/../).
 local repoRoot = scriptDir() .. "/.."
 local soundsDir = repoRoot .. "/Sounds"
-local manifestPath = soundsDir .. "/Manifest.lua"
+local manifestPath = repoRoot .. "/SoundsManifest.lua"
 
 local function findSoundFiles()
     local files = {}
@@ -118,14 +118,14 @@ if checkOnly then
     local existing = readFile(manifestPath)
     if existing ~= rendered then
         io.stderr:write(
-            "generate-sounds-manifest --check: Sounds/Manifest.lua is out of date.\n"
+            "generate-sounds-manifest --check: SoundsManifest.lua is out of date.\n"
                 .. "Run `lua Tools/generate-sounds-manifest.lua` (or `make sounds`) and commit the result.\n"
         )
         os.exit(1)
     end
-    print("Sounds/Manifest.lua is up to date (" .. #sounds .. " sound files).")
+    print("SoundsManifest.lua is up to date (" .. #sounds .. " sound files).")
     os.exit(0)
 end
 
 writeFile(manifestPath, rendered)
-print("Wrote Sounds/Manifest.lua with " .. #sounds .. " sound files.")
+print("Wrote SoundsManifest.lua with " .. #sounds .. " sound files.")

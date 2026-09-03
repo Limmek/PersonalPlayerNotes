@@ -21,11 +21,15 @@ Set-StrictMode -Version Latest
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 Set-Location $RepoRoot
 
+# SoundsManifest.lua/ChangelogManifest.lua are auto-generated (see
+# Tools/generate-*-manifest.lua) and deliberately excluded here: StyLua's
+# AutoPreferDouble quote style can flip to single quotes depending on the
+# generated string's contents, which would then fail the generator's own
+# --check (it always emits double-quoted output) on the very next run.
 $LuaFiles = @(
     'PersonalPlayerNotes.lua'
     'PersonalPlayerNotesConfig.lua'
     'PersonalPlayerNotesUtils.lua'
-    'Sounds/Manifest.lua'
     'Tests/test_utils.lua'
     'Tests/test_config.lua'
     'Tests/test_main.lua'
@@ -34,6 +38,7 @@ $LuaFiles = @(
     'Locales/zhCN.lua'
     'Tools/validate-toc.lua'
     'Tools/generate-sounds-manifest.lua'
+    'Tools/generate-changelog-manifest.lua'
 )
 
 $TestFiles = @(
@@ -159,8 +164,12 @@ Invoke-Step -Name 'Validating addon metadata' -Action {
     Invoke-CheckedCommand -ToolPath $Lua -Arguments @('Tools/validate-toc.lua')
 }
 
-Invoke-Step -Name 'Checking Sounds/Manifest.lua' -Action {
+Invoke-Step -Name 'Checking SoundsManifest.lua' -Action {
     Invoke-CheckedCommand -ToolPath $Lua -Arguments @('Tools/generate-sounds-manifest.lua', '--check')
+}
+
+Invoke-Step -Name 'Checking ChangelogManifest.lua' -Action {
+    Invoke-CheckedCommand -ToolPath $Lua -Arguments @('Tools/generate-changelog-manifest.lua', '--check')
 }
 
 Invoke-Step -Name 'Building local package' -Action {

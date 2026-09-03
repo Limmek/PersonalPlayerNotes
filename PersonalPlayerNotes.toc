@@ -1,6 +1,5 @@
 ## Interface: 120100
 ## Interface-Vanilla: 11509
-## Interface-Titan: 38002
 ## Interface-TBC: 20506
 ## Interface-Mists: 50504
 ## Title : Personal Player Notes
@@ -24,6 +23,7 @@ embeds.xml
 Locales\Locales.xml
 
 PersonalPlayerNotes.lua
-Sounds\Manifest.lua
+SoundsManifest.lua
+ChangelogManifest.lua
 PersonalPlayerNotesUtils.lua
 PersonalPlayerNotesConfig.lua

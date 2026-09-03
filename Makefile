@@ -13,9 +13,10 @@ STYLUA     ?= stylua
 LUACHECK   ?= luacheck
 
 LUA_FILES  := PersonalPlayerNotes.lua PersonalPlayerNotesConfig.lua PersonalPlayerNotesUtils.lua \
-              Sounds/Manifest.lua \
+              SoundsManifest.lua ChangelogManifest.lua \
               Tests/test_utils.lua Tests/test_config.lua Tests/test_main.lua Tests/support/bootstrap.lua \
-              Locales/enUS.lua Locales/zhCN.lua Tools/validate-toc.lua Tools/generate-sounds-manifest.lua
+              Locales/enUS.lua Locales/zhCN.lua Tools/validate-toc.lua Tools/generate-sounds-manifest.lua \
+              Tools/generate-changelog-manifest.lua
 
 TEST_FILES := Tests/test_utils.lua Tests/test_config.lua Tests/test_main.lua
 
@@ -39,11 +40,17 @@ test: ## Run the pure-Lua unit test suite
 validate: ## Validate PersonalPlayerNotes.toc (metadata, referenced files, duplicates)
 	$(LUA) Tools/validate-toc.lua
 
-sounds: ## Regenerate Sounds/Manifest.lua from the files actually in Sounds/
+sounds: ## Regenerate SoundsManifest.lua from the files actually in Sounds/
 	$(LUA) Tools/generate-sounds-manifest.lua
 
-sounds-check: ## Verify Sounds/Manifest.lua is up to date (same as CI), no write
+sounds-check: ## Verify SoundsManifest.lua is up to date (same as CI), no write
 	$(LUA) Tools/generate-sounds-manifest.lua --check
+
+changelog: ## Regenerate ChangelogManifest.lua from changelog.txt
+	$(LUA) Tools/generate-changelog-manifest.lua
+
+changelog-check: ## Verify ChangelogManifest.lua is up to date (same as CI), no write
+	$(LUA) Tools/generate-changelog-manifest.lua --check
 
 build: ## Build a local, unsigned addon zip without uploading anywhere (requires BigWigsMods/packager's release.sh in PATH or .release/)
 	@if [ ! -f .release/release.sh ]; then \
@@ -54,7 +61,7 @@ build: ## Build a local, unsigned addon zip without uploading anywhere (requires
 	fi
 	.release/release.sh -d -p 0 -w 0 -a 0 -m .pkgmeta
 
-check: format-check lint test validate sounds-check ## Run every local check (does not build a package)
+check: format-check lint test validate sounds-check changelog-check ## Run every local check (does not build a package)
 
 dev: ## Run the full local Windows dev pipeline (format, lint, test, validate, sounds-check, build)
 	powershell -NoProfile -ExecutionPolicy Bypass -File Tools/dev.ps1
