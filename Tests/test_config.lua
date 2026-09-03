@@ -45,6 +45,9 @@ do
     check("defaults.alert.newCustomSound starts empty", profile.alert.newCustomSound, "")
     check("SoundManifest has 1 entry", #PersonalPlayerNotes.SoundManifest, 1)
     check("SoundManifest lists default.mp3 first", PersonalPlayerNotes.SoundManifest[1], "default.mp3")
+    check("defaults.customIcons starts empty", #profile.customIcons, 0)
+    check("defaults.newCustomIcon starts empty", profile.newCustomIcon, "")
+    check("defaults.customIconSelected starts empty", profile.customIconSelected, "")
     check("defaults.reasons has exactly 1 entry", #profile.reasons, 1)
     check("defaults.reasons[1].id is 1", profile.reasons[1].id, 1)
     check("defaults.reasons[1].icon starts nil", profile.reasons[1].icon, nil)
@@ -162,6 +165,54 @@ do
     )
 
     _G.PlaySoundFile = nil
+end
+
+--#endregion
+
+--#region Custom Icons
+
+do
+    PersonalPlayerNotes.db = freshDb()
+
+    PersonalPlayerNotes.db.profile.newCustomIcon = "  mine.png  "
+    PersonalPlayerNotes:AddCustomIcon()
+    check("AddCustomIcon trims and adds the typed filename", PersonalPlayerNotes.db.profile.customIcons[1], "mine.png")
+    check("AddCustomIcon clears the input field", PersonalPlayerNotes.db.profile.newCustomIcon, "")
+    check("AddCustomIcon selects the newly added icon", PersonalPlayerNotes.db.profile.customIconSelected, "mine.png")
+    check("IsCustomIcon recognizes an added custom icon", PersonalPlayerNotes:IsCustomIcon("mine.png"), true)
+    check("IsCustomIcon is false for an unadded filename", PersonalPlayerNotes:IsCustomIcon("other.png"), false)
+
+    PersonalPlayerNotes.db.profile.newCustomIcon = "mine.png"
+    PersonalPlayerNotes:AddCustomIcon()
+    check("AddCustomIcon does not add a duplicate", #PersonalPlayerNotes.db.profile.customIcons, 1)
+
+    PersonalPlayerNotes.db.profile.newCustomIcon = "   "
+    PersonalPlayerNotes:AddCustomIcon()
+    check("AddCustomIcon ignores a blank/whitespace-only name", #PersonalPlayerNotes.db.profile.customIcons, 1)
+
+    PersonalPlayerNotes.db.profile.newCustomIcon = "second.png"
+    PersonalPlayerNotes:AddCustomIcon()
+    check("AddCustomIcon appends a second entry", #PersonalPlayerNotes.db.profile.customIcons, 2)
+
+    PersonalPlayerNotes.db.profile.customIconSelected = "mine.png"
+    PersonalPlayerNotes:RemoveCustomIcon()
+    check("RemoveCustomIcon removes the selected custom icon", #PersonalPlayerNotes.db.profile.customIcons, 1)
+    check(
+        "RemoveCustomIcon re-selects the remaining icon",
+        PersonalPlayerNotes.db.profile.customIconSelected,
+        "second.png"
+    )
+
+    PersonalPlayerNotes:RemoveCustomIcon()
+    check("RemoveCustomIcon can empty the custom icons list", #PersonalPlayerNotes.db.profile.customIcons, 0)
+    check(
+        "RemoveCustomIcon resets the selection to blank when empty",
+        PersonalPlayerNotes.db.profile.customIconSelected,
+        ""
+    )
+
+    PersonalPlayerNotes:RemoveCustomIcon()
+    check("RemoveCustomIcon is a no-op when nothing is selected", #PersonalPlayerNotes.db.profile.customIcons, 0)
 end
 
 --#endregion

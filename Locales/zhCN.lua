@@ -88,6 +88,16 @@ L["PPN_SETTINGS_ALERT_DELAY"] = "提示间隔"
 L["PPN_SETTINGS_ALERT_DELAY_DESC"] =
     "设置在为同一玩家播放下一个提示音之前需要等待的时间(秒). 这有助于防止在短时间内重复播放相同的提示音."
 
+L["PPN_SETTINGS_ICONS"] = "自定义图标"
+L["PPN_SETTINGS_ICONS_DESC"] =
+    "为分组分类和已关注的玩家添加你自己的图标. 将图标图片文件(例如 .png, .tga 或 .blp)放入本插件的 Images 文件夹, 然后在下方输入其文件名, 即可在图标选择器中选择它."
+L["PPN_SETTINGS_ICON_ADD"] = "添加自定义图标"
+L["PPN_SETTINGS_ICON_ADD_DESC"] =
+    "输入你自行放入本插件 Images 文件夹内的图标图片文件名(需带扩展名). 确认后即可在图标选择器中选择."
+L["PPN_SETTINGS_ICON_SELECT"] = "你的自定义图标"
+L["PPN_ICON_REMOVE_CUSTOM"] = "删除"
+L["PPN_ICON_REMOVE_CUSTOM_DESC"] = "从自定义图标列表中删除选中的条目."
+
 L["PPN_REASONS_TITLE"] = "关注名单 - 分组分类设置"
 L["PPN_REASONS"] = "现有分组分类"
 L["PPN_REASON"] = "添加或编辑分组分类"

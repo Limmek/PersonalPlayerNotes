@@ -83,6 +83,16 @@ L["PPN_SOUND_INHERIT"] = "Use default"
 L["PPN_SETTINGS_ALERT_DELAY"] = "Delay"
 L["PPN_SETTINGS_ALERT_DELAY_DESC"] = "How many seconds to sleep before a new alert for the same player is played."
 
+L["PPN_SETTINGS_ICONS"] = "Custom Icons"
+L["PPN_SETTINGS_ICONS_DESC"] =
+    "Add your own icons for Reasons and Listed Players. Place an icon image file (e.g. .png, .tga, or .blp) in this addon's Images folder, then type its filename below to make it selectable in the icon picker."
+L["PPN_SETTINGS_ICON_ADD"] = "Add Custom Icon"
+L["PPN_SETTINGS_ICON_ADD_DESC"] =
+    "Filename (with extension) of an icon image file you've placed in this addon's Images folder yourself. Confirm to make it selectable in the icon picker."
+L["PPN_SETTINGS_ICON_SELECT"] = "Your Custom Icons"
+L["PPN_ICON_REMOVE_CUSTOM"] = "Remove"
+L["PPN_ICON_REMOVE_CUSTOM_DESC"] = "Remove the selected entry from your custom icons list."
+
 L["PPN_REASONS_TITLE"] = "Personal Player Notes - Reasons"
 L["PPN_REASONS"] = "Reasons"
 L["PPN_REASON"] = "Reason"

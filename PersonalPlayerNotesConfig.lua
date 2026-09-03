@@ -57,6 +57,18 @@ local function IconButtonTexture(icon)
     return icon or "Interface\\Buttons\\UI-EmptySlot-Disabled"
 end
 
+--[[
+    Builds the full texture path for a custom icon filename the user has
+    added themselves via AddCustomIcon() (self.db.profile.customIcons) - the
+    file itself must be manually dropped into this addon's Images/ folder
+    by the user, since the sandboxed WoW client can't list a directory at
+    runtime to discover it on its own (same constraint as custom alert
+    sounds, see AlertSoundChoices() above).
+]]
+local function CustomIconTexture(filename)
+    return "Interface\\AddOns\\" .. personalPlayerNotes .. "\\Images\\" .. filename
+end
+
 local function NotifyIconOptionsChanged()
     if AceConfigRegistry then
         AceConfigRegistry:NotifyChange("PersonalPlayerNotesSettings Reasons")
@@ -79,6 +91,12 @@ local function CollectAvailableIcons()
             icons[#icons + 1] = icon
             seen[icon] = true
         end
+    end
+
+    -- User-added custom icons (see AddCustomIcon()) come first, ahead of
+    -- the game's own macro icons, so they're easy to find in the picker.
+    for _, file in ipairs(PersonalPlayerNotes.db.profile.customIcons) do
+        Add(CustomIconTexture(file))
     end
 
     if type(GetNumMacroIcons) == "function" and type(GetMacroIconInfo) == "function" then
@@ -182,6 +200,22 @@ PersonalPlayerNotes.defaults = {
             newCustomSound = "",
             last = {},
         },
+        -- Filenames the user has added themselves via AddCustomIcon() (see
+        -- Settings.args.icons below) - the actual image files must be
+        -- dropped into this addon's Images/ folder manually by the user
+        -- (the same folder the addon's own icon.png/tooltip-example.png
+        -- ship in), the same way custom alert sounds work (see
+        -- alert.customSounds above). Kept at the profile's top level (not
+        -- nested under `alert`, and not under Reasons/Listed Players)
+        -- since icons are a shared resource selectable from both, managed
+        -- from its own settings panel instead of bloating either editor
+        -- form.
+        customIcons = {},
+        -- Scratch field for the "add a custom icon" text input.
+        newCustomIcon = "",
+        -- Scratch field: which customIcons[] entry is selected in the Custom
+        -- Icons panel's list, i.e. the target for the Remove button there.
+        customIconSelected = "",
         reasons = {
             { id = 1, reason = L["PPN_DEFAULT_REASON"], color = { r = 1, g = 1, b = 1 }, alert = false, icon = nil },
         },
@@ -510,6 +544,86 @@ PersonalPlayerNotes.options = {
                                 name = L["PPN_SETTINGS_ALERT_SESSION_ONLY"],
                                 desc = L["PPN_SETTINGS_ALERT_SESSION_ONLY_DESC"],
                                 width = 1,
+                            },
+                        },
+                    },
+                },
+            },
+            -- A dedicated panel for managing custom icons (add/remove),
+            -- kept separate from Reasons/Listed Players so those editor
+            -- forms don't get bloated with icon-management widgets - they
+            -- only ever show the "Icon" button that opens OpenIconPicker().
+            icons = {
+                name = L["PPN_SETTINGS_ICONS"],
+                order = 4,
+                type = "group",
+                inline = true,
+                width = 0.5,
+                args = {
+                    description = {
+                        type = "description",
+                        order = 0,
+                        name = L["PPN_SETTINGS_ICONS_DESC"],
+                    },
+                    row1 = {
+                        type = "group",
+                        inline = true,
+                        name = "",
+                        order = 1,
+                        args = {
+                            newCustomIcon = {
+                                type = "input",
+                                order = 1,
+                                name = L["PPN_SETTINGS_ICON_ADD"],
+                                desc = L["PPN_SETTINGS_ICON_ADD_DESC"],
+                                width = 1.5,
+                                get = function(info)
+                                    return PersonalPlayerNotes.db.profile.newCustomIcon
+                                end,
+                                set = function(info, value)
+                                    PersonalPlayerNotes.db.profile.newCustomIcon = value
+                                    PersonalPlayerNotes:AddCustomIcon()
+                                end,
+                            },
+                        },
+                    },
+                    row2 = {
+                        type = "group",
+                        inline = true,
+                        name = "",
+                        order = 2,
+                        args = {
+                            customIconSelected = {
+                                type = "select",
+                                order = 1,
+                                name = L["PPN_SETTINGS_ICON_SELECT"],
+                                width = 1.5,
+                                values = function()
+                                    local choices = {}
+                                    for _, file in ipairs(PersonalPlayerNotes.db.profile.customIcons) do
+                                        choices[file] = file
+                                    end
+                                    return choices
+                                end,
+                                get = function(info)
+                                    return PersonalPlayerNotes.db.profile.customIconSelected
+                                end,
+                                set = function(info, value)
+                                    PersonalPlayerNotes.db.profile.customIconSelected = value
+                                end,
+                            },
+                            removeCustomIcon = {
+                                type = "execute",
+                                order = 2,
+                                name = L["PPN_ICON_REMOVE_CUSTOM"],
+                                desc = L["PPN_ICON_REMOVE_CUSTOM_DESC"],
+                                width = 0.5,
+                                func = "RemoveCustomIcon",
+                                disabled = function()
+                                    return not PersonalPlayerNotes:IsCustomIcon(
+                                        PersonalPlayerNotes.db.profile.customIconSelected
+                                    )
+                                end,
                             },
                         },
                     },
@@ -933,6 +1047,61 @@ function PersonalPlayerNotes:TestListedPlayerSound()
     self:PlayAlertSoundEffect(
         self.db.profile.listedPlayer.sound or (reason and reason.sound) or self.db.profile.alert.sound
     )
+end
+
+--#endregion
+
+--#region Custom Icons
+
+--[[
+    Returns whether `icon` (a bare filename, e.g. "myicon.png") is one the
+    user added themselves via AddCustomIcon().
+]]
+function PersonalPlayerNotes:IsCustomIcon(icon)
+    for _, file in ipairs(self.db.profile.customIcons) do
+        if file == icon then
+            return true
+        end
+    end
+    return false
+end
+
+--[[
+    Adds the filename currently typed into customIcons.newCustomIcon as a
+    new selectable custom icon - it then shows up in the icon picker's grid
+    (see CollectAvailableIcons()) as "Interface\AddOns\...\Images\<filename>",
+    and becomes the Custom Icons panel's selected entry - and clears the
+    input. No-ops for a blank/whitespace-only name, or one already added.
+]]
+function PersonalPlayerNotes:AddCustomIcon()
+    local name = (self.db.profile.newCustomIcon or ""):match("^%s*(.-)%s*$")
+    self.db.profile.newCustomIcon = ""
+    if name == "" or self:IsCustomIcon(name) then
+        return
+    end
+    tinsert(self.db.profile.customIcons, name)
+    self.db.profile.customIconSelected = name
+end
+
+--[[
+    Removes the Custom Icons panel's currently selected custom icon
+    (self.db.profile.customIconSelected), re-selecting the new last entry
+    (or blank if the list is now empty). A no-op if nothing is selected -
+    see options.Settings.args.icons.args.row2.args.removeCustomIcon.disabled,
+    which disables the button in that case. Reasons/Listed Players that
+    already had this icon selected keep it - it just stops being
+    selectable/re-addable from the picker until re-added here.
+]]
+function PersonalPlayerNotes:RemoveCustomIcon()
+    local selected = self.db.profile.customIconSelected
+    for index, file in ipairs(self.db.profile.customIcons) do
+        if file == selected then
+            tremove(self.db.profile.customIcons, index)
+            local remaining = self.db.profile.customIcons
+            self.db.profile.customIconSelected = remaining[#remaining] or ""
+            return
+        end
+    end
 end
 
 --#endregion
@@ -1414,16 +1583,12 @@ function PersonalPlayerNotes:OpenIconPicker(currentIcon, onSelect)
     local totalRows = math.max(1, math.ceil(#icons / columns))
     local maxTopRow = math.max(0, totalRows - rows)
 
-    -- Jump to the row containing the current selection, same as before.
+    -- Always open scrolled to the very top, never auto-jump to the row
+    -- containing the current selection - custom icons (see
+    -- CollectAvailableIcons()) are always placed first in `icons`, so this
+    -- guarantees they're always the first thing shown, on every open,
+    -- regardless of what's currently selected.
     local topRow = 0
-    if selectedIcon then
-        for index, icon in ipairs(icons) do
-            if icon == selectedIcon then
-                topRow = math.min(maxTopRow, math.floor((index - 1) / columns))
-                break
-            end
-        end
-    end
 
     local picker = self:AceGUIDefaults()
     picker:SetTitle(L["PPN_ICON_PICKER_TITLE"])
