@@ -80,7 +80,9 @@
 		"IsControlKeyDown",
 		"PlaySoundFile",
 		"CreateFrame",
-		"UIParent"
+		"UIParent",
+		"ChatEdit_InsertLink",
+		"ChatFrameUtil"
 	],
 	"Lua.runtime.builtin": {
 		"basic": "disable",

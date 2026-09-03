@@ -203,13 +203,12 @@ PersonalPlayerNotes.defaults = {
         -- Filenames the user has added themselves via AddCustomIcon() (see
         -- Settings.args.icons below) - the actual image files must be
         -- dropped into this addon's Images/ folder manually by the user
-        -- (the same folder the addon's own icon.png/tooltip-example.png
-        -- ship in), the same way custom alert sounds work (see
-        -- alert.customSounds above). Kept at the profile's top level (not
-        -- nested under `alert`, and not under Reasons/Listed Players)
-        -- since icons are a shared resource selectable from both, managed
-        -- from its own settings panel instead of bloating either editor
-        -- form.
+        -- (the same folder the addon's own icon.png ships in), the same
+        -- way custom alert sounds work (see alert.customSounds above).
+        -- Kept at the profile's top level (not nested under `alert`, and
+        -- not under Reasons/Listed Players) since icons are a shared
+        -- resource selectable from both, managed from its own settings
+        -- panel instead of bloating either editor form.
         customIcons = {},
         -- Scratch field for the "add a custom icon" text input.
         newCustomIcon = "",
@@ -303,6 +302,12 @@ PersonalPlayerNotes.options = {
                         fontSize = "medium",
                         name = L["PPN_INFO_COMMANDS_5"],
                     },
+                    changelog = {
+                        order = 6,
+                        type = "description",
+                        fontSize = "medium",
+                        name = L["PPN_INFO_COMMANDS_6"],
+                    },
                 },
             },
             About = {
@@ -370,6 +375,23 @@ PersonalPlayerNotes.options = {
                             .. L["PPN_INFO_ABOUT_WEB"]
                             .. ": |cffffffff"
                             .. PersonalPlayerNotes:GetWebsite(),
+                    },
+                },
+            },
+            Changelog = {
+                name = L["PPN_MENU_CHANGELOG"],
+                order = 4,
+                type = "group",
+                inline = true,
+                args = {
+                    text = {
+                        type = "description",
+                        order = 0,
+                        width = "full",
+                        fontSize = "medium",
+                        name = function()
+                            return (PersonalPlayerNotes.Changelog or "") .. "\n"
+                        end,
                     },
                 },
             },
@@ -910,23 +932,6 @@ PersonalPlayerNotes.options = {
                 name = L["PPN_SOUND_TEST"],
                 desc = L["PPN_SOUND_TEST_DESC"],
                 func = "TestListedPlayerSound",
-            },
-        },
-    },
-    Changelog = {
-        type = "group",
-        order = 4,
-        name = L["PPN_MENU_CHANGELOG"],
-        inline = false,
-        args = {
-            text = {
-                type = "description",
-                order = 0,
-                width = "full",
-                fontSize = "medium",
-                name = function()
-                    return (PersonalPlayerNotes.Changelog or "") .. "\n"
-                end,
             },
         },
     },

@@ -84,20 +84,18 @@ function PersonalPlayerNotes:OnInitialize()
         personalPlayerNotes
     )
 
-    AceConfig:RegisterOptionsTable(
-        "PersonalPlayerNotesSettings Changelog",
-        self.options.Changelog,
-        { "ppnc", "ppnchangelog" }
-    )
-    AceConfigDialog:AddToBlizOptions(
-        "PersonalPlayerNotesSettings Changelog",
-        L["PPN_MENU_CHANGELOG"],
-        personalPlayerNotes
-    )
-
     LibDBIcon:Register(personalPlayerNotes, self:MiniMapIcon(), self.db.profile.minimap)
 
     self:RegisterChatCommand("ppn", function()
+        PersonalPlayerNotes:OpenBlizzardOptions()
+    end)
+    -- the Changelog is an inline panel on the main Info page (alongside
+    -- Commands/About), not its own Blizzard options category, so these just
+    -- open the same Info page
+    self:RegisterChatCommand("ppnc", function()
+        PersonalPlayerNotes:OpenBlizzardOptions()
+    end)
+    self:RegisterChatCommand("ppnchangelog", function()
         PersonalPlayerNotes:OpenBlizzardOptions()
     end)
     self:RegisterChatCommand("ppnm", "ToggleMiniMapIcon")
@@ -582,7 +580,7 @@ function PersonalPlayerNotes:MiniMapIcon()
                     AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Listed_Players", 500, 340)
                     PersonalPlayerNotes:OpenDialog("PersonalPlayerNotesSettings Listed_Players")
                 else
-                    AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Options", 500, 540)
+                    AceConfigDialog:SetDefaultSize("PersonalPlayerNotesSettings Options", 500, 550)
                     PersonalPlayerNotes:OpenDialog("PersonalPlayerNotesSettings Options")
                 end
             end

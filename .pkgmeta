@@ -21,7 +21,14 @@ ignore:
   - Tools
   - luacheck.exe
   - Libs/LibStub/tests
-  - Images/tooltip-example.png
+  - Images/tooltip.png
+  - Images/blizzard-options-start.png
+  - Images/blizzard-options-options.png
+  - Images/blizzard-options-reasons.png
+  - Images/blizzard-options-listedplayers.png
+  - Images/listedplayers.png
+  - Images/options.png
+  - Images/reasons.png
 
 required-dependencies:
 

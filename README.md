@@ -9,6 +9,8 @@
 
 Keep private reminders about players you meet. Add an optional note or color-coded reason for your own reference, then see it in their tooltip the next time you meet. Your information remains local to your computer and is never shared.
 
+![Tooltip preview](Images/tooltip.png)
+
 **Download**: [CurseForge](https://www.curseforge.com/wow/addons/personal-player-notes) · [GitHub Releases](https://github.com/Limmek/PersonalPlayerNotes/releases)
 
 ## Features
