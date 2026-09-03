@@ -21,6 +21,7 @@ ignore:
   - Tools
   - luacheck.exe
   - Libs/LibStub/tests
+  - Images/tooltip-example.png
 
 required-dependencies:
 
