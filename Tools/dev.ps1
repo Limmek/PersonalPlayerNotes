@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Runs the full local dev pipeline: format, lint, unit tests, TOC/sounds
+    Runs the full local dev pipeline: format, lint, unit tests, TOC/changelog
     validation and a local packager dry-run build.
 
 .PARAMETER UpdateLibs
@@ -21,11 +21,11 @@ Set-StrictMode -Version Latest
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 Set-Location $RepoRoot
 
-# SoundsManifest.lua/ChangelogManifest.lua are auto-generated (see
-# Tools/generate-*-manifest.lua) and deliberately excluded here: StyLua's
-# AutoPreferDouble quote style can flip to single quotes depending on the
-# generated string's contents, which would then fail the generator's own
-# --check (it always emits double-quoted output) on the very next run.
+# ChangelogManifest.lua is auto-generated (see
+# Tools/generate-changelog-manifest.lua) and deliberately excluded here:
+# StyLua's AutoPreferDouble quote style can flip to single quotes depending
+# on the generated string's contents, which would then fail the generator's
+# own --check (it always emits double-quoted output) on the very next run.
 $LuaFiles = @(
     'PersonalPlayerNotes.lua'
     'PersonalPlayerNotesConfig.lua'
@@ -37,7 +37,6 @@ $LuaFiles = @(
     'Locales/enUS.lua'
     'Locales/zhCN.lua'
     'Tools/validate-toc.lua'
-    'Tools/generate-sounds-manifest.lua'
     'Tools/generate-changelog-manifest.lua'
 )
 
@@ -162,10 +161,6 @@ Invoke-Step -Name 'Running unit tests' -Action {
 
 Invoke-Step -Name 'Validating addon metadata' -Action {
     Invoke-CheckedCommand -ToolPath $Lua -Arguments @('Tools/validate-toc.lua')
-}
-
-Invoke-Step -Name 'Checking SoundsManifest.lua' -Action {
-    Invoke-CheckedCommand -ToolPath $Lua -Arguments @('Tools/generate-sounds-manifest.lua', '--check')
 }
 
 Invoke-Step -Name 'Checking ChangelogManifest.lua' -Action {

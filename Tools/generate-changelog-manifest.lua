@@ -5,7 +5,7 @@
     API exposed to the sandboxed client Lua), so changelog.txt itself (the
     packager's manual-changelog source, see .pkgmeta) can't be shown directly
     in a Blizzard options panel. Instead, this script runs outside the client
-    (pure Lua 5.1, like Tools/generate-sounds-manifest.lua) at development/
+    (pure Lua 5.1, like Tools/validate-toc.lua) at development/
     packaging time: edit changelog.txt, run this script (or `make changelog`),
     commit the regenerated ChangelogManifest.lua, and the new text shows up in
     the addon's "Changelog" options panel.

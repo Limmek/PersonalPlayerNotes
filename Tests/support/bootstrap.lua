@@ -2,7 +2,7 @@
     Shared stub/bootstrap helper for loading the addon's own Lua files
     outside of a WoW client, mirroring the real load order declared in
     PersonalPlayerNotes.toc: PersonalPlayerNotes.lua, then
-    SoundsManifest.lua, then PersonalPlayerNotesUtils.lua, then
+    PersonalPlayerNotesUtils.lua, then
     PersonalPlayerNotesConfig.lua.
 
     Used by the test files in Tests/ so each one doesn't need to duplicate
@@ -88,9 +88,6 @@ function M.loadAddon(libStubOverride)
 
     local main = assert(loadfile("PersonalPlayerNotes.lua"))
     main("PersonalPlayerNotes")
-
-    local soundManifest = assert(loadfile("SoundsManifest.lua"))
-    soundManifest("PersonalPlayerNotes")
 
     local utils = assert(loadfile("PersonalPlayerNotesUtils.lua"))
     utils("PersonalPlayerNotes")

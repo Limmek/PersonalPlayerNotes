@@ -28,11 +28,12 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           version: "2.5.2"
-          # SoundsManifest.lua/ChangelogManifest.lua are auto-generated (see
-          # Tools/generate-*-manifest.lua) and excluded here for the same
-          # reason as in Tools/dev.ps1/Makefile: StyLua's AutoPreferDouble
-          # quote-style conflicts with the generators' raw string.format("%q", ...) output.
-          args: --check --glob '**/*.lua' --glob '!SoundsManifest.lua' --glob '!ChangelogManifest.lua' .
+          # ChangelogManifest.lua is auto-generated (see
+          # Tools/generate-changelog-manifest.lua) and excluded here for the
+          # same reason as in Tools/dev.ps1/Makefile: StyLua's
+          # AutoPreferDouble quote-style conflicts with the generator's raw
+          # string.format("%q", ...) output.
+          args: --check --glob '**/*.lua' --glob '!ChangelogManifest.lua' .
 
   luacheck:
     name: Luacheck
@@ -76,9 +77,6 @@ jobs:
 
       - name: Validate .toc files
         run: lua5.1 Tools/validate-toc.lua
-
-      - name: Verify SoundsManifest.lua is up to date
-        run: lua5.1 Tools/generate-sounds-manifest.lua --check
 
       - name: Verify ChangelogManifest.lua is up to date
         run: lua5.1 Tools/generate-changelog-manifest.lua --check

@@ -97,6 +97,8 @@ Global alert sound
 
 Any of the three levels can use one of the built-in sounds, or your own custom `.mp3`/`.ogg` file dropped into this addon's `Sounds/` folder.
 
+Built-in sounds are intentionally hardcoded in the addon (starting with `default.mp3`) so standard entries cannot disappear from settings. If more built-in sounds are added in a future release, they are added in code as additional hardcoded entries.
+
 ## Reasons
 
 Reasons are reusable categories (e.g. "Met in a dungeon", "Helpful player", "Crafter", or "Alchemy") that make your private reminders easier to tell apart at a glance. Each reason has its own:

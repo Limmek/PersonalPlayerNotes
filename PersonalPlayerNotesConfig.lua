@@ -2,11 +2,16 @@ local personalPlayerNotes = ...
 local L = LibStub("AceLocale-3.0"):GetLocale(personalPlayerNotes, true)
 local AceConfigRegistry = LibStub("AceConfigRegistry-3.0", true)
 
+-- Shipped/default sounds are intentionally hardcoded so they always remain
+-- selectable regardless of external manifest generation.
+PersonalPlayerNotes.SoundManifest = {
+    "default.mp3",
+}
+
 --[[
     Builds the `values` table for an alert-sound-selection dropdown: every
     filename in PersonalPlayerNotes.SoundManifest (the sounds shipped with
-    the addon, regenerated from Sounds/ by Tools/generate-sounds-manifest.lua
-    - see SoundsManifest.lua), plus every filename the user has added
+    the addon), plus every filename the user has added
     themselves via AddCustomSound() (self.db.profile.alert.customSounds).
     When includeInherit is true (used by the Reasons/ListedPlayers dropdowns,
     not the global one), an extra "__inherit__" entry is prepended for "use
@@ -187,7 +192,7 @@ PersonalPlayerNotes.defaults = {
             -- `delay` seconds have passed since the last alert for them.
             sessionOnly = false,
             -- Filename (with extension) of the global alert sound, resolved
-            -- from PersonalPlayerNotes.SoundManifest (see SoundsManifest.lua)
+            -- from PersonalPlayerNotes.SoundManifest (hardcoded above)
             -- or from the user's own customSounds below. Reasons/listedPlayers
             -- may set their own `sound` field to override this; nil there
             -- means "inherit".

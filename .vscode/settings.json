@@ -99,10 +99,6 @@
 		"/^lua Tools/generate-changelog-manifest\\.lua$/": {
 			"approve": true,
 			"matchCommandLine": true
-		},
-		"/^lua Tools/validate-toc\\.lua|lua Tools/generate-sounds-manifest\\.lua; lua Tools/generate-changelog-manifest\\.lua$/": {
-			"approve": true,
-			"matchCommandLine": true
 		}
 	},
 }

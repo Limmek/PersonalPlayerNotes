@@ -8,7 +8,7 @@ body:
   - type: checkboxes
     attributes:
       label: Is there an existing issue for this?
-      description: Please [search for existing issues](https://github.com/Limmek/Shitlist/issues) to see if an open or closed one already exists for the bug you encountered. If a bug exists and it is closed you can create a new bug report.
+      description: Please [search for existing issues](https://github.com/Limmek/PersonalPlayerNotes/issues) to see if an open or closed one already exists for the bug you encountered. If a bug exists and it is closed you can create a new bug report.
       options:
       - label: I have searched the existing open and closed issues.
         required: true
@@ -24,10 +24,12 @@ body:
     id: flavor
     attributes:
       label: World of Warcraft Flavor
-      description: What version of World of Warcraft are are you running?
+      description: Which World of Warcraft client are you running?
       options:
         - Retail (Default)
-        - Classic
+        - Classic Era (including Hardcore/SoM/SoD)
+        - Burning Crusade Classic (Anniversary)
+        - Mists of Pandaria Classic
     validations:
       required: true
   
