@@ -105,9 +105,9 @@ do
         "alarmbuzzer.ogg"
     )
     check(
-        "SetAlertSoundEffect also plays the newly selected sound",
+        "SetAlertSoundEffect does not auto-play the newly selected sound",
         playedPath,
-        "Interface\\AddOns\\PersonalPlayerNotes\\Sounds\\alarmbuzzer.ogg"
+        "Interface\\AddOns\\PersonalPlayerNotes\\Sounds\\alarmbuzz.ogg"
     )
 
     PersonalPlayerNotes.db.profile.alert.newCustomSound = "  mine.mp3  "
@@ -139,9 +139,14 @@ do
 
     PersonalPlayerNotes:SetAlertSoundEffect({ "sound" }, "mine.mp3")
     check(
-        "PlayAlertSoundEffect plays a custom-added sound directly by filename",
+        "SetAlertSoundEffect stores a custom-added sound without auto-playing it",
+        PersonalPlayerNotes.db.profile.alert.sound,
+        "mine.mp3"
+    )
+    check(
+        "SetAlertSoundEffect leaves the last played sound unchanged",
         playedPath,
-        "Interface\\AddOns\\PersonalPlayerNotes\\Sounds\\mine.mp3"
+        "Interface\\AddOns\\PersonalPlayerNotes\\Sounds\\alarmbuzz.ogg"
     )
 
     PersonalPlayerNotes:RemoveCustomSound()

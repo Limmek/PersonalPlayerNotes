@@ -24,8 +24,6 @@ L["PPN_MENU_LISTED_PLAYERS"] = "Listed Players"
 L["PPN_MENU_PROFILES"] = "Profiles"
 L["PPN_MENU_CHANGELOG"] = "Changelog"
 
-L["PPN_CONFIG_LOADING"] = "Loading..."
-L["PPN_CONFIG_LOADED"] = "Loaded."
 L["PPN_CONFIG_VERSION"] = "Version:"
 L["PPN_CONFIG_REASONS"] = "Reasons:"
 L["PPN_CONFIG_LISTEDPLAYERS"] = "Players:"

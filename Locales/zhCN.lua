@@ -27,8 +27,6 @@ L["PPN_MENU_LISTED_PLAYERS"] = "已关注的玩家"
 L["PPN_MENU_PROFILES"] = "配置文件"
 L["PPN_MENU_CHANGELOG"] = "更新日志"
 
-L["PPN_CONFIG_LOADING"] = "正在加载..."
-L["PPN_CONFIG_LOADED"] = "已加载."
 L["PPN_CONFIG_VERSION"] = "版本:"
 L["PPN_CONFIG_REASONS"] = "分组分类:"
 L["PPN_CONFIG_LISTEDPLAYERS"] = "玩家名字:"

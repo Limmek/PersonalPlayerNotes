@@ -122,10 +122,16 @@ end
     helpers in PersonalPlayerNotesUtils.lua).
 ]]
 function PersonalPlayerNotes:OnEnable()
-    self:Print(L["PPN_CONFIG_LOADING"])
-    self:Print(L["PPN_CONFIG_VERSION"], _G["ORANGE_FONT_COLOR_CODE"], self:GetVersion())
-    self:Print(L["PPN_CONFIG_REASONS"], _G["GREEN_FONT_COLOR_CODE"], #self:GetReasons())
-    self:Print(L["PPN_CONFIG_LISTEDPLAYERS"], _G["GREEN_FONT_COLOR_CODE"], #self:GetListedPlayers())
+    self:Print(
+        L["PPN_CONFIG_VERSION"],
+        _G["ORANGE_FONT_COLOR_CODE"] .. self:GetVersion() .. _G["FONT_COLOR_CODE_CLOSE"],
+        "|",
+        L["PPN_CONFIG_REASONS"],
+        _G["GREEN_FONT_COLOR_CODE"] .. #self:GetReasons() .. _G["FONT_COLOR_CODE_CLOSE"],
+        "|",
+        L["PPN_CONFIG_LISTEDPLAYERS"],
+        _G["GREEN_FONT_COLOR_CODE"] .. #self:GetListedPlayers() .. _G["FONT_COLOR_CODE_CLOSE"]
+    )
 
     -- Feature detection instead of a hardcoded Retail/Classic branch: some Classic
     -- clients have already picked up the modern Menu/Tooltip APIs, and future
@@ -150,7 +156,6 @@ function PersonalPlayerNotes:OnEnable()
     else
         GameTooltip:HookScript("OnTooltipSetUnit", self.GameTooltip)
     end
-    self:Print(L["PPN_CONFIG_LOADED"])
 end
 
 --[[

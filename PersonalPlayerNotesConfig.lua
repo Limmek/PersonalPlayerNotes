@@ -966,11 +966,9 @@ function PersonalPlayerNotes:GetAlertSoundEffect(info)
 end
 
 --[[
-    Selects a new global alert sound effect by filename, playing it
-    immediately as a preview.
+    Selects a new global alert sound effect by filename.
 ]]
 function PersonalPlayerNotes:SetAlertSoundEffect(info, value)
-    self:PlayAlertSoundEffect(value)
     self.db.profile.alert.sound = value
 end
 
