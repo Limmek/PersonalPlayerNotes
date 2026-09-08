@@ -64,6 +64,18 @@ L["PPN_SETTINGS_MINIMAP_ICON_DESC"] = "显示或隐藏小地图图标"
 L["PPN_SETTINGS_MINIMAP_POS"] = "图标位置"
 L["PPN_SETTINGS_MINIMAP_POS_DESC"] = "调整小地图图标位置"
 
+L["PPN_SETTINGS_CONTEXT_MENU"] = "右键菜单"
+L["PPN_SETTINGS_CONTEXT_MENU_DESC"] =
+    "选择在哪些位置右键点击玩家时显示添加/编辑关注名单的菜单选项."
+L["PPN_SETTINGS_CONTEXT_MENU_PARTY"] = "小队和团队成员"
+L["PPN_SETTINGS_CONTEXT_MENU_PARTY_DESC"] =
+    "右键点击小队或团队成员时显示菜单选项, 包括目标/焦点框体正显示小队/团队成员时."
+L["PPN_SETTINGS_CONTEXT_MENU_FRIENDS"] = "好友列表"
+L["PPN_SETTINGS_CONTEXT_MENU_FRIENDS_DESC"] = "右键点击你的好友列表中的条目时显示菜单选项."
+L["PPN_SETTINGS_CONTEXT_MENU_CHAT"] = "聊天"
+L["PPN_SETTINGS_CONTEXT_MENU_CHAT_DESC"] =
+    "右键点击聊天消息中的玩家名字, 或频道/社区/公会名单中的玩家名字时显示菜单选项."
+
 L["PPN_SETTINGS_ALERT"] = "提示音"
 L["PPN_SETTINGS_ALERT_DESC"] = "配置当发现已关注的玩家时播放的提示音"
 L["PPN_SETTINGS_ALERT_ENABLED"] = "启用提示音"
@@ -128,7 +140,7 @@ L["PPN_LISTED_PLAYER_DESCRIPTION"] = "附加描述"
 L["PPN_LISTED_PLAYER_COLOR"] = "文字颜色(此附加描述在鼠标提示中的颜色)"
 L["PPN_LISTED_PLAYER_ALERT_ENABLED"] = "启用玩家提示音"
 L["PPN_LISTED_PLAYER_ALERT_ENABLED_DESC"] =
-    "为该玩家启用或禁用提示音. 如果该玩家所在的分组分类已禁用了提示音, 则不能开启."
+    "为该玩家启用或禁用提示音, 与该玩家所在分组分类的提示音开关相互独立. 只要其中一个已启用, 该玩家就会触发提示音, 且玩家自身的设置优先."
 L["PPN_LISTED_PLAYER_SOUND"] = "声音"
 L["PPN_LISTED_PLAYER_SOUND_DESC"] =
     '为该玩家设置专属提示音, 覆盖分组分类(或全局)的声音, 优先级最高. 保持"使用默认"则不覆盖.'

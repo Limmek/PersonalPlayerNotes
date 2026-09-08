@@ -501,6 +501,97 @@ do
 end
 
 do
+    -- Regression test: a player must be alertable even when their reason
+    -- has alerts disabled (e.g. the default "None" reason, which always
+    -- starts with alert = false).
+    local addon = freshGameTooltipAddon()
+    _G.UnitIsPlayer = function()
+        return true
+    end
+    _G.UnitFullName = function()
+        return "Thrall", "Frostmourne"
+    end
+    _G.GetRealmName = function()
+        return "Frostmourne"
+    end
+
+    local played, playedSound
+    addon.PlayAlertSoundEffect = function(_, sound)
+        played = true
+        playedSound = sound
+    end
+    addon.db.profile.alert.sound = "default.mp3"
+    addon.db.profile.reasons[1].alert = false
+    addon.db.profile.reasons[1].sound = "alarmbuzz.ogg"
+    addon.db.profile.listedPlayers[1].alert = true
+
+    local tooltip = newFakeTooltip("Thrall", "target")
+    addon.GameTooltip(tooltip)
+    check("GameTooltip alerts on the player even when its reason has alerts disabled", played, true)
+    check(
+        "GameTooltip still inherits the reason's sound when the player has none of its own",
+        playedSound,
+        "alarmbuzz.ogg"
+    )
+end
+
+do
+    -- The reason can alert on its own even when the specific player's alert
+    -- is off; a leftover player-specific sound must not be used since the
+    -- player didn't opt into it.
+    local addon = freshGameTooltipAddon()
+    _G.UnitIsPlayer = function()
+        return true
+    end
+    _G.UnitFullName = function()
+        return "Thrall", "Frostmourne"
+    end
+    _G.GetRealmName = function()
+        return "Frostmourne"
+    end
+
+    local played, playedSound
+    addon.PlayAlertSoundEffect = function(_, sound)
+        played = true
+        playedSound = sound
+    end
+    addon.db.profile.alert.sound = "default.mp3"
+    addon.db.profile.reasons[1].alert = true
+    addon.db.profile.listedPlayers[1].alert = false
+    addon.db.profile.listedPlayers[1].sound = "alarmdouble.ogg"
+
+    local tooltip = newFakeTooltip("Thrall", "target")
+    addon.GameTooltip(tooltip)
+    check("GameTooltip alerts on the reason even when the player's own alert is off", played, true)
+    check("GameTooltip ignores the player's leftover sound when its own alert is off", playedSound, "default.mp3")
+end
+
+do
+    -- Neither the reason nor the player wants alerts: no sound should play.
+    local addon = freshGameTooltipAddon()
+    _G.UnitIsPlayer = function()
+        return true
+    end
+    _G.UnitFullName = function()
+        return "Thrall", "Frostmourne"
+    end
+    _G.GetRealmName = function()
+        return "Frostmourne"
+    end
+
+    local played = false
+    addon.PlayAlertSoundEffect = function()
+        played = true
+    end
+    addon.db.profile.reasons[1].alert = false
+    addon.db.profile.listedPlayers[1].alert = false
+
+    local tooltip = newFakeTooltip("Thrall", "target")
+    addon.GameTooltip(tooltip)
+    check("GameTooltip does not alert when both the reason and the player have alerts disabled", played, false)
+end
+
+do
     local addon = freshGameTooltipAddon()
     addon.db.profile.alert.last["Thrall"] = 2000 -- still within cooldown
     _G.UnitIsPlayer = function()
@@ -609,6 +700,9 @@ local function libStubForMiniMapIcon()
                 Open = function(_, key)
                     minimapDialogState.openedKey = key
                 end,
+                GetStatusTable = function()
+                    return {}
+                end,
             }
         end
         return defaultStub(major)
@@ -623,12 +717,16 @@ local function freshMiniMapIconAddon()
     -- exactly like LibStub()-returned libraries are stubbed elsewhere.
     -- OpenDialog() (in PersonalPlayerNotesUtils.lua) additionally calls
     -- SetCallback()/Show() on the returned frame, so the stub needs those
-    -- too, not just SetTitle().
+    -- too, not just SetTitle(). EnforceDialogWidth() also calls
+    -- ApplyStatus() since the AceConfigDialog-3.0 stub above returns a real
+    -- (empty) status table from GetStatusTable(), unlike the generic
+    -- catch-all LibStub fallback used elsewhere that silently no-ops.
     addon.AceGUIDefaults = function()
         return {
             SetTitle = function() end,
             SetCallback = function() end,
             Show = function() end,
+            ApplyStatus = function() end,
         }
     end
     return addon
@@ -761,6 +859,7 @@ local function freshDropdownAddon()
             icon = "Interface\\AddOns\\PersonalPlayerNotes\\Images\\icon.png",
             listedPlayers = {},
             listedPlayer = { id = 1, name = "", realm = "", reason = 1, description = "", color = {}, alert = true },
+            contextMenu = { party = true, friends = true, chat = true },
         },
     }
     return addon
@@ -780,9 +879,116 @@ do
 
     addon:UnitPopup_ShowMenu("SELF", "target", nil)
     check("UnitPopup_ShowMenu ignores the SELF target", #buttons, 0)
+end
+
+do
+    local addon = freshDropdownAddon()
+    addon.db.profile.contextMenu.friends = false
+    addon.db.profile.contextMenu.chat = false
+    local buttons = {}
+    _G.UIDropDownMenu_AddButton = function(info, level)
+        table.insert(buttons, { info = info, level = level })
+    end
+    _G.UIDropDownMenu_CreateInfo = function()
+        return {}
+    end
+    _G.UIDROPDOWNMENU_MENU_LEVEL = 1
+    _G.UIDROPDOWNMENU_MENU_VALUE = nil
 
     addon:UnitPopup_ShowMenu("FRIEND", "target", nil)
-    check("UnitPopup_ShowMenu ignores the FRIEND target", #buttons, 0)
+    check("UnitPopup_ShowMenu ignores the FRIEND target when friends and chat are both disabled", #buttons, 0)
+end
+
+do
+    local addon = freshDropdownAddon()
+    addon.db.profile.contextMenu.party = false
+    local buttons = {}
+    _G.UIDropDownMenu_AddButton = function(info, level)
+        table.insert(buttons, { info = info, level = level })
+    end
+    _G.UIDropDownMenu_CreateInfo = function()
+        return {}
+    end
+    _G.UIDROPDOWNMENU_MENU_LEVEL = 1
+    _G.UIDROPDOWNMENU_MENU_VALUE = nil
+    _G.UnitIsPlayer = function()
+        return true
+    end
+    _G.UnitName = function()
+        return "Jaina", nil
+    end
+    _G.GetRealmName = function()
+        return "Theramore"
+    end
+
+    addon:UnitPopup_ShowMenu("PARTY", "target", nil)
+    check("UnitPopup_ShowMenu ignores the PARTY target when the party toggle is disabled", #buttons, 0)
+
+    addon:UnitPopup_ShowMenu("RAID_PLAYER", "target", nil)
+    check("UnitPopup_ShowMenu ignores the RAID_PLAYER target when the party toggle is disabled", #buttons, 0)
+
+    _G.UnitIsPlayer = nil
+    _G.UnitName = nil
+    _G.GetRealmName = nil
+end
+
+do
+    local addon = freshDropdownAddon()
+    local buttons = {}
+    _G.UIDropDownMenu_AddButton = function(info, level)
+        table.insert(buttons, { info = info, level = level })
+    end
+    _G.UIDropDownMenu_CreateInfo = function()
+        return {}
+    end
+    _G.UIDROPDOWNMENU_MENU_LEVEL = 1
+    _G.UIDROPDOWNMENU_MENU_VALUE = nil
+    _G.UnitIsPlayer = function()
+        return true
+    end
+    _G.UnitName = function()
+        return "Jaina", nil
+    end
+    _G.GetRealmName = function()
+        return "Theramore"
+    end
+
+    addon:UnitPopup_ShowMenu("PARTY", "target", nil)
+    check("UnitPopup_ShowMenu allows the PARTY target when the party toggle is enabled", #buttons, 1)
+    check("UnitPopup_ShowMenu (PARTY) offers the Add option", buttons[1].info.text, "PPN_POPUP_ADD")
+
+    _G.UnitIsPlayer = nil
+    _G.UnitName = nil
+    _G.GetRealmName = nil
+end
+
+do
+    local addon = freshDropdownAddon()
+    local buttons = {}
+    _G.UIDropDownMenu_AddButton = function(info, level)
+        table.insert(buttons, { info = info, level = level })
+    end
+    _G.UIDropDownMenu_CreateInfo = function()
+        return {}
+    end
+    _G.UIDROPDOWNMENU_MENU_LEVEL = 1
+    _G.UIDROPDOWNMENU_MENU_VALUE = nil
+    _G.UnitIsPlayer = function()
+        return true
+    end
+    _G.UnitName = function()
+        return "Jaina", nil
+    end
+    _G.GetRealmName = function()
+        return "Theramore"
+    end
+
+    addon:UnitPopup_ShowMenu("FRIEND", "target", nil)
+    check("UnitPopup_ShowMenu allows the FRIEND target when friends or chat is enabled", #buttons, 1)
+
+    _G.UnitIsPlayer = nil
+    _G.UnitName = nil
+    _G.GetRealmName = nil
 end
 
 do
@@ -924,6 +1130,7 @@ local function freshModernMenuAddon()
         profile = {
             listedPlayers = {},
             listedPlayer = { id = 1, name = "", realm = "", reason = 1, description = "", color = {}, alert = true },
+            contextMenu = { party = true, friends = true, chat = true },
         },
     }
     addon.AceGUIDefaults = function()
@@ -973,7 +1180,23 @@ do
         type(handlers["MENU_UNIT_ENEMY_PLAYER"]),
         "function"
     )
+    check("DropDownMenuInitialize registers the party unit menu", type(handlers["MENU_UNIT_PARTY"]), "function")
+    check(
+        "DropDownMenuInitialize registers the raid player unit menu",
+        type(handlers["MENU_UNIT_RAID_PLAYER"]),
+        "function"
+    )
     check("DropDownMenuInitialize registers the friend unit menu", type(handlers["MENU_UNIT_FRIEND"]), "function")
+    check(
+        "DropDownMenuInitialize registers the offline friend unit menu",
+        type(handlers["MENU_UNIT_FRIEND_OFFLINE"]),
+        "function"
+    )
+    check(
+        "DropDownMenuInitialize registers the chat roster unit menu",
+        type(handlers["MENU_UNIT_CHAT_ROSTER"]),
+        "function"
+    )
 
     local rootDescription, calls = newFakeRootDescription()
     handlers["MENU_UNIT_PLAYER"](nil, rootDescription, { unit = nil })
@@ -1056,6 +1279,146 @@ end
 _G.UnitIsPlayer = nil
 _G.UnitName = nil
 _G.GetRealmName = nil
+
+-- MENU_UNIT_PARTY / MENU_UNIT_RAID_PLAYER: gated by contextMenu.party -
+-- this is also what covers the Target/Focus frame while it's showing a
+-- group member, since Blizzard tags that the same way as the Party/Raid
+-- frames themselves (see the DropDownMenuInitialize() doc comment).
+do
+    local addon = freshModernMenuAddon()
+    addon.db.profile.contextMenu.party = false
+    local handlers = captureModernMenuHandlers(addon)
+    _G.UnitIsPlayer = function()
+        return true
+    end
+    _G.UnitName = function()
+        return "Jaina", nil
+    end
+    _G.GetRealmName = function()
+        return "Theramore"
+    end
+
+    local rootDescription, calls = newFakeRootDescription()
+    handlers["MENU_UNIT_PARTY"](nil, rootDescription, { unit = "party1" })
+    check("MENU_UNIT_PARTY is a no-op when contextMenu.party is disabled", #calls, 0)
+
+    handlers["MENU_UNIT_RAID_PLAYER"](nil, rootDescription, { unit = "raid1" })
+    check("MENU_UNIT_RAID_PLAYER is a no-op when contextMenu.party is disabled", #calls, 0)
+
+    _G.UnitIsPlayer = nil
+    _G.UnitName = nil
+    _G.GetRealmName = nil
+end
+
+do
+    local addon = freshModernMenuAddon()
+    local handlers = captureModernMenuHandlers(addon)
+    _G.UnitIsPlayer = function()
+        return true
+    end
+    _G.UnitName = function()
+        return "Jaina", nil
+    end
+    _G.GetRealmName = function()
+        return "Theramore"
+    end
+
+    local rootDescription, calls = newFakeRootDescription()
+    handlers["MENU_UNIT_PARTY"](nil, rootDescription, { unit = "party1" })
+    check("MENU_UNIT_PARTY adds the Add button when contextMenu.party is enabled", #calls, 3)
+    check("MENU_UNIT_PARTY's button offers the Add option", calls[3].text, "PPN_POPUP_ADD")
+
+    _G.UnitIsPlayer = nil
+    _G.UnitName = nil
+    _G.GetRealmName = nil
+end
+
+-- MENU_UNIT_FRIEND / MENU_UNIT_FRIEND_OFFLINE: chat player-name clicks and
+-- real Friends list entries share these tags, told apart only via
+-- contextData's chat-specific fields (chatType/chatFrame/lineID).
+do
+    local addon = freshModernMenuAddon()
+    addon.db.profile.contextMenu.friends = false
+    local handlers = captureModernMenuHandlers(addon)
+    _G.UnitIsPlayer = function()
+        return true
+    end
+    _G.UnitName = function()
+        return "Jaina", nil
+    end
+    _G.GetRealmName = function()
+        return "Theramore"
+    end
+
+    local rootDescription, calls = newFakeRootDescription()
+    handlers["MENU_UNIT_FRIEND"](nil, rootDescription, { unit = "target" })
+    check("MENU_UNIT_FRIEND is a no-op when contextMenu.friends is disabled and it's not a chat click", #calls, 0)
+
+    _G.UnitIsPlayer = nil
+    _G.UnitName = nil
+    _G.GetRealmName = nil
+end
+
+do
+    local addon = freshModernMenuAddon()
+    addon.db.profile.contextMenu.friends = false
+    addon.db.profile.contextMenu.chat = true
+    local handlers = captureModernMenuHandlers(addon)
+
+    local rootDescription, calls = newFakeRootDescription()
+    handlers["MENU_UNIT_FRIEND"](nil, rootDescription, { name = "Jaina-Theramore", chatType = "SAY" })
+    check(
+        "MENU_UNIT_FRIEND is allowed for a chat click gated by contextMenu.chat, even with contextMenu.friends disabled",
+        #calls,
+        3
+    )
+    check("The chat-click menu resolves the cross-realm name from contextData.name", calls[3].text, "PPN_POPUP_ADD")
+end
+
+do
+    local addon = freshModernMenuAddon()
+    addon.db.profile.contextMenu.chat = false
+    local handlers = captureModernMenuHandlers(addon)
+
+    local rootDescription, calls = newFakeRootDescription()
+    handlers["MENU_UNIT_FRIEND_OFFLINE"](nil, rootDescription, { name = "Jaina-Theramore", chatType = "SAY" })
+    check("MENU_UNIT_FRIEND_OFFLINE is a no-op for a chat click when contextMenu.chat is disabled", #calls, 0)
+end
+
+do
+    local addon = freshModernMenuAddon()
+    addon.db.profile.contextMenu.chat = false
+    local handlers = captureModernMenuHandlers(addon)
+
+    local rootDescription, calls = newFakeRootDescription()
+    handlers["MENU_UNIT_FRIEND_OFFLINE"](nil, rootDescription, { name = "Jaina-Theramore", friendsList = true })
+    check(
+        "MENU_UNIT_FRIEND_OFFLINE is still allowed for a real Friends list entry when only contextMenu.chat is disabled",
+        #calls,
+        3
+    )
+end
+
+-- MENU_UNIT_CHAT_ROSTER: channel/community/guild roster right-clicks, gated
+-- by contextMenu.chat.
+do
+    local addon = freshModernMenuAddon()
+    addon.db.profile.contextMenu.chat = false
+    local handlers = captureModernMenuHandlers(addon)
+
+    local rootDescription, calls = newFakeRootDescription()
+    handlers["MENU_UNIT_CHAT_ROSTER"](nil, rootDescription, { name = "Jaina-Theramore" })
+    check("MENU_UNIT_CHAT_ROSTER is a no-op when contextMenu.chat is disabled", #calls, 0)
+end
+
+do
+    local addon = freshModernMenuAddon()
+    local handlers = captureModernMenuHandlers(addon)
+
+    local rootDescription, calls = newFakeRootDescription()
+    handlers["MENU_UNIT_CHAT_ROSTER"](nil, rootDescription, { name = "Jaina-Theramore" })
+    check("MENU_UNIT_CHAT_ROSTER adds the Add button when contextMenu.chat is enabled", #calls, 3)
+end
 
 -- ToggleMiniMapIcon / ToggleDebug
 do

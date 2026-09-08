@@ -183,6 +183,24 @@ PersonalPlayerNotes.defaults = {
         icon = "Interface\\AddOns\\" .. personalPlayerNotes .. "\\Images\\icon.png",
         debug = false,
         minimap = { hide = false, minimapPos = 240 },
+        -- Controls which right-click locations show the Add/Edit listed
+        -- player menu entry. All default to true (unchanged behavior for
+        -- existing users). Note that Blizzard tags right-click menus by the
+        -- targeted unit's *relationship* to the player, not by which frame
+        -- was clicked - e.g. right-clicking the Target frame while your
+        -- target is a party member uses the same menu tag as right-clicking
+        -- the Party frame directly, so a single `party` toggle covers both.
+        contextMenu = {
+            -- Party/raid group members - covers the Party/Raid frames, and
+            -- the Target/Focus/nameplate frames whenever they display a
+            -- current group member.
+            party = true,
+            -- Entries in your Friends list (real WoW friends, not BattleTag).
+            friends = true,
+            -- Player names right-clicked in a chat message, or in a
+            -- channel/community/guild roster list.
+            chat = true,
+        },
         alert = {
             delay = 10,
             enabled = true,
@@ -445,6 +463,57 @@ PersonalPlayerNotes.options = {
                         min = 0,
                         max = 360,
                         step = 1,
+                    },
+                },
+            },
+            contextMenu = {
+                name = L["PPN_SETTINGS_CONTEXT_MENU"],
+                order = 2,
+                type = "group",
+                inline = true,
+                get = "GetContextMenu",
+                set = "SetContextMenu",
+                args = {
+                    description = {
+                        type = "description",
+                        order = 0,
+                        name = L["PPN_SETTINGS_CONTEXT_MENU_DESC"],
+                    },
+                    -- See the identical comment above Reasons.args.iconColorAlert:
+                    -- nesting party/friends/chat in their own unnamed inline
+                    -- group forces them onto a single hard row regardless of
+                    -- container width. get/set are inherited from the parent
+                    -- contextMenu group (GetContextMenu/SetContextMenu), which
+                    -- key off info[#info] (the leaf arg name), unaffected by
+                    -- this extra nesting level.
+                    row1 = {
+                        type = "group",
+                        inline = true,
+                        name = "",
+                        order = 1,
+                        args = {
+                            party = {
+                                type = "toggle",
+                                order = 1,
+                                width = 1,
+                                name = L["PPN_SETTINGS_CONTEXT_MENU_PARTY"],
+                                desc = L["PPN_SETTINGS_CONTEXT_MENU_PARTY_DESC"],
+                            },
+                            friends = {
+                                type = "toggle",
+                                order = 2,
+                                width = 1,
+                                name = L["PPN_SETTINGS_CONTEXT_MENU_FRIENDS"],
+                                desc = L["PPN_SETTINGS_CONTEXT_MENU_FRIENDS_DESC"],
+                            },
+                            chat = {
+                                type = "toggle",
+                                order = 3,
+                                width = 1,
+                                name = L["PPN_SETTINGS_CONTEXT_MENU_CHAT"],
+                                desc = L["PPN_SETTINGS_CONTEXT_MENU_CHAT_DESC"],
+                            },
+                        },
                     },
                 },
             },
@@ -715,6 +784,9 @@ PersonalPlayerNotes.options = {
                 width = 2.6,
                 get = "GetReason",
                 set = "SetReason",
+                disabled = function()
+                    return PersonalPlayerNotes.db.profile.reason.id <= #PersonalPlayerNotes.defaults.profile.reasons
+                end,
             },
             -- AceConfigDialog wraps widgets onto a new row purely based on
             -- each widget's pixel width vs. the container's actual pixel
@@ -749,6 +821,10 @@ PersonalPlayerNotes.options = {
                         end,
                         desc = L["PPN_REASON_ICON_DESC"],
                         func = "OpenReasonIconPicker",
+                        disabled = function()
+                            return PersonalPlayerNotes.db.profile.reason.id
+                                <= #PersonalPlayerNotes.defaults.profile.reasons
+                        end,
                     },
                     color = {
                         type = "color",
@@ -758,6 +834,10 @@ PersonalPlayerNotes.options = {
                         hasAlpha = false,
                         get = "GetReasonColor",
                         set = "SetReasonColor",
+                        disabled = function()
+                            return PersonalPlayerNotes.db.profile.reason.id
+                                <= #PersonalPlayerNotes.defaults.profile.reasons
+                        end,
                     },
                     alert = {
                         type = "toggle",
@@ -912,9 +992,6 @@ PersonalPlayerNotes.options = {
                         desc = L["PPN_LISTED_PLAYER_ALERT_ENABLED_DESC"],
                         get = "GetListedPlayerAlert",
                         set = "SetListedPlayerAlert",
-                        disabled = function()
-                            return not PersonalPlayerNotes.db.profile.reasons[PersonalPlayerNotes.db.profile.listedPlayer.reason].alert
-                        end,
                     },
                 },
             },
@@ -941,6 +1018,24 @@ PersonalPlayerNotes.options = {
         },
     },
 }
+
+--#region Context Menu
+
+--[[
+    Generic AceConfig get/set handlers for self.db.profile.contextMenu.*
+    fields (party, friends, chat): the option's arg name (last segment of
+    `info`) is used as the field key, same convention as GetAlert/SetAlert
+    below.
+]]
+function PersonalPlayerNotes:GetContextMenu(info)
+    return self.db.profile.contextMenu[info[#info]]
+end
+
+function PersonalPlayerNotes:SetContextMenu(info, value)
+    self.db.profile.contextMenu[info[#info]] = value
+end
+
+--#endregion
 
 --#region Sound
 
