@@ -16,6 +16,12 @@ local LibDBIcon = LibStub("LibDBIcon-1.0")
 local IS_RETAIL = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE or false
 PersonalPlayerNotes.IsRetail = IS_RETAIL
 
+--[[
+    Renders `icon` (a texture path or fileID) as an inline tooltip icon
+    glyph (WoW's "|T...|t" escape sequence) followed by a trailing space,
+    or an empty string if no icon is set - used to prefix the reason/note
+    lines GameTooltip() adds for a listed player.
+]]
 local function IconPrefix(icon)
     if not icon or icon == "" then
         return ""
@@ -670,18 +676,25 @@ function PersonalPlayerNotes:GameTooltip()
     end
 end
 
+--[[
+    ScheduleTimer callback (see GameTooltip()'s alert.delay handling) that
+    clears a player's alert cooldown once it expires, letting their alert
+    sound play again the next time their tooltip is shown.
+]]
 function PersonalPlayerNotes:AlertDelayTimer(name)
-    -- Called within ScheduleTimer and fires when timer ends.
     PersonalPlayerNotes:PrintDebug("|cffff0000<ALERT>|cffffffff Sound effect is now enabled for player", name)
     PersonalPlayerNotes.db.profile.alert.last[name] = nil
 end
 
+--[[
+    Builds the LibDataBroker-1.1 data object for the minimap launcher icon
+    (see https://github.com/tekkub/libdatabroker-1-1/wiki/How-to-provide-a-dataobject),
+    registered with LibDBIcon-1.0 in OnInitialize(). OnClick routes
+    left/right-click and shift/ctrl-modified left-clicks to the Blizzard
+    options fallback or one of the three custom option windows;
+    OnTooltipShow renders its hover tooltip.
+]]
 function PersonalPlayerNotes:MiniMapIcon()
-    -- Create minimap launcher
-    -- https://github.com/tekkub/libdatabroker-1-1/wiki/How-to-provide-a-dataobject
-    -- OnClick: right-click opens the Blizzard options fallback; left-click
-    -- opens Settings/Reasons/Listed Players depending on shift/ctrl held.
-    -- OnTooltipShow: renders the minimap icon's hover tooltip.
     return LibDataBroker:NewDataObject(personalPlayerNotes, {
         type = "launcher",
         text = L["PPN"],

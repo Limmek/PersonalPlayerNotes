@@ -1363,14 +1363,28 @@ function PersonalPlayerNotes:SetReasonSound(info, value)
     reason.sound = value
 end
 
+--[[
+    Returns the selected reason's icon (bare texture path/fileID string), or
+    "" if it has none set.
+]]
 function PersonalPlayerNotes:GetReasonIcon(info)
     return self.db.profile.reason.icon or ""
 end
 
+--[[
+    Returns the texture to show on the selected reason's icon button,
+    falling back to a placeholder empty-slot texture if it has none set.
+]]
 function PersonalPlayerNotes:GetReasonIconTexture(info)
     return IconButtonTexture(self.db.profile.reason.icon)
 end
 
+--[[
+    Writes the selected reason's icon, syncing both the reason mirror and
+    its backing reasons[] entry, and notifies any open Reasons/Listed
+    Players dialogs to refresh so the new icon shows immediately (see
+    NotifyIconOptionsChanged()).
+]]
 function PersonalPlayerNotes:SetReasonIcon(info, value)
     local icon = NormalizeIconValue(value)
     self.db.profile.reason.icon = icon
@@ -1379,6 +1393,10 @@ function PersonalPlayerNotes:SetReasonIcon(info, value)
     NotifyIconOptionsChanged()
 end
 
+--[[
+    Opens the shared icon picker (OpenIconPicker()) for the selected reason,
+    wiring its selection callback to SetReasonIcon().
+]]
 function PersonalPlayerNotes:OpenReasonIconPicker()
     self:OpenIconPicker(self.db.profile.reason.icon, function(selectedIcon)
         self:SetReasonIcon(nil, selectedIcon)
@@ -1631,14 +1649,28 @@ function PersonalPlayerNotes:SetListedPlayerSound(info, value)
     player.sound = value
 end
 
+--[[
+    Returns the selected player's icon (bare texture path/fileID string), or
+    "" if it has none set.
+]]
 function PersonalPlayerNotes:GetListedPlayerIcon(info)
     return self.db.profile.listedPlayer.icon or ""
 end
 
+--[[
+    Returns the texture to show on the selected player's icon button,
+    falling back to a placeholder empty-slot texture if it has none set.
+]]
 function PersonalPlayerNotes:GetListedPlayerIconTexture(info)
     return IconButtonTexture(self.db.profile.listedPlayer.icon)
 end
 
+--[[
+    Writes the selected player's icon, syncing both the listedPlayer mirror
+    and its backing listedPlayers[] entry, and notifies any open
+    Reasons/Listed Players dialogs to refresh so the new icon shows
+    immediately (see NotifyIconOptionsChanged()).
+]]
 function PersonalPlayerNotes:SetListedPlayerIcon(info, value)
     local icon = NormalizeIconValue(value)
     self.db.profile.listedPlayer.icon = icon
@@ -1649,6 +1681,10 @@ function PersonalPlayerNotes:SetListedPlayerIcon(info, value)
     NotifyIconOptionsChanged()
 end
 
+--[[
+    Opens the shared icon picker (OpenIconPicker()) for the selected player,
+    wiring its selection callback to SetListedPlayerIcon().
+]]
 function PersonalPlayerNotes:OpenListedPlayerIconPicker()
     self:OpenIconPicker(self.db.profile.listedPlayer.icon, function(selectedIcon)
         self:SetListedPlayerIcon(nil, selectedIcon)
