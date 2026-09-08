@@ -1,2 +1,2 @@
-Updated Retail interface version for WoW 12.1.5 compatibility.
+Prepared WoW 12.1.5 Retail compatibility (interface bump ships when patch is live).
 Added settings to control where the Add/Edit Listed Player context menu entry shows up: Party & Raid members, Friends list, and Chat.
