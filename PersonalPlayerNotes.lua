@@ -373,13 +373,10 @@ function PersonalPlayerNotes:ResolveContextDataPlayer(contextData)
 end
 
 --[[
-    True when a MENU_UNIT_FRIEND/MENU_UNIT_FRIEND_OFFLINE contextData came
-    from right-clicking a player name inside a chat message rather than an
-    actual entry in the Friends list - Blizzard funnels both through the
-    same menu tag (see FriendsFrame_ShowDropdown() in FriendsFrame.lua,
-    called with connected=1 unconditionally by the chat player-link handler),
-    the only distinguishing fields being the chat-specific ones only chat
-    clicks set.
+    True when a MENU_UNIT_FRIEND(_OFFLINE) contextData came from a chat
+    player-name click rather than an actual Friends list entry - Blizzard
+    funnels both through the same menu tag, distinguished only by the
+    chat-specific fields that only chat clicks set.
 ]]
 local function IsChatContextData(contextData)
     return contextData.chatType ~= nil or contextData.chatFrame ~= nil or contextData.lineID ~= nil
@@ -388,17 +385,14 @@ end
 --[[
     Registers the modern Menu API (Retail 11.0.0+) unit-menu entries for
     player units, via Menu.ModifyMenu(). Only called from OnEnable() when
-    HasModernMenuAPI() is true. Shares the same "Add"/"Edit" decision logic
-    as the legacy UnitPopup_ShowMenu() fallback below, just driven by a
-    rootDescription:CreateButton() menu instead of UIDropDownMenu_AddButton().
+    HasModernMenuAPI() is true; shares the same Add/Edit logic as the
+    legacy UnitPopup_ShowMenu() fallback below.
 
-    Which menu tags actually fire depends on the *relationship* between the
-    player and the right-clicked unit, not on which frame was clicked (see
-    CompactUnitFrame_OpenMenu()/TargetFrame_OpenMenu() in Blizzard's
-    FrameXML) - e.g. right-clicking the Target frame while your target is a
-    party member fires MENU_UNIT_PARTY, the same tag the Party frame itself
-    uses, which is why a single self.db.profile.contextMenu.party toggle
-    covers both locations.
+    Menu tags fire based on the *relationship* between the player and the
+    right-clicked unit, not the frame clicked - e.g. right-clicking the
+    Target frame while targeting a party member fires MENU_UNIT_PARTY, the
+    same tag the Party frame itself uses, hence one contextMenu.party toggle
+    covers both.
 ]]
 function PersonalPlayerNotes:DropDownMenuInitialize()
     local function BuildMenu(ownerRegion, rootDescription, contextData)
@@ -478,16 +472,14 @@ end
 -- Classic Deprecated
 --[[
     Legacy pre-Menu-API unit-menu handler, SecureHooked onto Blizzard's
-    global UnitPopup_ShowMenu() from OnEnable() when HasModernMenuAPI() is
-    false. Adds an "Add"/submenu entry for the targeted unit at the dropdown
-    root, and an "Edit" button one level down for already-listed players.
+    global UnitPopup_ShowMenu() when HasModernMenuAPI() is false. Adds an
+    Add/submenu entry at the dropdown root, and an Edit button one level
+    down for already-listed players.
 
-    Unlike DropDownMenuInitialize() above, this hooks a single global
-    function called for every menu tag, so the tag ("target" here, e.g.
-    "PARTY"/"FRIEND"/"PLAYER") is checked manually instead of being
-    registered per-tag. Chat-vs-Friends-list can't be told apart on this
-    legacy API (no per-click contextData is available), so contextMenu.chat
-    and contextMenu.friends are treated as one combined toggle here.
+    Unlike DropDownMenuInitialize(), this hooks one global function called
+    for every menu tag, so `target` is checked manually instead of
+    registering per-tag. Chat and Friends-list can't be told apart on this
+    legacy API, so contextMenu.chat/friends are treated as one toggle here.
 ]]
 function PersonalPlayerNotes:UnitPopup_ShowMenu(target, unit, menuList)
     PersonalPlayerNotes:PrintDebug("Unit: ", unit, ", Target: ", target)
@@ -568,14 +560,13 @@ function PersonalPlayerNotes:UnitPopup_ShowMenu(target, unit, menuList)
 end
 
 --[[
-    Tooltip hook body, registered via TooltipDataProcessor.AddTooltipPostCall()
-    or GameTooltip:HookScript("OnTooltipSetUnit", ...) from OnEnable(). Called
-    with the real tooltip frame as `self`. Adds the reason/description lines
-    for a listed player being hovered, and plays an alert sound the first
-    time a player with alerts enabled is seen. Unless alert.sessionOnly is
-    set, an AlertDelayTimer cooldown lets the alert repeat every alert.delay
-    seconds for the same player; with alert.sessionOnly, it only ever plays
-    once per player until /reload or a profile change (see LoadConfig()).
+    Tooltip hook body, registered from OnEnable() via
+    TooltipDataProcessor.AddTooltipPostCall() or GameTooltip's OnTooltipSetUnit
+    script. Called with the real tooltip frame as `self`. Adds reason/note
+    lines for a listed player being hovered, and plays an alert sound the
+    first time one with alerts enabled is seen - repeating every alert.delay
+    seconds unless alert.sessionOnly is set (then only once per session,
+    see LoadConfig()).
 ]]
 function PersonalPlayerNotes:GameTooltip()
     local _name, unit = self:GetUnit()
