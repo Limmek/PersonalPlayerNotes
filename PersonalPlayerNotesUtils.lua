@@ -45,14 +45,10 @@ function PersonalPlayerNotes:HasModernUIReloadAPI()
 end
 
 --[[
-    Patch 12.0.0 (Midnight) introduced "secret values": some unit tokens
-    (e.g. those tied to world cursor tooltips over terrain/world objects) can
-    no longer be inspected by insecure addon code. Passing one to an API like
-    UnitIsPlayer() throws a hard Lua error ("Secret values are only allowed
-    during untainted execution for this argument") instead of just returning
-    a value, so it must be checked for and skipped rather than caught after
-    the fact. issecretvalue() is the client API added to detect this; it may
-    not exist on older clients, hence the feature check.
+    Patch 12.0.0 (Midnight) "secret values" (e.g. world cursor tooltip units)
+    throw a hard Lua error if passed to an API like UnitIsPlayer(), so they
+    must be detected and skipped rather than caught after the fact.
+    issecretvalue() may not exist on older clients, hence the feature check.
     https://warcraft.wiki.gg/wiki/Secret_Values
 ]]
 function PersonalPlayerNotes:IsSecretUnit(unit)
@@ -62,13 +58,9 @@ end
 --[[
     Opens the Blizzard options window to this addon's category, falling back
     to opening the Ace3 config dialog directly on clients without the modern
-    Settings API.
-
-    Settings.OpenToCategory() expects the numeric/category-object ID returned
-    by AceConfigDialog:AddToBlizOptions() (stored in
-    self.blizOptionsCategoryID during OnInitialize), NOT the addon name
-    string - passing the string throws "bad argument #1 to
-    'OpenSettingsPanel' (outside of expected range)" on modern clients.
+    Settings API. Settings.OpenToCategory() needs the numeric category ID
+    from AceConfigDialog:AddToBlizOptions() (self.blizOptionsCategoryID),
+    not the addon name string.
 ]]
 function PersonalPlayerNotes:OpenBlizzardOptions()
     if self:HasModernSettingsAPI() and self.blizOptionsCategoryID then
@@ -108,19 +100,13 @@ function PersonalPlayerNotes:MigrateSavedVariablesSchema()
     end
 
     if fromVersion < 2 then
-        -- alert.sound used to be a 1-4 index into a per-profile alert.sounds
-        -- array; sounds are now selected by filename instead, sourced from
-        -- the global PersonalPlayerNotes.SoundManifest (see
-        -- Sounds/Manifest.lua) rather than stored per-profile. Reset
-        -- everyone to the new default sound rather than trying to map old
-        -- indices to filenames, and drop the now-unused sounds array.
-        -- (Not read from PersonalPlayerNotes.defaults here: this file's own
-        -- unit tests load it in isolation, without PersonalPlayerNotesConfig.lua.)
+        -- alert.sound used to be a 1-4 index into alert.sounds; sounds are
+        -- now selected by filename from PersonalPlayerNotes.SoundManifest
+        -- instead, so reset everyone to the new default and drop the array.
         profile.alert.sound = "default.mp3"
         profile.alert.sounds = nil
-        -- Superseded by alert.customSounds (a list the user can add/remove
-        -- entries from) before this ever shipped, so there's no old value to
-        -- carry over - just make sure both new fields exist.
+        -- customSoundFile was superseded by customSounds before shipping;
+        -- just make sure both new fields exist.
         profile.alert.customSoundFile = nil
         profile.alert.customSounds = profile.alert.customSounds or {}
         profile.alert.newCustomSound = profile.alert.newCustomSound or ""
@@ -134,70 +120,93 @@ end
 --#region Addon metadata
 
 --[[
-    All of the following read a single field from the .toc's metadata via
-    C_AddOns.GetAddOnMetadata(), falling back to L["PPN_NA"] if the field is
-    missing (e.g. an optional .toc field like X-Website wasn't set).
-]]
-
---[[
-    Returns the addon's Version .toc field, wrapped in tostring() since
-    GetAddOnMetadata() can hand back a bare number for numeric-looking
-    version strings.
+    Each of the following reads one .toc metadata field via
+    C_AddOns.GetAddOnMetadata(), falling back to L["PPN_NA"] if unset.
+    GetVersion() wraps the result in tostring() since GetAddOnMetadata() can
+    hand back a bare number for numeric-looking version strings.
 ]]
 function PersonalPlayerNotes:GetVersion()
     return tostring(C_AddOns.GetAddOnMetadata(personalPlayerNotes, "Version")) or L["PPN_NA"]
 end
 
---[[
-    Returns the addon's Title .toc field.
-]]
 function PersonalPlayerNotes:GetTitle()
     return C_AddOns.GetAddOnMetadata(personalPlayerNotes, "Title") or L["PPN_NA"]
 end
 
---[[
-    Returns the addon's Author .toc field.
-]]
 function PersonalPlayerNotes:GetAuthor()
     return C_AddOns.GetAddOnMetadata(personalPlayerNotes, "Author") or L["PPN_NA"]
 end
 
---[[
-    Returns the addon's Notes .toc field.
-]]
 function PersonalPlayerNotes:GetNotes()
     return C_AddOns.GetAddOnMetadata(personalPlayerNotes, "Notes") or L["PPN_NA"]
 end
 
---[[
-    Returns the addon's X-Localizations .toc field.
-]]
 function PersonalPlayerNotes:GetLocalizations()
     return C_AddOns.GetAddOnMetadata(personalPlayerNotes, "X-Localizations") or L["PPN_NA"]
 end
 
---[[
-    Returns the addon's X-Category .toc field.
-]]
 function PersonalPlayerNotes:GetCategory()
     return C_AddOns.GetAddOnMetadata(personalPlayerNotes, "X-Category") or L["PPN_NA"]
 end
 
---[[
-    Returns the addon's X-Website .toc field.
-]]
 function PersonalPlayerNotes:GetWebsite()
     return C_AddOns.GetAddOnMetadata(personalPlayerNotes, "X-Website") or L["PPN_NA"]
 end
 
---[[
-    Returns the addon's X-License .toc field.
-]]
 function PersonalPlayerNotes:GetLicense()
     return C_AddOns.GetAddOnMetadata(personalPlayerNotes, "X-License") or L["PPN_NA"]
 end
 
 --#endregion
+
+-- AceConfigDialog-3.0 uses 170px per `width = 1` unit for a forced-row group
+-- (see DialogWidthForUnits() below). WIDTH_OVERHEAD accounts for the Frame's
+-- own border, ScrollFrame scrollbar gutter, and named-inline-group border
+-- that eat into that content width; WIDTH_SAFETY_MARGIN is an empirical,
+-- in-game-tested correction on top of that (see DIALOG_WIDTH_ADJUSTMENT
+-- below for the one window that needs it added back instead).
+local WIDTH_MULTIPLIER = 170
+local WIDTH_OVERHEAD = 74
+local WIDTH_SAFETY_MARGIN = -9
+
+--[[
+    Converts a forced-row width (in width_multiplier units, see above) into
+    the Frame width needed to show it without wrapping.
+]]
+function PersonalPlayerNotes:DialogWidthForUnits(units)
+    return math.ceil(units * WIDTH_MULTIPLIER + WIDTH_OVERHEAD + WIDTH_SAFETY_MARGIN)
+end
+
+-- Width (in width_multiplier units, see above) of the widest forced row
+-- each option window (keyed by appName) deliberately puts on one line, so
+-- each window gets just enough width for its own content instead of one
+-- blanket width sized for the widest window overall.
+PersonalPlayerNotes.DIALOG_WIDTH_UNITS = {
+    ["PersonalPlayerNotesSettings Options"] = 3,
+    ["PersonalPlayerNotesSettings Reasons"] = 2.5,
+    ["PersonalPlayerNotesSettings Listed_Players"] = 2.5,
+}
+-- Fallback for any appName not listed above.
+PersonalPlayerNotes.DEFAULT_DIALOG_WIDTH_UNITS = 3
+-- Per-appName pixel adjustment on top of DialogWidthForUnits() above, for
+-- windows whose nested sub-rows need more width than the bare formula
+-- gives (in-game tested).
+PersonalPlayerNotes.DIALOG_WIDTH_ADJUSTMENT = {
+    ["PersonalPlayerNotesSettings Options"] = 75,
+}
+-- Generic first-paint width for AceGUIDefaults(), before EnforceDialogWidth()
+-- (which knows the appName) narrows it to the window's real width.
+PersonalPlayerNotes.MIN_DIALOG_WIDTH =
+    PersonalPlayerNotes:DialogWidthForUnits(PersonalPlayerNotes.DEFAULT_DIALOG_WIDTH_UNITS)
+-- Shared min/max height (pixels) for every option window - see
+-- ResizeDialogToContent() below. A window auto-wraps to fit its content
+-- below MAX_DIALOG_HEIGHT, and scrolls instead of growing past it.
+PersonalPlayerNotes.MIN_DIALOG_HEIGHT = 200
+PersonalPlayerNotes.MAX_DIALOG_HEIGHT = 800
+-- Extra headroom on top of the exact-fit height ResizeDialogToContent()
+-- computes - the exact-fit math still left the frame a few pixels too
+-- short in practice, clipping the last row of content.
+local HEIGHT_SAFETY_MARGIN = 12
 
 --[[
     Creates a bare AceGUI-3.0 Frame widget preconfigured the way this addon's
@@ -207,21 +216,24 @@ end
 ]]
 function PersonalPlayerNotes:AceGUIDefaults()
     local aceGUI = LibStub("AceGUI-3.0"):Create("Frame")
-    -- AceGUIContainer-Frame's OnAcquire calls self:Show(), so the frame
-    -- starts out visible. Hide it here, BEFORE registering the OnClose
-    -- callback below: :Hide() fires OnHide -> Fire("OnClose") synchronously,
-    -- and if the release-on-close callback were already registered at that
-    -- point it would immediately release this brand-new widget back into
-    -- AceGUI's pool (silently, since Release() is otherwise a no-op-looking
-    -- call here) before the caller ever gets to configure/show it. A later
-    -- :Release() call on the same stale reference (e.g. a guard-clause that
-    -- closes a previous popup before opening a new one) would then hit
-    -- AceGUI's "Attempt to Release Widget that is already released" error.
+    -- Hide BEFORE registering OnClose: :Hide() fires OnClose synchronously,
+    -- and an already-registered release callback would release this
+    -- brand-new widget before the caller gets to configure/show it.
     aceGUI:Hide()
     aceGUI:SetCallback("OnClose", function(widget)
         aceGUI:Release()
     end)
     aceGUI:SetLayout("Fill")
+    -- Generic first-paint size; EnforceDialogWidth()/ResizeDialogToContent()
+    -- narrow this down to the window's real size right after.
+    local minWidth = PersonalPlayerNotes.MIN_DIALOG_WIDTH
+    local minHeight = PersonalPlayerNotes.MIN_DIALOG_HEIGHT
+    aceGUI:SetWidth(minWidth)
+    if aceGUI.frame.SetResizeBounds then -- WoW 10.0+
+        aceGUI.frame:SetResizeBounds(minWidth, minHeight)
+    else
+        aceGUI.frame:SetMinResize(minWidth, minHeight)
+    end
     aceGUI:SetStatusText(nil)
     aceGUI.statustext:Hide()
     aceGUI.statustext:GetParent():Hide()
@@ -229,25 +241,95 @@ function PersonalPlayerNotes:AceGUIDefaults()
 end
 
 --[[
+    Overwrites AceConfigDialog's own per-appName status table width (and the
+    frame's resize floor) to match this window's own required width (see
+    DIALOG_WIDTH_UNITS/DIALOG_WIDTH_ADJUSTMENT above), then reapplies it.
+    Needed because AceConfigDialog:Open() always reapplies its own
+    remembered status.width via ApplyStatus() (defaulting to 700),
+    overwriting whatever width AceGUIDefaults() set - without this, a
+    window would only ever show its correct width after the user manually
+    resized it. Call this AFTER every AceConfigDialog:Open(appName, frame).
+]]
+function PersonalPlayerNotes:EnforceDialogWidth(appName, frame)
+    local status = AceConfigDialog:GetStatusTable(appName)
+    if not status then
+        return
+    end
+    local units = PersonalPlayerNotes.DIALOG_WIDTH_UNITS[appName] or PersonalPlayerNotes.DEFAULT_DIALOG_WIDTH_UNITS
+    local adjustment = PersonalPlayerNotes.DIALOG_WIDTH_ADJUSTMENT[appName] or 0
+    local width = PersonalPlayerNotes:DialogWidthForUnits(units) + adjustment
+    if frame.frame then
+        if frame.frame.SetResizeBounds then -- WoW 10.0+
+            frame.frame:SetResizeBounds(width, PersonalPlayerNotes.MIN_DIALOG_HEIGHT)
+        else
+            frame.frame:SetMinResize(width, PersonalPlayerNotes.MIN_DIALOG_HEIGHT)
+        end
+    end
+    if status.width ~= width then
+        status.width = width
+        frame:ApplyStatus()
+    end
+end
+
+--[[
+    Resizes frame to exactly fit its content (clamped between
+    MIN_DIALOG_HEIGHT and MAX_DIALOG_HEIGHT), and persists that height into
+    AceConfigDialog's own per-appName status table so it sticks. Call this
+    AFTER every AceConfigDialog:Open(appName, frame)/EnforceDialogWidth().
+
+    Growing to MAX_DIALOG_HEIGHT before measuring (instead of measuring at
+    the frame's current height) forces the ScrollFrame to re-check whether
+    it still needs a scrollbar - it only does that during a layout pass, so
+    without this a window opened once at a too-short height would keep
+    showing a scrollbar forever even after correctly resizing.
+
+    Writing the result into AceConfigDialog:GetStatusTable(appName).height
+    (rather than just SetHeight()) is required because AceConfigDialog's
+    ActivateControl reruns Open() on this same frame on almost every widget
+    interaction (dropdown selects, button clicks, ...), which reapplies
+    status.height and would otherwise snap the window back to its old size.
+]]
+function PersonalPlayerNotes:ResizeDialogToContent(appName, frame)
+    local scrollChild = frame.children and frame.children[1]
+    local content = scrollChild and scrollChild.content
+    if not content then
+        return
+    end
+    frame:SetHeight(PersonalPlayerNotes.MAX_DIALOG_HEIGHT)
+    scrollChild:FixScroll()
+
+    -- 57px is the Frame widget's own title bar/chrome overhead subtracted
+    -- from its height to get its content area (see OnHeightSet in
+    -- AceGUIContainer-Frame.lua). The "Fill" layout stretches the
+    -- ScrollFrame to exactly that content area with 0 extra padding (see
+    -- the "Fill" layout registration in AceGUI-3.0.lua), so
+    -- content height + 57 (+ HEIGHT_SAFETY_MARGIN, see above) is the Frame
+    -- height needed to show it all without scrolling.
+    local desiredHeight = (content:GetHeight() or 0) + 57 + HEIGHT_SAFETY_MARGIN
+    if desiredHeight < PersonalPlayerNotes.MIN_DIALOG_HEIGHT then
+        desiredHeight = PersonalPlayerNotes.MIN_DIALOG_HEIGHT
+    elseif desiredHeight > PersonalPlayerNotes.MAX_DIALOG_HEIGHT then
+        desiredHeight = PersonalPlayerNotes.MAX_DIALOG_HEIGHT
+    end
+    frame:SetHeight(desiredHeight)
+    scrollChild:FixScroll()
+
+    local status = AceConfigDialog:GetStatusTable(appName)
+    if status then
+        status.height = desiredHeight
+    end
+end
+
+--[[
     Opens an AceConfig options table (appName) inside a frame built by
-    AceGUIDefaults() instead of letting AceConfigDialog:Open() create its own
-    bare "Frame" widget - AceConfigDialog's own auto-created frame shows a
-    plain, unstyled (black) status bar strip along the bottom that none of
-    this addon's other windows have; AceGUIDefaults() hides that.
+    AceGUIDefaults(), instead of letting AceConfigDialog:Open() create its
+    own bare Frame widget (which shows an unstyled status bar strip along
+    the bottom that none of this addon's other windows have).
 
-    AceConfigDialog:Open(appName, container) only reuses/de-dupes via its own
-    internal self.OpenFrames[appName] cache when NO container argument is
-    passed - passing one every time (as this addon used to) bypassed that
-    entirely, so every call created a brand new, untracked frame that never
-    got cleaned up (windows stacking endlessly, and :CloseAll() couldn't see
-    them to close them either, since it only walks OpenFrames).
-
-    self.customDialogFrames mirrors that same cache, keyed by appName, so
-    repeat opens reuse the same frame (refeeding it via AceConfigDialog:Open)
-    instead of creating a new one, and the entry is cleared (mirroring
-    AceConfigDialog's own internal FrameOnClose behavior) whenever the frame
-    closes, so a closed/released frame is never handed back to
-    AceConfigDialog:Open() again.
+    self.customDialogFrames caches one frame per appName so repeat opens
+    reuse/refeed the same frame instead of creating a new untracked one
+    each time (AceConfigDialog:Open() only de-dupes frames it created
+    itself). The cache entry is cleared when the frame closes.
 ]]
 function PersonalPlayerNotes:OpenDialog(appName)
     self.customDialogFrames = self.customDialogFrames or {}
@@ -263,6 +345,8 @@ function PersonalPlayerNotes:OpenDialog(appName)
         self.customDialogFrames[appName] = frame
     end
     AceConfigDialog:Open(appName, frame)
+    self:EnforceDialogWidth(appName, frame)
+    self:ResizeDialogToContent(appName, frame)
     frame:Show()
 end
 
@@ -284,22 +368,17 @@ end
 
 --[[
     Re-feeds a dialog previously opened via OpenDialog(), if it's currently
-    open, so option widgets whose displayed value changed elsewhere (e.g.
-    the Reasons/Listed Players "Icon" label after picking a new icon in
-    OpenIconPicker()) refresh immediately instead of only on the next open.
-
-    AceConfigDialog normally handles this itself via
-    AceConfigRegistry:NotifyChange(appName) - it listens for that and
-    refeeds any currently open dialog - but only for frames it tracks in
-    its own self.OpenFrames cache (see OpenDialog()'s comment above); frames
-    passed in as a custom container (ours) are invisible to that mechanism,
-    so callers that call AceConfigRegistry:NotifyChange(appName) need to
-    call this too.
+    open, so option widgets whose displayed value changed elsewhere (e.g. the
+    Icon label after OpenIconPicker()) refresh immediately. AceConfigRegistry's
+    own NotifyChange() auto-refresh only sees frames it tracks itself, not
+    our custom containers, so callers must call this alongside it.
 ]]
 function PersonalPlayerNotes:RefreshDialog(appName)
     local frame = self.customDialogFrames and self.customDialogFrames[appName]
     if frame then
         AceConfigDialog:Open(appName, frame)
+        self:EnforceDialogWidth(appName, frame)
+        self:ResizeDialogToContent(appName, frame)
     end
 end
 

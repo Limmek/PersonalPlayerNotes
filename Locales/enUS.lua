@@ -61,6 +61,18 @@ L["PPN_SETTINGS_MINIMAP_ICON_DESC"] = "Show or hide the minimap icon."
 L["PPN_SETTINGS_MINIMAP_POS"] = "Position"
 L["PPN_SETTINGS_MINIMAP_POS_DESC"] = "Set the position of the minimap icon."
 
+L["PPN_SETTINGS_CONTEXT_MENU"] = "Context Menu"
+L["PPN_SETTINGS_CONTEXT_MENU_DESC"] =
+    "Choose where right-clicking a player shows the Add/Edit Personal Player Notes menu entry."
+L["PPN_SETTINGS_CONTEXT_MENU_PARTY"] = "Party & Raid members"
+L["PPN_SETTINGS_CONTEXT_MENU_PARTY_DESC"] =
+    "Show the menu entry when right-clicking a party or raid member, including the Target/Focus frame while it's showing one."
+L["PPN_SETTINGS_CONTEXT_MENU_FRIENDS"] = "Friends list"
+L["PPN_SETTINGS_CONTEXT_MENU_FRIENDS_DESC"] = "Show the menu entry when right-clicking an entry in your Friends list."
+L["PPN_SETTINGS_CONTEXT_MENU_CHAT"] = "Chat"
+L["PPN_SETTINGS_CONTEXT_MENU_CHAT_DESC"] =
+    "Show the menu entry when right-clicking a player's name in a chat message, or in a channel/community/guild roster."
+
 L["PPN_SETTINGS_ALERT"] = "Alert"
 L["PPN_SETTINGS_ALERT_DESC"] = "Alert when a listed player is found."
 L["PPN_SETTINGS_ALERT_ENABLED"] = "Enabled"
@@ -122,7 +134,7 @@ L["PPN_LISTED_PLAYER_DESCRIPTION"] = "Description"
 L["PPN_LISTED_PLAYER_COLOR"] = "Color"
 L["PPN_LISTED_PLAYER_ALERT_ENABLED"] = "Alert"
 L["PPN_LISTED_PLAYER_ALERT_ENABLED_DESC"] =
-    "Toggle sound effect for a specific player. If a sound effect is disabled on a pre defined reason then this has no effect."
+    "Toggle sound effect for a specific player. Works independently of the reason's alert setting - if either one is enabled, the player alerts, and the player's alert (and sound) takes priority."
 L["PPN_LISTED_PLAYER_SOUND"] = "Sound"
 L["PPN_LISTED_PLAYER_SOUND_DESC"] =
     'Override the alert sound for this specific player. Leave as "Use default" to use the reason\'s (or global) sound. Takes priority over both.'

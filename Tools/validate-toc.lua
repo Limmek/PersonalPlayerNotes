@@ -45,10 +45,9 @@ local function findTocFiles()
     -- io.popen isn't guaranteed everywhere, but is available on the
     -- GitHub Actions runners and typical local dev machines this targets.
     -- Pick the right listing command up front instead of probing with the
-    -- Windows form and falling back on empty output - see the comment in
-    -- Tools/generate-sounds-manifest.lua's findSoundFiles() for why that
-    -- probe can silently produce garbled output on Linux instead of
-    -- failing empty.
+    -- Windows form and falling back on empty output: on Linux, GNU
+    -- coreutils ships its own unrelated `dir` command, so `dir /b <path>`
+    -- can return garbled-but-nonempty output instead of failing empty.
     local isWindows = package.config:sub(1, 1) == "\\"
     local list = isWindows and io.popen('dir /b "' .. repoRoot .. '\\*.toc" 2>nul')
         or io.popen('ls -1 "' .. repoRoot .. '" 2>/dev/null | grep "\\.toc$"')

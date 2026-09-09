@@ -13,14 +13,14 @@ STYLUA     ?= stylua
 LUACHECK   ?= luacheck
 
 LUA_FILES  := PersonalPlayerNotes.lua PersonalPlayerNotesConfig.lua PersonalPlayerNotesUtils.lua \
-              SoundsManifest.lua ChangelogManifest.lua \
+			  ChangelogManifest.lua \
               Tests/test_utils.lua Tests/test_config.lua Tests/test_main.lua Tests/support/bootstrap.lua \
-              Locales/enUS.lua Locales/zhCN.lua Tools/validate-toc.lua Tools/generate-sounds-manifest.lua \
+			  Locales/enUS.lua Locales/zhCN.lua Tools/validate-toc.lua \
               Tools/generate-changelog-manifest.lua
 
 TEST_FILES := Tests/test_utils.lua Tests/test_config.lua Tests/test_main.lua
 
-.PHONY: format format-check lint test validate build check dev clean
+.PHONY: format format-check lint test validate changelog changelog-check build check dev clean
 
 format: ## Format all Lua files in-place with StyLua
 	$(STYLUA) $(LUA_FILES)
@@ -40,12 +40,6 @@ test: ## Run the pure-Lua unit test suite
 validate: ## Validate PersonalPlayerNotes.toc (metadata, referenced files, duplicates)
 	$(LUA) Tools/validate-toc.lua
 
-sounds: ## Regenerate SoundsManifest.lua from the files actually in Sounds/
-	$(LUA) Tools/generate-sounds-manifest.lua
-
-sounds-check: ## Verify SoundsManifest.lua is up to date (same as CI), no write
-	$(LUA) Tools/generate-sounds-manifest.lua --check
-
 changelog: ## Regenerate ChangelogManifest.lua from changelog.txt
 	$(LUA) Tools/generate-changelog-manifest.lua
 
@@ -61,9 +55,9 @@ build: ## Build a local, unsigned addon zip without uploading anywhere (requires
 	fi
 	.release/release.sh -d -p 0 -w 0 -a 0 -m .pkgmeta
 
-check: format-check lint test validate sounds-check changelog-check ## Run every local check (does not build a package)
+check: format-check lint test validate changelog-check ## Run every local check (does not build a package)
 
-dev: ## Run the full local Windows dev pipeline (format, lint, test, validate, sounds-check, build)
+dev: ## Run the full local Windows dev pipeline (format, lint, test, validate, changelog-check, build)
 	powershell -NoProfile -ExecutionPolicy Bypass -File Tools/dev.ps1
 
 clean: ## Remove local build output

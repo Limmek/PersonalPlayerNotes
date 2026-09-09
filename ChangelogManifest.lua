@@ -3,10 +3,4 @@
 -- changelog.txt, then commit the result.
 local personalPlayerNotes = ...
 
-PersonalPlayerNotes.Changelog = "Added an icon picker for Reasons and Listed Players; the chosen icon is shown next to the reason and note in tooltips.\
-Added support for custom icons: place an image file (.blp/.jpg/.jpeg/.png/.tga) in the addon's Images folder, then register its filename in the new settings panel to make it selectable, always shown first in the icon picker.\
-Added support for custom alert sounds: place a sound file (.mp3/.ogg) in the addon's Sounds folder, then register its filename in the settings to make it selectable from every sound dropdown.\
-Added a \"Once per session\" alert option, so a listed player only ever alerts once instead of repeating on a delay.\
-Fixed a bug where removing the last Listed Player could throw a Lua error; the Listed Players list can now be emptied safely.\
-Removed unused/dead code (an unreferenced AceConfigRegistry lookup and an unused alert.time setting) and de-duplicated the Add/Edit Listed Player menu logic shared between the modern and legacy unit menus.\
-Updated TOC interface versions for Retail 12.1.0, Classic Era 1.15.9, Wrath Classic (CN/Titan) 3.8.0.2, TBC Anniversary 2.5.6, and Mists of Pandaria Classic 5.5.4."
+PersonalPlayerNotes.Changelog = "Added settings to control where the Add/Edit Listed Player context menu entry shows up: Party & Raid members, Friends list, and Chat."

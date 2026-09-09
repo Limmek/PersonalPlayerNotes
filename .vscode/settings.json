@@ -8,62 +8,18 @@
 	],
 	"editor.wrappingIndent": "same",
 	"editor.accessibilitySupport": "off",
-	"Lua.diagnostics.enable": true,
-	"Lua.runtime.version": "Lua 5.1",
 	"lua.debug.settings.luaVersion": "lua51",
-	"Lua.completion.callSnippet": "Both",
-	"Lua.diagnostics.disable": [
-		"undefined-field",
-		"unused-local",
-		"missing-fields",
-		"inject-field",
-		"need-check-nil",
-		"duplicate-set-field",
-		"param-type-mismatch",
-		"redundant-parameter",
-		"lowercase-global",
-		"assign-type-mismatch",
-		"invisible"
+	"Lua.workspace.library": [
+		"~\\.vscode\\extensions\\ketho.wow-api-0.22.3\\Annotations\\Core"
 	],
-	"Lua.diagnostics.globals": [
-		"Menu",
-		"StaticPopupDialogs",
-		"StaticPopup_Show",
-		"UIDROPDOWNMENU_MENU_LEVEL",
-		"UIDropDownMenu_AddButton",
-		"TooltipDataProcessor",
-		"Settings",
-		"UIDropDownMenu_CreateInfo",
-		"SettingsPanel",
-		"GameMenuFrame",
-		"UIDROPDOWNMENU_MENU_VALUE",
-		"ShitlistDB",
-		"ReloadUI",
-		"UnitPopup_ShowMenu",
-		"os",
-		"io",
-		"package",
-		"debug",
-		"loadfile",
-		"dofile",
-		"files",
-		"ACCEPT",
-		"CANCEL",
-		"CLOSE",
-		"GameFontHighlight",
-		"GetNumMacroIcons",
-		"GetMacroIconInfo",
-		"PersonalPlayerNotes",
-		"WOW_PROJECT_ID",
-		"WOW_PROJECT_MAINLINE",
-		"LibStub",
-		"GameTooltip",
-		"issecretvalue",
-		"HideUIPanel",
-		"UIParent",
-		"ChatEdit_InsertLink",
-		"ChatFrameUtil"
-	],
+	"chat.tools.terminal.autoApprove": {
+		"lua5.1": true,
+		"/^lua Tools/generate-changelog-manifest\\.lua$/": {
+			"approve": true,
+			"matchCommandLine": true
+		}
+	},
+	"Lua.runtime.version": "Lua 5.1",
 	"Lua.runtime.builtin": {
 		"basic": "disable",
 		"debug": "disable",
@@ -75,18 +31,8 @@
 		"table": "disable",
 		"utf8": "disable"
 	},
-	"Lua.workspace.library": [
-		"~\\.vscode\\extensions\\ketho.wow-api-0.22.3\\Annotations\\Core"
+	"Lua.diagnostics.globals": [
+		"ACCEPT",
+		"CANCEL"
 	],
-	"chat.tools.terminal.autoApprove": {
-		"lua5.1": true,
-		"/^lua Tools/generate-changelog-manifest\\.lua$/": {
-			"approve": true,
-			"matchCommandLine": true
-		},
-		"/^lua Tools/validate-toc\\.lua|lua Tools/generate-sounds-manifest\\.lua; lua Tools/generate-changelog-manifest\\.lua$/": {
-			"approve": true,
-			"matchCommandLine": true
-		}
-	},
 }

@@ -24,7 +24,9 @@ All checks below run in [workflows/ci.yml](workflows/ci.yml) on every push and p
 | `make check`          | Runs `format-check`, `lint`, `test`, and `validate` together             |
 | `make dev`            | Runs the full Windows-friendly PowerShell pipeline in [Tools/dev.ps1](../Tools/dev.ps1) |
 
-On Windows, use [Tools/dev.ps1](../Tools/dev.ps1) for a single end-to-end pipeline that formats, lints, runs the Lua 5.1 tests, validates the TOC, checks `SoundsManifest.lua`, and does a dry-run build. It expects StyLua, Luacheck, Lua 5.1, Git Bash (for the packager's `release.sh`), 7-Zip (`7z.exe`), and a Subversion CLI (`svn.exe`) to be available locally.
+On Windows, use [Tools/dev.ps1](../Tools/dev.ps1) for a single end-to-end pipeline that formats, lints, runs the Lua 5.1 tests, validates the TOC, checks `ChangelogManifest.lua`, and does a dry-run build. It expects StyLua, Luacheck, Lua 5.1, Git Bash (for the packager's `release.sh`), 7-Zip (`7z.exe`), and a Subversion CLI (`svn.exe`) to be available locally.
+
+The built-in alert-sound list is intentionally hardcoded in [PersonalPlayerNotesConfig.lua](../PersonalPlayerNotesConfig.lua) (starting with `default.mp3`), so there is no generated sounds manifest workflow anymore.
 
 Equivalent raw commands (if you don't have `make`, e.g. on plain Windows without Git Bash/WSL):
 ```sh

@@ -2,16 +2,18 @@ local personalPlayerNotes = ...
 local L = LibStub("AceLocale-3.0"):GetLocale(personalPlayerNotes, true)
 local AceConfigRegistry = LibStub("AceConfigRegistry-3.0", true)
 
+-- Shipped/default sounds are intentionally hardcoded so they always remain
+-- selectable regardless of external manifest generation.
+PersonalPlayerNotes.SoundManifest = {
+    "default.mp3",
+}
+
 --[[
-    Builds the `values` table for an alert-sound-selection dropdown: every
-    filename in PersonalPlayerNotes.SoundManifest (the sounds shipped with
-    the addon, regenerated from Sounds/ by Tools/generate-sounds-manifest.lua
-    - see SoundsManifest.lua), plus every filename the user has added
-    themselves via AddCustomSound() (self.db.profile.alert.customSounds).
-    When includeInherit is true (used by the Reasons/ListedPlayers dropdowns,
-    not the global one), an extra "__inherit__" entry is prepended for "use
-    the level above's sound"; Get/SetReasonSound() and
-    Get/SetListedPlayerSound() map that sentinel to/from a nil `sound` field.
+    Builds the `values` table for an alert-sound-selection dropdown: shipped
+    sounds (SoundManifest) plus user-added ones (alert.customSounds). When
+    includeInherit is true (Reasons/ListedPlayers dropdowns only), an extra
+    "__inherit__" entry means "use the level above's sound" - see
+    Get/SetReasonSound()/Get/SetListedPlayerSound().
 ]]
 local function AlertSoundChoices(includeInherit)
     local choices = {}
@@ -58,12 +60,10 @@ local function IconButtonTexture(icon)
 end
 
 --[[
-    Builds the full texture path for a custom icon filename the user has
-    added themselves via AddCustomIcon() (self.db.profile.customIcons) - the
-    file itself must be manually dropped into this addon's Images/ folder
-    by the user, since the sandboxed WoW client can't list a directory at
-    runtime to discover it on its own (same constraint as custom alert
-    sounds, see AlertSoundChoices() above).
+    Builds the full texture path for a user-added custom icon filename (see
+    AddCustomIcon()) - the file itself must be manually dropped into this
+    addon's Images/ folder, since WoW can't list a directory at runtime to
+    discover it on its own.
 ]]
 local function CustomIconTexture(filename)
     return "Interface\\AddOns\\" .. personalPlayerNotes .. "\\Images\\" .. filename
@@ -74,10 +74,8 @@ local function NotifyIconOptionsChanged()
         AceConfigRegistry:NotifyChange("PersonalPlayerNotesSettings Reasons")
         AceConfigRegistry:NotifyChange("PersonalPlayerNotesSettings Listed_Players")
     end
-    -- AceConfigRegistry:NotifyChange() only auto-refreshes dialogs
-    -- AceConfigDialog opened itself; ours are opened via OpenDialog() with
-    -- a custom container, which that mechanism can't see - see
-    -- RefreshDialog()'s comment in PersonalPlayerNotesUtils.lua.
+    -- NotifyChange() only refreshes dialogs AceConfigDialog opened itself;
+    -- ours use a custom container (see RefreshDialog() in Utils.lua).
     PersonalPlayerNotes:RefreshDialog("PersonalPlayerNotesSettings Reasons")
     PersonalPlayerNotes:RefreshDialog("PersonalPlayerNotesSettings Listed_Players")
 end
@@ -142,15 +140,10 @@ local function CollectAvailableIcons()
 end
 
 --[[
-    Registers "PPNIconLabel", a small custom AceGUI widget used for the
-    Reasons/Listed Players "Icon" option below (dialogControl). It's just
-    AceGUI's own "InteractiveLabel" (a bare clickable label with no button
-    skin/border - see OpenIconPicker's comment for why that's used instead
-    of the default "Button" widget) with its font swapped from Label's
-    default GameFontHighlightSmall to GameFontHighlight, matching the font
-    AceGUI's ColorPicker/CheckBox widgets use for their own label text
-    ("Select a color"/"Alert") - without this, "Icon" rendered visibly
-    smaller than the color/alert labels right next to it.
+    Registers "PPNIconLabel" - AceGUI's "InteractiveLabel" (a bare clickable
+    label, used for the Reasons/Listed Players "Icon" option) with its font
+    swapped to GameFontHighlight to match the size of the ColorPicker/
+    CheckBox labels next to it.
 ]]
 do
     local AceGUI = LibStub("AceGUI-3.0")
@@ -158,10 +151,9 @@ do
     local function Constructor()
         local widget = AceGUI:Create("InteractiveLabel")
         widget.type = Type
-        -- InteractiveLabel's OnAcquire (Label's own OnAcquire, called via
-        -- AceGUI:Create() above) resets the font to GameFontHighlightSmall
-        -- on every acquire (including pooled reuse), so the font override
-        -- has to happen *inside* OnAcquire, not just once here.
+        -- The font must be set inside OnAcquire, not just once here, since
+        -- OnAcquire itself resets it back to GameFontHighlightSmall on
+        -- every acquire (including pooled reuse).
         local baseOnAcquire = widget.OnAcquire
         widget.OnAcquire = function(self)
             baseOnAcquire(self)
@@ -178,43 +170,38 @@ PersonalPlayerNotes.defaults = {
         icon = "Interface\\AddOns\\" .. personalPlayerNotes .. "\\Images\\icon.png",
         debug = false,
         minimap = { hide = false, minimapPos = 240 },
+        -- Controls which right-click locations show the Add/Edit menu
+        -- entry. Blizzard tags menus by the unit's *relationship* to the
+        -- player, not by frame, so e.g. `party` also covers the Target/
+        -- Focus/nameplate frames whenever they show a group member.
+        contextMenu = {
+            party = true, -- Party/raid group members.
+            friends = true, -- Friends list entries.
+            chat = true, -- Chat player-name links and channel/guild rosters.
+        },
         alert = {
             delay = 10,
             enabled = true,
-            -- When true, an alert only ever plays once per listed player for
-            -- the whole session (cleared on /reload or profile change, see
-            -- LoadConfig()); when false (default), it repeats every time
-            -- `delay` seconds have passed since the last alert for them.
+            -- true: alert plays once per player per session (cleared on
+            -- /reload or profile change). false: repeats every `delay`
+            -- seconds since the last alert for them.
             sessionOnly = false,
-            -- Filename (with extension) of the global alert sound, resolved
-            -- from PersonalPlayerNotes.SoundManifest (see SoundsManifest.lua)
-            -- or from the user's own customSounds below. Reasons/listedPlayers
-            -- may set their own `sound` field to override this; nil there
-            -- means "inherit".
+            -- Global sound filename; Reasons/listedPlayers may override
+            -- this with their own `sound` field (nil there means inherit).
             sound = "default.mp3",
-            -- Filenames the user has added themselves via AddCustomSound();
-            -- these show up as real entries in every sound dropdown
-            -- alongside PersonalPlayerNotes.SoundManifest.
+            -- User-added sounds (see AddCustomSound()), shown alongside
+            -- SoundManifest in every sound dropdown.
             customSounds = {},
-            -- Scratch field for the "add a custom sound" text input.
-            newCustomSound = "",
+            newCustomSound = "", -- Scratch field for the "add sound" input.
             last = {},
         },
-        -- Filenames the user has added themselves via AddCustomIcon() (see
-        -- Settings.args.icons below) - the actual image files must be
-        -- dropped into this addon's Images/ folder manually by the user
-        -- (the same folder the addon's own icon.png ships in), the same
-        -- way custom alert sounds work (see alert.customSounds above).
-        -- Kept at the profile's top level (not nested under `alert`, and
-        -- not under Reasons/Listed Players) since icons are a shared
-        -- resource selectable from both, managed from its own settings
-        -- panel instead of bloating either editor form.
+        -- User-added custom icon filenames (see AddCustomIcon()); files
+        -- must be dropped into Images/ manually, same as custom sounds.
+        -- Kept at the top level (not under Reasons/Listed Players) since
+        -- icons are a shared resource managed from their own settings panel.
         customIcons = {},
-        -- Scratch field for the "add a custom icon" text input.
-        newCustomIcon = "",
-        -- Scratch field: which customIcons[] entry is selected in the Custom
-        -- Icons panel's list, i.e. the target for the Remove button there.
-        customIconSelected = "",
+        newCustomIcon = "", -- Scratch field for the "add icon" input.
+        customIconSelected = "", -- Selected entry in the Custom Icons list.
         reasons = {
             { id = 1, reason = L["PPN_DEFAULT_REASON"], color = { r = 1, g = 1, b = 1 }, alert = false, icon = nil },
         },
@@ -440,6 +427,57 @@ PersonalPlayerNotes.options = {
                         min = 0,
                         max = 360,
                         step = 1,
+                    },
+                },
+            },
+            contextMenu = {
+                name = L["PPN_SETTINGS_CONTEXT_MENU"],
+                order = 2,
+                type = "group",
+                inline = true,
+                get = "GetContextMenu",
+                set = "SetContextMenu",
+                args = {
+                    description = {
+                        type = "description",
+                        order = 0,
+                        name = L["PPN_SETTINGS_CONTEXT_MENU_DESC"],
+                    },
+                    -- See the identical comment above Reasons.args.iconColorAlert:
+                    -- nesting party/friends/chat in their own unnamed inline
+                    -- group forces them onto a single hard row regardless of
+                    -- container width. get/set are inherited from the parent
+                    -- contextMenu group (GetContextMenu/SetContextMenu), which
+                    -- key off info[#info] (the leaf arg name), unaffected by
+                    -- this extra nesting level.
+                    row1 = {
+                        type = "group",
+                        inline = true,
+                        name = "",
+                        order = 1,
+                        args = {
+                            party = {
+                                type = "toggle",
+                                order = 1,
+                                width = 1,
+                                name = L["PPN_SETTINGS_CONTEXT_MENU_PARTY"],
+                                desc = L["PPN_SETTINGS_CONTEXT_MENU_PARTY_DESC"],
+                            },
+                            friends = {
+                                type = "toggle",
+                                order = 2,
+                                width = 1,
+                                name = L["PPN_SETTINGS_CONTEXT_MENU_FRIENDS"],
+                                desc = L["PPN_SETTINGS_CONTEXT_MENU_FRIENDS_DESC"],
+                            },
+                            chat = {
+                                type = "toggle",
+                                order = 3,
+                                width = 1,
+                                name = L["PPN_SETTINGS_CONTEXT_MENU_CHAT"],
+                                desc = L["PPN_SETTINGS_CONTEXT_MENU_CHAT_DESC"],
+                            },
+                        },
                     },
                 },
             },
@@ -710,17 +748,15 @@ PersonalPlayerNotes.options = {
                 width = 2.6,
                 get = "GetReason",
                 set = "SetReason",
+                disabled = function()
+                    return PersonalPlayerNotes.db.profile.reason.id <= #PersonalPlayerNotes.defaults.profile.reasons
+                end,
             },
-            -- AceConfigDialog wraps widgets onto a new row purely based on
-            -- each widget's pixel width vs. the container's actual pixel
-            -- width (see width_multiplier in AceConfigDialog-3.0.lua) - that
-            -- differs between the Blizzard options panel (wide) and the
-            -- standalone AceGUI window (narrower). Nesting the icon/color/
-            -- alert trio in its own unnamed inline group (renders as a
-            -- plain, borderless SimpleGroup - see FeedOptions() in
-            -- AceConfigDialog-3.0.lua) forces them onto a single hard row
-            -- regardless of the container's width (same trick used by
-            -- Settings.args.alert.args.row1/row2/row3 above).
+            -- Nesting icon/color/alert in their own unnamed inline group
+            -- (a borderless SimpleGroup) forces them onto one row regardless
+            -- of container width, since AceConfigDialog otherwise wraps
+            -- rows based on pixel width, which differs between the
+            -- Blizzard options panel and the standalone AceGUI window.
             iconColorAlert = {
                 type = "group",
                 inline = true,
@@ -744,6 +780,10 @@ PersonalPlayerNotes.options = {
                         end,
                         desc = L["PPN_REASON_ICON_DESC"],
                         func = "OpenReasonIconPicker",
+                        disabled = function()
+                            return PersonalPlayerNotes.db.profile.reason.id
+                                <= #PersonalPlayerNotes.defaults.profile.reasons
+                        end,
                     },
                     color = {
                         type = "color",
@@ -753,6 +793,10 @@ PersonalPlayerNotes.options = {
                         hasAlpha = false,
                         get = "GetReasonColor",
                         set = "SetReasonColor",
+                        disabled = function()
+                            return PersonalPlayerNotes.db.profile.reason.id
+                                <= #PersonalPlayerNotes.defaults.profile.reasons
+                        end,
                     },
                     alert = {
                         type = "toggle",
@@ -863,9 +907,7 @@ PersonalPlayerNotes.options = {
                 get = "GetListedPlayerSelectedDescription",
                 set = "SetListedPlayerSelectedDescription",
             },
-            -- See the identical comment above Reasons.args.iconColorAlert:
-            -- nesting icon/color/alert in their own unnamed inline group
-            -- forces them onto a single hard row regardless of container width.
+            -- Same row-forcing trick as Reasons.args.iconColorAlert above.
             iconColorAlert = {
                 type = "group",
                 inline = true,
@@ -907,9 +949,6 @@ PersonalPlayerNotes.options = {
                         desc = L["PPN_LISTED_PLAYER_ALERT_ENABLED_DESC"],
                         get = "GetListedPlayerAlert",
                         set = "SetListedPlayerAlert",
-                        disabled = function()
-                            return not PersonalPlayerNotes.db.profile.reasons[PersonalPlayerNotes.db.profile.listedPlayer.reason].alert
-                        end,
                     },
                 },
             },
@@ -936,6 +975,24 @@ PersonalPlayerNotes.options = {
         },
     },
 }
+
+--#region Context Menu
+
+--[[
+    Generic AceConfig get/set handlers for self.db.profile.contextMenu.*
+    fields (party, friends, chat): the option's arg name (last segment of
+    `info`) is used as the field key, same convention as GetAlert/SetAlert
+    below.
+]]
+function PersonalPlayerNotes:GetContextMenu(info)
+    return self.db.profile.contextMenu[info[#info]]
+end
+
+function PersonalPlayerNotes:SetContextMenu(info, value)
+    self.db.profile.contextMenu[info[#info]] = value
+end
+
+--#endregion
 
 --#region Sound
 
@@ -1002,14 +1059,9 @@ function PersonalPlayerNotes:IsCustomSound(sound)
 end
 
 --[[
-    Adds the filename currently typed into alert.newCustomSound as a new
-    selectable sound - it then shows up in every sound dropdown alongside
-    PersonalPlayerNotes.SoundManifest - and clears the input. Called by
-    options.Settings.args.alert.args.newCustomSound's own `set` handler,
-    which stores the typed value first, so this runs whenever the input is
-    confirmed (Enter or its built-in accept button). No-ops for a
-    blank/whitespace-only name, or one that's already available (either
-    shipped or already added).
+    Adds the typed alert.newCustomSound filename as a new selectable sound
+    and clears the input. No-ops for a blank name or one already available
+    (shipped or already added).
 ]]
 function PersonalPlayerNotes:AddCustomSound()
     local name = (self.db.profile.alert.newCustomSound or ""):match("^%s*(.-)%s*$")
@@ -1263,14 +1315,28 @@ function PersonalPlayerNotes:SetReasonSound(info, value)
     reason.sound = value
 end
 
+--[[
+    Returns the selected reason's icon (bare texture path/fileID string), or
+    "" if it has none set.
+]]
 function PersonalPlayerNotes:GetReasonIcon(info)
     return self.db.profile.reason.icon or ""
 end
 
+--[[
+    Returns the texture to show on the selected reason's icon button,
+    falling back to a placeholder empty-slot texture if it has none set.
+]]
 function PersonalPlayerNotes:GetReasonIconTexture(info)
     return IconButtonTexture(self.db.profile.reason.icon)
 end
 
+--[[
+    Writes the selected reason's icon, syncing both the reason mirror and
+    its backing reasons[] entry, and notifies any open Reasons/Listed
+    Players dialogs to refresh so the new icon shows immediately (see
+    NotifyIconOptionsChanged()).
+]]
 function PersonalPlayerNotes:SetReasonIcon(info, value)
     local icon = NormalizeIconValue(value)
     self.db.profile.reason.icon = icon
@@ -1279,6 +1345,10 @@ function PersonalPlayerNotes:SetReasonIcon(info, value)
     NotifyIconOptionsChanged()
 end
 
+--[[
+    Opens the shared icon picker (OpenIconPicker()) for the selected reason,
+    wiring its selection callback to SetReasonIcon().
+]]
 function PersonalPlayerNotes:OpenReasonIconPicker()
     self:OpenIconPicker(self.db.profile.reason.icon, function(selectedIcon)
         self:SetReasonIcon(nil, selectedIcon)
@@ -1531,14 +1601,28 @@ function PersonalPlayerNotes:SetListedPlayerSound(info, value)
     player.sound = value
 end
 
+--[[
+    Returns the selected player's icon (bare texture path/fileID string), or
+    "" if it has none set.
+]]
 function PersonalPlayerNotes:GetListedPlayerIcon(info)
     return self.db.profile.listedPlayer.icon or ""
 end
 
+--[[
+    Returns the texture to show on the selected player's icon button,
+    falling back to a placeholder empty-slot texture if it has none set.
+]]
 function PersonalPlayerNotes:GetListedPlayerIconTexture(info)
     return IconButtonTexture(self.db.profile.listedPlayer.icon)
 end
 
+--[[
+    Writes the selected player's icon, syncing both the listedPlayer mirror
+    and its backing listedPlayers[] entry, and notifies any open
+    Reasons/Listed Players dialogs to refresh so the new icon shows
+    immediately (see NotifyIconOptionsChanged()).
+]]
 function PersonalPlayerNotes:SetListedPlayerIcon(info, value)
     local icon = NormalizeIconValue(value)
     self.db.profile.listedPlayer.icon = icon
@@ -1549,6 +1633,10 @@ function PersonalPlayerNotes:SetListedPlayerIcon(info, value)
     NotifyIconOptionsChanged()
 end
 
+--[[
+    Opens the shared icon picker (OpenIconPicker()) for the selected player,
+    wiring its selection callback to SetListedPlayerIcon().
+]]
 function PersonalPlayerNotes:OpenListedPlayerIconPicker()
     self:OpenIconPicker(self.db.profile.listedPlayer.icon, function(selectedIcon)
         self:SetListedPlayerIcon(nil, selectedIcon)
@@ -1556,33 +1644,18 @@ function PersonalPlayerNotes:OpenListedPlayerIconPicker()
 end
 
 --[[
-    Builds (or rebuilds) the icon-picker popup and shows it, populated with
-    every icon CollectAvailableIcons() finds, plus a "None"/"Close" button
-    row below the grid. Clicking an icon or the None button calls
-    `onSelect(icon)` (icon is nil for "None") and closes the popup; Close
-    dismisses the popup without changing the current selection.
+    Builds (or rebuilds) and shows the icon-picker popup: a Frame
+    (AceGUIDefaults()) holding a Flow grid of Icon widgets, plus a
+    "None"/"Close" button row. Clicking an icon or "None" calls
+    `onSelect(icon)` (nil for "None") and closes the popup.
 
-    Built entirely out of AceGUI-3.0 widgets - a "Frame" container (created
-    via AceGUIDefaults(), the exact same helper SelectListedPlayerAndOpenDialog()
-    and the minimap icon's menu use to open every other window this addon
-    shows) holding a dense "Flow" grid of "Icon" widgets, styled to match
-    Blizzard's own macro icon picker - so its border/background/title bar
-    are pixel-identical to the addon's other AceConfigDialog windows instead
-    of a hand-built CreateFrame popup.
-
-    CollectAvailableIcons() can return several hundred macro icons, and WoW
-    aborts a single Lua execution with a "script ran too long" error if it
-    creates too many frames/widgets in one go (exactly what happened when
-    every icon got its own AceGUI "Icon" widget in a single click handler).
-    So instead of a real AceGUI "ScrollFrame" (which would need one widget
-    per icon to get a real scrollbar), this builds a small FIXED pool of
-    `columns * rows` "Icon" widgets once and reuses them for the picker's
-    entire lifetime - a real WoW UI scrollbar (same "UIPanelScrollBarTemplate"
-    AceGUI's own ScrollFrame uses) just changes which row of icons.data the
-    pool currently displays, reassigning each slot's texture (SetImage)
-    instead of creating/destroying widgets. This is the same "virtualized
-    list" technique Blizzard's own HybridScrollFrame uses for its long
-    scrolling lists.
+    CollectAvailableIcons() can return several hundred icons, and WoW aborts
+    a script that creates too many frames/widgets in one go ("script ran
+    too long"). So instead of one AceGUI Icon widget per icon, this builds a
+    small FIXED pool of `columns * rows` widgets and reuses them for the
+    picker's whole lifetime, with a real scrollbar just changing which row
+    of icons.data the pool currently displays (same virtualized-list
+    technique as Blizzard's HybridScrollFrame).
 ]]
 function PersonalPlayerNotes:OpenIconPicker(currentIcon, onSelect)
     if self.iconPickerFrame then
@@ -1595,22 +1668,17 @@ function PersonalPlayerNotes:OpenIconPicker(currentIcon, onSelect)
 
     local icons = CollectAvailableIcons()
 
-    -- Sized so the pool's tiles (40x38 each, see below) fill the picker's
-    -- content area with as little unused space as possible, while still
-    -- leaving enough room below the grid for the None/Close button row
-    -- without it (or the button row) overlapping the frame's own built-in
-    -- bottom-right Close button.
+    -- Sized to fill the picker's content area while leaving room below
+    -- the grid for the None/Close button row.
     local columns = 8
     local rows = 8
     local poolSize = columns * rows
     local totalRows = math.max(1, math.ceil(#icons / columns))
     local maxTopRow = math.max(0, totalRows - rows)
 
-    -- Always open scrolled to the very top, never auto-jump to the row
-    -- containing the current selection - custom icons (see
-    -- CollectAvailableIcons()) are always placed first in `icons`, so this
-    -- guarantees they're always the first thing shown, on every open,
-    -- regardless of what's currently selected.
+    -- Always opens scrolled to the top (custom icons are always first in
+    -- `icons`, see CollectAvailableIcons()), never auto-jumps to the
+    -- current selection.
     local topRow = 0
 
     local picker = self:AceGUIDefaults()
@@ -1618,22 +1686,14 @@ function PersonalPlayerNotes:OpenIconPicker(currentIcon, onSelect)
     picker:SetWidth(400)
     picker:SetHeight(405)
     picker:SetLayout("List")
-    -- Fixed-size popup (like Blizzard's own macro icon picker) - letting it
-    -- be resized just introduces dead space around the fixed-size pool of
-    -- icon tiles below, since they don't reflow to fill a bigger window.
+    -- Fixed-size popup - resizing would just leave dead space since the
+    -- fixed pool of icon tiles below doesn't reflow to fill it.
     picker:EnableResize(false)
 
-    -- Every AceGUI "Frame" always builds its own bottom-right Close button
-    -- (see AceGUIContainer-Frame.lua's Constructor) and there's no public
-    -- method to remove or hide it, since it isn't stored anywhere on the
-    -- widget table. With our own None/Close row now below the grid, that
-    -- built-in button is redundant and, no matter how much clearance is
-    -- left above it, still visibly peeks out at the bottom of the fixed-
-    -- size popup. Find it directly (the only "Button"-type direct child of
-    -- the frame with the localized CLOSE text) and hide it, restoring it
-    -- on close/release so the SAME pooled widget object still shows its
-    -- Close button normally if AceGUI later reuses it for a different
-    -- "Frame" (e.g. the Reasons/Listed Players dialogs via OpenDialog()).
+    -- Every AceGUI "Frame" builds its own built-in Close button with no
+    -- public way to remove it, and it's redundant/visibly peeks out now
+    -- that there's a dedicated None/Close row. Find and hide it, restoring
+    -- it on close so a reused pooled Frame still has its own Close button.
     local builtinCloseButton
     for _, child in ipairs({ picker.frame:GetChildren() }) do
         if child.GetObjectType and child:GetObjectType() == "Button" and child.GetText and child:GetText() == CLOSE then
@@ -1645,20 +1705,15 @@ function PersonalPlayerNotes:OpenIconPicker(currentIcon, onSelect)
         builtinCloseButton:Hide()
     end
 
-    -- Forward-declared so the OnClose handler below (registered before
-    -- either of these is actually created) can reach them via closure -
-    -- see the handler's own comment for why they need cleaning up here.
+    -- Forward-declared so the OnClose handler below can reach them via
+    -- closure to clean them up (see that handler's comment).
     local scrollbar
     local pool = {}
 
-    -- AceGUIDefaults() wires a default OnClose that just Releases the
-    -- widget; override it here so self.iconPickerFrame is always cleared
-    -- when the frame closes, no matter how it closes (X button, Hide(),
-    -- or SelectIcon() below). Without this, closing via the X button left
-    -- self.iconPickerFrame pointing at an already-released/pooled widget,
-    -- and the guard-clause above would then try to Release it a second
-    -- time, triggering "Attempt to Release Widget that is already
-    -- released".
+    -- Overrides AceGUIDefaults()'s default OnClose (which just Releases)
+    -- so self.iconPickerFrame is always cleared, however the frame closes -
+    -- otherwise a stale reference could get Release()'d a second time,
+    -- throwing "Attempt to Release Widget that is already released".
     picker:SetCallback("OnClose", function(widget)
         if self.iconPickerFrame == widget then
             self.iconPickerFrame = nil
@@ -1666,19 +1721,10 @@ function PersonalPlayerNotes:OpenIconPicker(currentIcon, onSelect)
         if builtinCloseButton then
             builtinCloseButton:Show()
         end
-        -- `scrollbar` (+ its scrollbg texture child) and every pooled
-        -- icon's `selectedBorder` are plain CreateFrame() frames, not
-        -- AceGUI widgets - AceGUI:Release() (triggered by widget:Release()
-        -- below) only knows how to reset/reparent the AceGUI widgets
-        -- themselves (this Frame, its "SimpleGroup" viewport, the pooled
-        -- "Icon" widgets), not arbitrary raw frames we parented onto them.
-        -- Those widgets go back into AceGUI's shared per-type pools and can
-        -- get handed to a COMPLETELY different dialog next - without this,
-        -- the leftover scrollbar/selectedBorder frames (still parented to,
-        -- and positioned relative to, the recycled widget's frame) would
-        -- silently reappear as stray artifacts in that other dialog.
-        -- Reparenting them to UIParent and hiding them fully detaches them
-        -- so they never tag along with a reused widget again.
+        -- scrollbar/selectedBorder are plain CreateFrame() frames, not
+        -- AceGUI widgets, so Release() below won't clean them up - detach
+        -- them here so they don't tag along if AceGUI hands this pooled
+        -- widget to a different dialog next.
         if scrollbar then
             scrollbar:ClearAllPoints()
             scrollbar:SetParent(UIParent)
@@ -1709,11 +1755,9 @@ function PersonalPlayerNotes:OpenIconPicker(currentIcon, onSelect)
     viewport:SetHeight(304)
     picker:AddChild(viewport)
 
-    -- A dedicated button row instead of folding "None" into the grid as a
-    -- blank first tile: the picker frame always has its own built-in
-    -- bottom-right Close button (see AceGUIContainer-Frame.lua), and a
-    -- fixed-size grid tall enough to fill the window ended up rendering
-    -- underneath it. Explicit buttons here stay safely above that area.
+    -- Dedicated button row instead of a blank "None" tile in the grid,
+    -- since a grid tall enough to fill the window rendered underneath the
+    -- frame's built-in Close button.
     local buttonRow = AceGUI:Create("SimpleGroup")
     buttonRow:SetLayout("Flow")
     buttonRow:SetWidth(325)
@@ -1736,10 +1780,9 @@ function PersonalPlayerNotes:OpenIconPicker(currentIcon, onSelect)
     end)
     buttonRow:AddChild(closeButton)
 
-    -- Real WoW UI scrollbar, styled/positioned exactly like the one AceGUI's
-    -- own "ScrollFrame" container builds, so it's pixel-consistent with the
-    -- rest of the addon's Ace3-based windows. It scrolls the pool one row
-    -- at a time - the pool's widgets never move, only their contents do.
+    -- Real WoW UI scrollbar, styled like AceGUI's own ScrollFrame for
+    -- visual consistency. Scrolls the pool one row at a time - the pool's
+    -- widgets never move, only their contents do.
     scrollbar = CreateFrame("Slider", nil, viewport.frame, "UIPanelScrollBarTemplate")
     scrollbar:SetPoint("TOPLEFT", viewport.frame, "TOPRIGHT", 4, -16)
     scrollbar:SetPoint("BOTTOMLEFT", viewport.frame, "BOTTOMRIGHT", 4, 16)
@@ -1761,9 +1804,7 @@ function PersonalPlayerNotes:OpenIconPicker(currentIcon, onSelect)
         end)
 
         -- AceGUI's Icon widget has no built-in "selected" indicator, so add
-        -- a small border texture directly on its underlying Button frame -
-        -- a normal way to extend an AceGUI widget instance from consuming
-        -- code without touching the library itself - and toggle it in
+        -- a small border texture directly on its Button frame, toggled in
         -- RenderWindow() below.
         local selectedBorder = CreateFrame("Frame", nil, iconWidget.frame, "BackdropTemplate")
         selectedBorder:SetPoint("TOPLEFT", iconWidget.image, -3, 3)

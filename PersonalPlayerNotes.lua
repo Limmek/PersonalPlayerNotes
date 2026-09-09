@@ -16,6 +16,12 @@ local LibDBIcon = LibStub("LibDBIcon-1.0")
 local IS_RETAIL = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE or false
 PersonalPlayerNotes.IsRetail = IS_RETAIL
 
+--[[
+    Renders `icon` (a texture path or fileID) as an inline tooltip icon
+    glyph (WoW's "|T...|t" escape sequence) followed by a trailing space,
+    or an empty string if no icon is set - used to prefix the reason/note
+    lines GameTooltip() adds for a listed player.
+]]
 local function IconPrefix(icon)
     if not icon or icon == "" then
         return ""
@@ -330,24 +336,69 @@ function PersonalPlayerNotes:SelectListedPlayerAndOpenDialog(player)
 end
 
 --[[
-    Registers the modern Menu API (Retail 11.0.0+) unit-menu entries for
-    player/enemy-player/friend units, via Menu.ModifyMenu(). Only called from
-    OnEnable() when HasModernMenuAPI() is true. Shares the same "Add"/"Edit"
-    decision logic as the legacy UnitPopup_ShowMenu() fallback below, just
-    driven by a rootDescription:CreateButton() menu instead of
-    UIDropDownMenu_AddButton().
+    Resolves the player name/realm a modern Menu API contextData refers to,
+    whether it carries a real unit token (Target/Party/Raid/nameplate/etc.
+    frames) or not (Friends List entries, chat player-name links, and
+    channel/community/guild roster clicks only ever provide contextData.name,
+    see UnitPopupManager:OpenMenu() in Blizzard_UnitPopupShared). Returns
+    nil, nil if no usable player name could be determined.
 ]]
-function PersonalPlayerNotes:DropDownMenuInitialize()
-    local DropDownMenu = function(ownerRegion, rootDescription, contextData)
-        -- verify the unit
-        if contextData.unit == nil or not UnitIsPlayer(contextData.unit) then
-            return
+function PersonalPlayerNotes:ResolveContextDataPlayer(contextData)
+    if contextData.unit ~= nil then
+        if not UnitIsPlayer(contextData.unit) then
+            return nil, nil
         end
-        -- retrieve name and realm from wow api
         local name, realm = UnitName(contextData.unit)
         -- if the unit is from the same realm then realm is empty, use current realm instead
         if realm == nil then
             realm = GetRealmName()
+        end
+        return name, realm
+    end
+
+    local name = contextData.name
+    if type(name) ~= "string" or name == "" then
+        return nil, nil
+    end
+
+    -- Cross-realm names already come as "Name-Realm" (e.g. cross-realm chat
+    -- or BGs); contextData never carries a separate realm field when there's
+    -- no unit token, so split it the same way legacy Shitlist keys are.
+    local parsedName, parsedRealm = self:ParseLegacyPlayerKey(name)
+    if parsedName and parsedRealm then
+        return parsedName, parsedRealm
+    end
+
+    return name, GetRealmName()
+end
+
+--[[
+    True when a MENU_UNIT_FRIEND(_OFFLINE) contextData came from a chat
+    player-name click rather than an actual Friends list entry - Blizzard
+    funnels both through the same menu tag, distinguished only by the
+    chat-specific fields that only chat clicks set.
+]]
+local function IsChatContextData(contextData)
+    return contextData.chatType ~= nil or contextData.chatFrame ~= nil or contextData.lineID ~= nil
+end
+
+--[[
+    Registers the modern Menu API (Retail 11.0.0+) unit-menu entries for
+    player units, via Menu.ModifyMenu(). Only called from OnEnable() when
+    HasModernMenuAPI() is true; shares the same Add/Edit logic as the
+    legacy UnitPopup_ShowMenu() fallback below.
+
+    Menu tags fire based on the *relationship* between the player and the
+    right-clicked unit, not the frame clicked - e.g. right-clicking the
+    Target frame while targeting a party member fires MENU_UNIT_PARTY, the
+    same tag the Party frame itself uses, hence one contextMenu.party toggle
+    covers both.
+]]
+function PersonalPlayerNotes:DropDownMenuInitialize()
+    local function BuildMenu(ownerRegion, rootDescription, contextData)
+        local name, realm = PersonalPlayerNotes:ResolveContextDataPlayer(contextData)
+        if not name then
+            return
         end
 
         local listedPlayer = PersonalPlayerNotes:GetListedPlayer(name, realm)
@@ -368,28 +419,82 @@ function PersonalPlayerNotes:DropDownMenuInitialize()
             end)
         end
     end
+
+    -- Always available: ordinary world/nameplate players, friendly or
+    -- hostile, that aren't currently in your party/raid.
     Menu.ModifyMenu("MENU_UNIT_PLAYER", function(...)
-        DropDownMenu(...)
+        BuildMenu(...)
     end)
     Menu.ModifyMenu("MENU_UNIT_ENEMY_PLAYER", function(...)
-        DropDownMenu(...)
+        BuildMenu(...)
     end)
-    Menu.ModifyMenu("MENU_UNIT_FRIEND", function(...)
-        DropDownMenu(...)
+
+    -- Party/raid group members - also covers the Target/Focus frame's menu
+    -- while it's showing a group member, since Blizzard tags that the same
+    -- way (see the module doc comment above).
+    local function PartyGatedMenu(ownerRegion, rootDescription, contextData)
+        if not PersonalPlayerNotes.db.profile.contextMenu.party then
+            return
+        end
+        BuildMenu(ownerRegion, rootDescription, contextData)
+    end
+    Menu.ModifyMenu("MENU_UNIT_PARTY", PartyGatedMenu)
+    Menu.ModifyMenu("MENU_UNIT_RAID_PLAYER", PartyGatedMenu)
+
+    -- Friends list entries and chat player-name links both use the same
+    -- "FRIEND"/"FRIEND_OFFLINE" menu tags, so they're told apart here via
+    -- contextData instead of via tag (see IsChatContextData() above).
+    local function FriendOrChatGatedMenu(ownerRegion, rootDescription, contextData)
+        local contextMenu = PersonalPlayerNotes.db.profile.contextMenu
+        local enabled
+        if IsChatContextData(contextData) then
+            enabled = contextMenu.chat
+        else
+            enabled = contextMenu.friends
+        end
+        if not enabled then
+            return
+        end
+        BuildMenu(ownerRegion, rootDescription, contextData)
+    end
+    Menu.ModifyMenu("MENU_UNIT_FRIEND", FriendOrChatGatedMenu)
+    Menu.ModifyMenu("MENU_UNIT_FRIEND_OFFLINE", FriendOrChatGatedMenu)
+
+    -- Channel/community/guild chat roster right-clicks.
+    Menu.ModifyMenu("MENU_UNIT_CHAT_ROSTER", function(ownerRegion, rootDescription, contextData)
+        if not PersonalPlayerNotes.db.profile.contextMenu.chat then
+            return
+        end
+        BuildMenu(ownerRegion, rootDescription, contextData)
     end)
 end
 
 -- Classic Deprecated
 --[[
     Legacy pre-Menu-API unit-menu handler, SecureHooked onto Blizzard's
-    global UnitPopup_ShowMenu() from OnEnable() when HasModernMenuAPI() is
-    false. Adds an "Add"/submenu entry for the targeted unit at the dropdown
-    root, and an "Edit" button one level down for already-listed players.
+    global UnitPopup_ShowMenu() when HasModernMenuAPI() is false. Adds an
+    Add/submenu entry at the dropdown root, and an Edit button one level
+    down for already-listed players.
+
+    Unlike DropDownMenuInitialize(), this hooks one global function called
+    for every menu tag, so `target` is checked manually instead of
+    registering per-tag. Chat and Friends-list can't be told apart on this
+    legacy API, so contextMenu.chat/friends are treated as one toggle here.
 ]]
 function PersonalPlayerNotes:UnitPopup_ShowMenu(target, unit, menuList)
     PersonalPlayerNotes:PrintDebug("Unit: ", unit, ", Target: ", target)
     -- verify the target
-    if target == "SELF" or target == "FRIEND" or target == "COMMUNITIES_GUILD_MEMBER" then
+    if target == "SELF" or target == "COMMUNITIES_GUILD_MEMBER" then
+        return
+    end
+    local contextMenu = PersonalPlayerNotes.db.profile.contextMenu
+    if (target == "PARTY" or target == "RAID_PLAYER") and not contextMenu.party then
+        return
+    end
+    if
+        (target == "FRIEND" or target == "FRIEND_OFFLINE" or target == "CHAT_ROSTER")
+        and not (contextMenu.friends or contextMenu.chat)
+    then
         return
     end
     -- verify the unit
@@ -455,14 +560,13 @@ function PersonalPlayerNotes:UnitPopup_ShowMenu(target, unit, menuList)
 end
 
 --[[
-    Tooltip hook body, registered via TooltipDataProcessor.AddTooltipPostCall()
-    or GameTooltip:HookScript("OnTooltipSetUnit", ...) from OnEnable(). Called
-    with the real tooltip frame as `self`. Adds the reason/description lines
-    for a listed player being hovered, and plays an alert sound the first
-    time a player with alerts enabled is seen. Unless alert.sessionOnly is
-    set, an AlertDelayTimer cooldown lets the alert repeat every alert.delay
-    seconds for the same player; with alert.sessionOnly, it only ever plays
-    once per player until /reload or a profile change (see LoadConfig()).
+    Tooltip hook body, registered from OnEnable() via
+    TooltipDataProcessor.AddTooltipPostCall() or GameTooltip's OnTooltipSetUnit
+    script. Called with the real tooltip frame as `self`. Adds reason/note
+    lines for a listed player being hovered, and plays an alert sound the
+    first time one with alerts enabled is seen - repeating every alert.delay
+    seconds unless alert.sessionOnly is set (then only once per session,
+    see LoadConfig()).
 ]]
 function PersonalPlayerNotes:GameTooltip()
     local _name, unit = self:GetUnit()
@@ -521,47 +625,67 @@ function PersonalPlayerNotes:GameTooltip()
     -- Alert
     local time = time()
     local alert = PersonalPlayerNotes.db.profile.alert
-    if alert.enabled and reason.alert then
-        if listedPlayer.alert and not alert.last[name] then
-            if alert.sessionOnly then
-                -- Never cleared until LoadConfig() resets alert.last on
-                -- /reload or profile change, so this player won't alert
-                -- again for the rest of the session.
-                alert.last[name] = true
-                PersonalPlayerNotes:PrintDebug(
-                    "|cffff0000<ALERT>|cffffffff Sound effect disabled for player",
-                    name,
-                    "for the rest of the session."
-                )
-            else
-                alert.last[name] = time + alert.delay
-                PersonalPlayerNotes:ScheduleTimer("AlertDelayTimer", alert.delay, name)
-                PersonalPlayerNotes:PrintDebug(
-                    "|cffff0000<ALERT>|cffffffff Sound effect disabled for player",
-                    name,
-                    "for",
-                    alert.delay,
-                    "seconds."
-                )
-            end
-            -- Player-specific sound wins, then the reason's, then the global default.
-            PersonalPlayerNotes:PlayAlertSoundEffect(listedPlayer.sound or reason.sound or alert.sound)
+    -- Alert can be enabled independently on the reason and on the listed
+    -- player (e.g. a player can alert even when their reason is "None",
+    -- which always defaults to alert = false). If either one is enabled,
+    -- the player alerts; only a single sound ever plays, and the player's
+    -- alert (and its sound inheritance chain) takes priority over the
+    -- reason's when both are enabled, so we never play two warning sounds.
+    if alert.enabled and (reason.alert or listedPlayer.alert) and not alert.last[name] then
+        if alert.sessionOnly then
+            -- Never cleared until LoadConfig() resets alert.last on
+            -- /reload or profile change, so this player won't alert
+            -- again for the rest of the session.
+            alert.last[name] = true
+            PersonalPlayerNotes:PrintDebug(
+                "|cffff0000<ALERT>|cffffffff Sound effect disabled for player",
+                name,
+                "for the rest of the session."
+            )
+        else
+            alert.last[name] = time + alert.delay
+            PersonalPlayerNotes:ScheduleTimer("AlertDelayTimer", alert.delay, name)
+            PersonalPlayerNotes:PrintDebug(
+                "|cffff0000<ALERT>|cffffffff Sound effect disabled for player",
+                name,
+                "for",
+                alert.delay,
+                "seconds."
+            )
         end
+        local sound
+        if listedPlayer.alert then
+            -- Player-specific sound wins, then the reason's, then the global default.
+            sound = listedPlayer.sound or reason.sound or alert.sound
+        else
+            -- Player's alert is off; only the reason (and its own
+            -- inherited fallback) triggered this, so ignore any leftover
+            -- player-specific sound the player didn't opt into.
+            sound = reason.sound or alert.sound
+        end
+        PersonalPlayerNotes:PlayAlertSoundEffect(sound)
     end
 end
 
+--[[
+    ScheduleTimer callback (see GameTooltip()'s alert.delay handling) that
+    clears a player's alert cooldown once it expires, letting their alert
+    sound play again the next time their tooltip is shown.
+]]
 function PersonalPlayerNotes:AlertDelayTimer(name)
-    -- Called within ScheduleTimer and fires when timer ends.
     PersonalPlayerNotes:PrintDebug("|cffff0000<ALERT>|cffffffff Sound effect is now enabled for player", name)
     PersonalPlayerNotes.db.profile.alert.last[name] = nil
 end
 
+--[[
+    Builds the LibDataBroker-1.1 data object for the minimap launcher icon
+    (see https://github.com/tekkub/libdatabroker-1-1/wiki/How-to-provide-a-dataobject),
+    registered with LibDBIcon-1.0 in OnInitialize(). OnClick routes
+    left/right-click and shift/ctrl-modified left-clicks to the Blizzard
+    options fallback or one of the three custom option windows;
+    OnTooltipShow renders its hover tooltip.
+]]
 function PersonalPlayerNotes:MiniMapIcon()
-    -- Create minimap launcher
-    -- https://github.com/tekkub/libdatabroker-1-1/wiki/How-to-provide-a-dataobject
-    -- OnClick: right-click opens the Blizzard options fallback; left-click
-    -- opens Settings/Reasons/Listed Players depending on shift/ctrl held.
-    -- OnTooltipShow: renders the minimap icon's hover tooltip.
     return LibDataBroker:NewDataObject(personalPlayerNotes, {
         type = "launcher",
         text = L["PPN"],
