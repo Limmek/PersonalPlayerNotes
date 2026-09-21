@@ -50,6 +50,6 @@ jobs:
           git push origin "${{ steps.version.outputs.tag }}"
 
       - name: Package and publish
-        uses: BigWigsMods/packager@v2.5.1
+        uses: BigWigsMods/packager@v2.6.1
         with:
           args: -p 344967 -w 0 -a 0 -m .pkgmeta
