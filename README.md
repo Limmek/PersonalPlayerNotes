@@ -32,6 +32,7 @@ Keep private reminders about players you meet. Add an optional note or color-cod
 | Client | Version |
 |--------|---------|
 | Retail | <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Limmek/PersonalPlayerNotes/master/.github/badges/retail.json" alt="Retail"> |
+| WoW: Forever | <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Limmek/PersonalPlayerNotes/master/.github/badges/forever.json" alt="WoW Forever"> |
 | Classic Era (incl. Hardcore, SoM, SoD) | <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Limmek/PersonalPlayerNotes/master/.github/badges/vanilla.json" alt="Classic Era"> |
 | Burning Crusade Classic (Anniversary) | <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Limmek/PersonalPlayerNotes/master/.github/badges/tbc.json" alt="TBC Anniversary"> |
 | Mists of Pandaria Classic | <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/Limmek/PersonalPlayerNotes/master/.github/badges/mists.json" alt="Mists Classic"> |
@@ -46,16 +47,9 @@ Install through the [CurseForge App](https://www.curseforge.com/download/app) or
 ### Manual installation
 
 1. Download the latest zip from [GitHub Releases](https://github.com/Limmek/PersonalPlayerNotes/releases) or [CurseForge](https://www.curseforge.com/wow/addons/personal-player-notes).
-2. Extract the zip into your WoW `Interface/AddOns/` folder. The zip already contains the `PersonalPlayerNotes/` folder — after extraction it should look like:
+2. Extract the zip into your WoW `Interface/AddOns/` folder. The zip already contains the `PersonalPlayerNotes/` folder — for WoW: Forever, use that client's AddOns folder:
    ```
-   World of Warcraft/
-   └── _retail_/          (or _classic_era_, _classic_, etc.)
-       └── Interface/
-           └── AddOns/
-               └── PersonalPlayerNotes/
-                   ├── PersonalPlayerNotes.toc
-                   ├── PersonalPlayerNotes.lua
-                   └── ...
+World of Warcraft/<flavor>/Interface/AddOns/PersonalPlayerNotes/
    ```
 3. Start or reload the game (`/reload`) and enable the addon on the character-select AddOns screen.
 
