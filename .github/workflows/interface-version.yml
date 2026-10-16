@@ -22,6 +22,12 @@ jobs:
         with:
           flavor: retail
 
+      - name: Preserve WoW Forever interface
+        run: |
+          TOC="PersonalPlayerNotes.toc"
+          retail=$(grep -m1 '^## Interface: ' "$TOC" | sed 's/.*: //' | cut -d, -f1 | tr -d ' \r')
+          sed -i "s/^## Interface:.*/## Interface: ${retail}, 16001/" "$TOC"
+
       - name: Update badge JSON files
         run: |
           toc_to_version() {
@@ -32,7 +38,9 @@ jobs:
           TOC="PersonalPlayerNotes.toc"
           mkdir -p .github/badges
 
-          retail=$(grep -m1 '^## Interface: '          "$TOC" | sed 's/.*: //' | tr -d ' \r')
+          interfaces=$(grep -m1 '^## Interface: '      "$TOC" | sed 's/.*: //' | tr -d ' \r')
+          retail=$(printf '%s' "$interfaces" | cut -d, -f1 | tr -d ' ')
+          forever=$(printf '%s' "$interfaces" | cut -d, -f2 | tr -d ' ')
           vanilla=$(grep -m1 '^## Interface-Vanilla: '  "$TOC" | sed 's/.*: //' | tr -d ' \r')
           tbc=$(grep -m1 '^## Interface-TBC: '         "$TOC" | sed 's/.*: //' | tr -d ' \r')
           mists=$(grep -m1 '^## Interface-Mists: '     "$TOC" | sed 's/.*: //' | tr -d ' \r')
@@ -41,6 +49,7 @@ jobs:
           [ -n "$vanilla" ] && printf '{"schemaVersion":1,"label":"Classic Era","message":"%s","color":"A335EE","style":"flat-square"}\n'    "$(toc_to_version "$vanilla")" > .github/badges/vanilla.json
           [ -n "$tbc" ]     && printf '{"schemaVersion":1,"label":"TBC Anniversary","message":"%s","color":"C69B3A","style":"flat-square"}\n' "$(toc_to_version "$tbc")"    > .github/badges/tbc.json
           [ -n "$mists" ]   && printf '{"schemaVersion":1,"label":"Mists Classic","message":"%s","color":"1EFF00","style":"flat-square"}\n'  "$(toc_to_version "$mists")"   > .github/badges/mists.json
+          [ -n "$forever" ] && printf '{"schemaVersion":1,"label":"WoW Forever","message":"%s","color":"00A3E0","style":"flat-square"}\n' "$(toc_to_version "$forever")" > .github/badges/forever.json
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v8

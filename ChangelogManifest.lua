@@ -3,4 +3,5 @@
 -- changelog.txt, then commit the result.
 local personalPlayerNotes = ...
 
-PersonalPlayerNotes.Changelog = "Added settings to control where the Add/Edit Listed Player context menu entry shows up: Party & Raid members, Friends list, and Chat."
+PersonalPlayerNotes.Changelog = "New icon and added WoW Forever support.\
+Added settings to control where the Add/Edit Listed Player context menu entry shows up: Party & Raid members, Friends list, and Chat."

@@ -27,6 +27,7 @@ body:
       description: Which World of Warcraft client are you running?
       options:
         - Retail (Default)
+        - "WoW: Forever"
         - Classic Era (including Hardcore/SoM/SoD)
         - Burning Crusade Classic (Anniversary)
         - Mists of Pandaria Classic

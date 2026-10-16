@@ -125,8 +125,12 @@ local function validateToc(tocName)
 
     for field, value in pairs(fields) do
         if field == "Interface" or field:match("^Interface%-") then
-            if not value:match("^%d%d%d%d%d+$") then
-                fail(tocName, "## %s has a non-numeric/implausible value: '%s'", field, value)
+            for interfaceVersion in (value .. ","):gmatch("(.-),") do
+                interfaceVersion = interfaceVersion:match("^%s*(.-)%s*$")
+                if not interfaceVersion:match("^%d%d%d%d%d+$") then
+                    fail(tocName, "## %s has a non-numeric/implausible value: '%s'", field, value)
+                    break
+                end
             end
         end
     end

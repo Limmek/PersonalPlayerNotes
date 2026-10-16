@@ -108,7 +108,7 @@ jobs:
       # (which would need CF_API_KEY, not available to PRs from forks).
       - name: Build package artifact
         if: steps.tag_check.outputs.skip == 'false'
-        uses: BigWigsMods/packager@v2.5.1
+        uses: BigWigsMods/packager@v2.6.1
         with:
           args: -d -p 0 -w 0 -a 0 -m .pkgmeta
 
