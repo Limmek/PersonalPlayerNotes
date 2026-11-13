@@ -702,6 +702,44 @@ end
 
 --#endregion
 
+do
+    local originalGetBuildInfo = _G.GetBuildInfo
+    _G.GetBuildInfo = function()
+        return "1.16.1", "build", "date", 16001
+    end
+
+    local foreverAddon = bootstrap.loadAddon()
+    check("WoW Forever is detected from interface version 16001", foreverAddon.IsWoWForever, true)
+    check(
+        "WoW Forever player name field is labeled First Name",
+        foreverAddon.options.ListedPlayers.args.name.name,
+        "PPN_LISTED_PLAYER_FIRST_NAME"
+    )
+    check(
+        "WoW Forever realm field is labeled Last Name",
+        foreverAddon.options.ListedPlayers.args.realm.name,
+        "PPN_LISTED_PLAYER_LAST_NAME"
+    )
+
+    _G.GetBuildInfo = function()
+        return "12.0.1", "build", "date", 120105
+    end
+    local otherAddon = bootstrap.loadAddon()
+    check("non-Forever interface versions are not detected as WoW Forever", otherAddon.IsWoWForever, false)
+    check(
+        "other client player name field keeps its existing label",
+        otherAddon.options.ListedPlayers.args.name.name,
+        "PPN_LISTED_PLAYER_NAME"
+    )
+    check(
+        "other client realm field keeps its existing label",
+        otherAddon.options.ListedPlayers.args.realm.name,
+        "PPN_LISTED_PLAYER_REALM"
+    )
+
+    _G.GetBuildInfo = originalGetBuildInfo
+end
+
 if failures > 0 then
     print(string.format("\n%d test(s) failed.", failures))
     os.exit(1)

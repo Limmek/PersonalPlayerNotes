@@ -871,7 +871,8 @@ PersonalPlayerNotes.options = {
             name = {
                 type = "input",
                 order = 3,
-                name = L["PPN_LISTED_PLAYER_NAME"],
+                name = PersonalPlayerNotes.IsWoWForever and L["PPN_LISTED_PLAYER_FIRST_NAME"]
+                    or L["PPN_LISTED_PLAYER_NAME"],
                 width = 1.25,
                 get = "GetListedPlayerName",
                 set = "SetListedPlayerName",
@@ -879,7 +880,8 @@ PersonalPlayerNotes.options = {
             realm = {
                 type = "input",
                 order = 4,
-                name = L["PPN_LISTED_PLAYER_REALM"],
+                name = PersonalPlayerNotes.IsWoWForever and L["PPN_LISTED_PLAYER_LAST_NAME"]
+                    or L["PPN_LISTED_PLAYER_REALM"],
                 width = 1.25,
                 get = "GetListedPlayerRealm",
                 set = "SetListedPlayerRealm",
