@@ -15,6 +15,12 @@ local LibDBIcon = LibStub("LibDBIcon-1.0")
 
 local IS_RETAIL = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE or false
 PersonalPlayerNotes.IsRetail = IS_RETAIL
+local IS_WOW_FOREVER = false
+if type(_G.GetBuildInfo) == "function" then
+    local _, _, _, interfaceVersion = _G.GetBuildInfo()
+    IS_WOW_FOREVER = interfaceVersion == 16001
+end
+PersonalPlayerNotes.IsWoWForever = IS_WOW_FOREVER
 
 --[[
     Renders `icon` (a texture path or fileID) as an inline tooltip icon
