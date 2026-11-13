@@ -63,6 +63,19 @@
             ],
             "group": "build",
             "problemMatcher": []
+        },
+        {
+            "label": "Publish Release from master",
+            "detail": "Push master to release. This triggers the release and publishing workflows.",
+            "type": "shell",
+            "command": "git",
+            "args": [
+                "push",
+                "origin",
+                "master:release"
+            ],
+            "group": "build",
+            "problemMatcher": []
         }
     ]
 }

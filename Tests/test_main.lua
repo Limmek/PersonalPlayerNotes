@@ -4,7 +4,7 @@
     PersonalPlayerNotes.lua. This is the one piece of non-trivial pure(ish)
     business logic in that file - the rest (menu/tooltip hooks, AceGUI
     widgets, minimap icon) is too tightly coupled to the real WoW client to
-    usefully unit test, see .github/AGENTS.md.
+    usefully unit test, see docs/ARCHITECTURE.md.
 
     Run with: lua5.1 Tests/test_main.lua
 ]]
@@ -177,7 +177,7 @@ end
 --[[
     GameTooltip, MiniMapIcon, DropDownMenuInitialize and UnitPopup_ShowMenu
     are normally excluded from unit testing here as "WoW-API-coupled" (see
-    the module docstring above and .github/AGENTS.md), since they're
+    the module docstring above and docs/ARCHITECTURE.md), since they're
     registered as hooks/callbacks into real Blizzard UI objects (tooltips,
     Menu descriptions, dropdown menus, LibDataBroker data objects).
 

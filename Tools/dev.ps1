@@ -198,22 +198,25 @@ Install Git for Windows or make bash.exe available on PATH.
 The local package build uses the BigWigsMods packager release script.
 '@
 
-    $SevenZip = Resolve-CommandPath `
-        -Names @('7z.exe', '7z') `
-        -CandidatePaths @(
-            'C:\Program Files\7-Zip\7z.exe',
-            'C:\Program Files (x86)\7-Zip\7z.exe'
-        ) `
-        -MissingMessage @'
-7-Zip was not found.
-Install 7-Zip so the local package build can create zip archives.
+    # A real zip in Git Bash is preferred; 7-Zip is only the fallback when zip is missing.
+    & $Bash -c 'command -v zip >/dev/null 2>&1'
+    if ($LASTEXITCODE -ne 0) {
+        $SevenZip = Resolve-CommandPath `
+            -Names @('7z.exe', '7z') `
+            -CandidatePaths @(
+                'C:\Program Files\7-Zip\7z.exe',
+                'C:\Program Files (x86)\7-Zip\7z.exe'
+            ) `
+            -MissingMessage @'
+Neither zip (in Git Bash) nor 7-Zip was found.
+Install one of them so the local package build can create zip archives.
 '@
 
-    $TempShimDir = Join-Path ([System.IO.Path]::GetTempPath()) 'PersonalPlayerNotes-dev-shims'
-    New-Item -ItemType Directory -Path $TempShimDir -Force | Out-Null
+        $TempShimDir = Join-Path ([System.IO.Path]::GetTempPath()) 'PersonalPlayerNotes-dev-shims'
+        New-Item -ItemType Directory -Path $TempShimDir -Force | Out-Null
 
-    $ZipShimScript = Join-Path $TempShimDir 'zip-shim.sh'
-    $zipShimContent = @'
+        $ZipShimScript = Join-Path $TempShimDir 'zip-shim.sh'
+        $zipShimContent = @'
 zip() {
     local archive=""
     local -a inputs=()
@@ -249,14 +252,15 @@ zip() {
 }
 '@.Replace('__SEVENZIP__', $SevenZip)
 
-    Set-Content -LiteralPath $ZipShimScript -Value $zipShimContent -Encoding ASCII
+        Set-Content -LiteralPath $ZipShimScript -Value $zipShimContent -Encoding ASCII
 
-    $ZipShimBashPath = (Resolve-Path -LiteralPath $ZipShimScript).Path -replace '\\', '/'
-    if ($ZipShimBashPath -match '^([A-Za-z]):/(.*)$') {
-        $ZipShimBashPath = '/' + $matches[1].ToLower() + '/' + $matches[2]
+        $ZipShimBashPath = (Resolve-Path -LiteralPath $ZipShimScript).Path -replace '\\', '/'
+        if ($ZipShimBashPath -match '^([A-Za-z]):/(.*)$') {
+            $ZipShimBashPath = '/' + $matches[1].ToLower() + '/' + $matches[2]
+        }
+
+        $env:BASH_ENV = $ZipShimBashPath
     }
-
-    $env:BASH_ENV = $ZipShimBashPath
 
     $Svn = Resolve-CommandPath `
         -Names @('svn.exe', 'svn') `

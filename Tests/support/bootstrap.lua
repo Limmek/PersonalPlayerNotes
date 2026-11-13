@@ -7,7 +7,7 @@
 
     Used by the test files in Tests/ so each one doesn't need to duplicate
     the same WoW/Ace3 stub setup. Only pure, isolable logic is exercised
-    this way - see .github/AGENTS.md's testing guidance for why WoW-API-heavy
+    this way - see docs/ARCHITECTURE.md's test architecture section for why WoW-API-heavy
     code (menu/tooltip rendering, AceGUI widgets, etc.) is deliberately left
     untested here.
 

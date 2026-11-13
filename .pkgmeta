@@ -16,6 +16,8 @@ ignore:
   - .vscode
   - .github
   - .pkgmeta
+  - AGENTS.md
+  - docs
   - Makefile
   - Tests
   - Tools
