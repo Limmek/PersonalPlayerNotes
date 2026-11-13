@@ -47,10 +47,7 @@ Install through the [CurseForge App](https://www.curseforge.com/download/app) or
 ### Manual installation
 
 1. Download the latest zip from [GitHub Releases](https://github.com/Limmek/PersonalPlayerNotes/releases) or [CurseForge](https://www.curseforge.com/wow/addons/personal-player-notes).
-2. Extract the zip into your WoW `Interface/AddOns/` folder. The zip already contains the `PersonalPlayerNotes/` folder — for WoW: Forever, use that client's AddOns folder:
-   ```
-World of Warcraft/<flavor>/Interface/AddOns/PersonalPlayerNotes/
-   ```
+2. Extract the zip into your WoW `Interface/AddOns/` folder. The zip already contains the `PersonalPlayerNotes/` folder — for WoW: Forever, use `World of Warcraft/<flavor>/Interface/AddOns/PersonalPlayerNotes/`.
 3. Start or reload the game (`/reload`) and enable the addon on the character-select AddOns screen.
 
 > **Migrating from the old Shitlist addon?** Keep Shitlist installed for one login after installing Personal Player Notes — it will offer to migrate your reasons and players automatically, after which Shitlist can safely be removed.
