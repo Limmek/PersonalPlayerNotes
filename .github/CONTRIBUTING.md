@@ -43,7 +43,7 @@ lua5.1 Tools/validate-toc.lua
 [![Interface versions](https://github.com/Limmek/PersonalPlayerNotes/actions/workflows/interface-version.yml/badge.svg)](https://github.com/Limmek/PersonalPlayerNotes/actions/workflows/interface-version.yml)
 [![Release](https://github.com/Limmek/PersonalPlayerNotes/actions/workflows/release.yml/badge.svg)](https://github.com/Limmek/PersonalPlayerNotes/actions/workflows/release.yml)
 
-**Branch model:** `master` is where all regular development happens (direct pushes or PRs); `release` is a persistent branch that exists only to cut versioned releases. To ship a new version:
+**Branch model:** `master` is where all regular development happens (direct pushes or PRs); `release` is a persistent branch that exists only to cut versioned releases. Run `Tools/dev.ps1` only on `master`; it refuses to run on other branches. To ship a new version:
 
 1. Open a PR from `master` into `release`.
 2. Label it `patch`, `minor`, or `major` (whichever [K-Phoen/semver-release-action](https://github.com/K-Phoen/semver-release-action) should bump).

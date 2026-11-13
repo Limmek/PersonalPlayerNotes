@@ -21,6 +21,14 @@ Set-StrictMode -Version Latest
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 Set-Location $RepoRoot
 
+$CurrentBranch = git branch --show-current
+if ($LASTEXITCODE -ne 0) {
+    throw 'Unable to determine the current Git branch.'
+}
+if ($CurrentBranch -ne 'master') {
+    throw "Tools/dev.ps1 may only run on 'master'. The 'release' branch is reserved for publishing (current branch: '$CurrentBranch')."
+}
+
 # ChangelogManifest.lua is auto-generated (see
 # Tools/generate-changelog-manifest.lua) and deliberately excluded here:
 # StyLua's AutoPreferDouble quote style can flip to single quotes depending
