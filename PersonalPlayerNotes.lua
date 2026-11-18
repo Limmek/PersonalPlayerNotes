@@ -175,6 +175,10 @@ end
     /reload with the addon unchecked, or a manual :Disable() call).
 ]]
 function PersonalPlayerNotes:OnDisable()
+    if self.mouseoverAlertFrame then
+        self.mouseoverAlertFrame:SetScript("OnUpdate", nil)
+        self.mouseoverAlertFrame:Hide()
+    end
     self:Print(L["PPN_DISABLE"])
 end
 
@@ -324,7 +328,8 @@ end
     Menu API) and UnitPopup_ShowMenu() (legacy dropdown API) to avoid
     duplicating this sync-then-open sequence in 4 separate closures.
 ]]
-function PersonalPlayerNotes:SelectListedPlayerAndOpenDialog(player)
+function PersonalPlayerNotes:SelectListedPlayerAndOpenDialog(player, newlyAdded)
+    self.playerBeingAdded = newlyAdded and player or nil
     self.db.profile.listedPlayer.id = player.id
     self.db.profile.listedPlayer.name = player.name
     self.db.profile.listedPlayer.realm = player.realm
@@ -415,7 +420,7 @@ function PersonalPlayerNotes:DropDownMenuInitialize()
                 PersonalPlayerNotes:Print(L["PPN_POPUP_NEW_ADDED"], name, realm)
 
                 local new_player = PersonalPlayerNotes:NewListedPlayer(name, realm)
-                PersonalPlayerNotes:SelectListedPlayerAndOpenDialog(new_player)
+                PersonalPlayerNotes:SelectListedPlayerAndOpenDialog(new_player, true)
             end)
         else
             rootDescription:CreateDivider()
@@ -535,7 +540,7 @@ function PersonalPlayerNotes:UnitPopup_ShowMenu(target, unit, menuList)
                 func = function()
                     PersonalPlayerNotes:Print(L["PPN_POPUP_NEW_ADDED"], name, realm)
                     local new_player = PersonalPlayerNotes:NewListedPlayer(name, realm)
-                    PersonalPlayerNotes:SelectListedPlayerAndOpenDialog(new_player)
+                    PersonalPlayerNotes:SelectListedPlayerAndOpenDialog(new_player, true)
                 end,
             }, UIDROPDOWNMENU_MENU_LEVEL)
         end
@@ -629,7 +634,6 @@ function PersonalPlayerNotes:GameTooltip()
     end
 
     -- Alert
-    local time = time()
     local alert = PersonalPlayerNotes.db.profile.alert
     -- Alert can be enabled independently on the reason and on the listed
     -- player (e.g. a player can alert even when their reason is "None",
@@ -637,28 +641,21 @@ function PersonalPlayerNotes:GameTooltip()
     -- the player alerts; only a single sound ever plays, and the player's
     -- alert (and its sound inheritance chain) takes priority over the
     -- reason's when both are enabled, so we never play two warning sounds.
-    if alert.enabled and (reason.alert or listedPlayer.alert) and not alert.last[name] then
-        if alert.sessionOnly then
-            -- Never cleared until LoadConfig() resets alert.last on
-            -- /reload or profile change, so this player won't alert
-            -- again for the rest of the session.
-            alert.last[name] = true
-            PersonalPlayerNotes:PrintDebug(
-                "|cffff0000<ALERT>|cffffffff Sound effect disabled for player",
-                name,
-                "for the rest of the session."
-            )
-        else
-            alert.last[name] = time + alert.delay
-            PersonalPlayerNotes:ScheduleTimer("AlertDelayTimer", alert.delay, name)
-            PersonalPlayerNotes:PrintDebug(
-                "|cffff0000<ALERT>|cffffffff Sound effect disabled for player",
-                name,
-                "for",
-                alert.delay,
-                "seconds."
-            )
-        end
+    if
+        listedPlayer == PersonalPlayerNotes.playerBeingAdded
+        or not (alert.enabled and (reason.alert or listedPlayer.alert))
+    then
+        return
+    end
+
+    local playerKey = name .. ":" .. realm
+    local cooldown = alert.last[playerKey]
+    if not cooldown then
+        cooldown = {}
+        alert.last[playerKey] = cooldown
+    end
+    if not cooldown.sound then
+        PersonalPlayerNotes:StartAlertCooldown(alert, cooldown, "sound")
         local sound
         if listedPlayer.alert then
             -- Player-specific sound wins, then the reason's, then the global default.
@@ -671,16 +668,108 @@ function PersonalPlayerNotes:GameTooltip()
         end
         PersonalPlayerNotes:PlayAlertSoundEffect(sound)
     end
+    if cooldown.visual then
+        return
+    end
+
+    local showCenter = listedPlayer.centerScreen
+    if showCenter == nil then
+        showCenter = alert.centerScreen
+    end
+    local showFlash = listedPlayer.screenFlash
+    if showFlash == nil then
+        showFlash = alert.screenFlash
+    end
+    if showCenter or showFlash then
+        local isMouseover = unit == "mouseover" or UnitIsUnit(unit, "mouseover")
+        if PersonalPlayerNotes:IsSecretUnit(isMouseover) or not isMouseover then
+            return
+        end
+
+        PersonalPlayerNotes:StartAlertCooldown(alert, cooldown, "visual")
+        local displayName = name
+        if PersonalPlayerNotes.IsWoWForever and realm ~= "" then
+            displayName = name .. " " .. realm
+        end
+        PersonalPlayerNotes:ShowMouseoverAlert(displayName, showCenter, showFlash)
+    end
+end
+
+function PersonalPlayerNotes:StartAlertCooldown(alert, cooldown, effect)
+    cooldown[effect] = true
+    if not alert.sessionOnly then
+        self:ScheduleTimer("AlertDelayTimer", alert.delay, cooldown, effect)
+    end
+end
+
+function PersonalPlayerNotes:ShowMouseoverAlert(name, showLabel, showFlash, preview)
+    local alert = self.db.profile.alert
+    local frame = self.mouseoverAlertFrame
+    if not frame then
+        frame = CreateFrame("Frame", nil, UIParent)
+        frame:SetAllPoints(UIParent)
+        frame.flash = frame:CreateTexture(nil, "BACKGROUND")
+        frame.flash:SetAllPoints(frame)
+        frame.flash:SetColorTexture(1, 0.25, 0.1, 1)
+        frame.label = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalHuge")
+        self.mouseoverAlertFrame = frame
+    end
+
+    frame:SetFrameStrata(preview and "TOOLTIP" or "HIGH")
+    if showLabel then
+        local raidWarning = _G.RaidWarningFrame
+        local offsetX, offsetY = alert.messageOffsetX or 0, alert.messageOffsetY or 0
+        frame.label:ClearAllPoints()
+        frame.label:SetPoint("TOP", raidWarning or UIParent, "TOP", offsetX, offsetY + (raidWarning and 0 or -180))
+        frame.label:SetText(name)
+    end
+    frame.label:SetShown(showLabel == true)
+    showFlash = not preview and showFlash == true
+    frame.flash:SetShown(showFlash)
+
+    local fadeIn, hold, fadeOut = alert.fadeIn, alert.hold, alert.fadeOut
+    if preview then
+        fadeIn, hold, fadeOut = 0, 3, 0
+    end
+    local fadeOutStart = fadeIn + hold
+    local textDuration = showLabel and (fadeOutStart + fadeOut) or 0
+    local flashDuration = showFlash and 0.3 or 0
+    local duration = math.max(textDuration, flashDuration)
+    local elapsed = 0
+    local function Update(activeFrame, delta)
+        elapsed = elapsed + delta
+        if elapsed >= duration then
+            activeFrame:SetScript("OnUpdate", nil)
+            activeFrame:Hide()
+            return
+        end
+
+        if showLabel then
+            local alpha = 1
+            if elapsed >= textDuration then
+                alpha = 0
+            elseif elapsed < fadeIn then
+                alpha = elapsed / fadeIn
+            elseif elapsed >= fadeOutStart then
+                alpha = 1 - (elapsed - fadeOutStart) / fadeOut
+            end
+            frame.label:SetAlpha(alpha)
+        end
+        if flashDuration > 0 then
+            frame.flash:SetAlpha(0.2 * math.max(0, 1 - elapsed / flashDuration))
+        end
+    end
+
+    frame:SetScript("OnUpdate", Update)
+    frame:Show()
+    Update(frame, 0)
 end
 
 --[[
-    ScheduleTimer callback (see GameTooltip()'s alert.delay handling) that
-    clears a player's alert cooldown once it expires, letting their alert
-    sound play again the next time their tooltip is shown.
+    Clears only the sound or visual cooldown that scheduled this timer.
 ]]
-function PersonalPlayerNotes:AlertDelayTimer(name)
-    PersonalPlayerNotes:PrintDebug("|cffff0000<ALERT>|cffffffff Sound effect is now enabled for player", name)
-    PersonalPlayerNotes.db.profile.alert.last[name] = nil
+function PersonalPlayerNotes:AlertDelayTimer(cooldown, effect)
+    cooldown[effect] = nil
 end
 
 --[[

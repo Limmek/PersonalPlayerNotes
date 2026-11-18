@@ -76,6 +76,7 @@
             "Enum",
             "GameTooltip",
             "UnitIsPlayer",
+            "UnitIsUnit",
             "UnitName",
             "UnitFullName",
             "GetRealmName",

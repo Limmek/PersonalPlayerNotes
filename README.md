@@ -19,8 +19,8 @@ Keep private reminders about players you meet. Add an optional note or color-cod
 - **See it at a glance** — your notes and color-coded reasons appear when you hover over a player.
 - **Organize your list** — create your own reasons, such as "Met in a dungeon", "Helpful player", "Crafter", or "Alchemy".
 - **Add an icon** — pick an icon for a reason or an individual player from a searchable picker, shown next to it in the tooltip; you can also add your own icon image files, which always appear first in the picker.
-- **Know when they are nearby** — play an alert sound when you encounter someone on your list.
-- **Choose how alerts repeat** — hear an alert once per session, or let it repeat after a delay.
+- **Know when they are nearby** — show a message, play a sound, or flash the screen when you hover over a listed player.
+- **Choose how alerts repeat** — get an alert once per session, or let it repeat after a delay.
 - **Make alerts recognisable** — choose different sounds for your whole list, a reason, or an individual player; you can also add your own sound files.
 - **Add players quickly** — right-click players from unit frames, chat links, and other supported places to add or edit them.
 - **Easy access** — use the minimap button or slash commands to open your settings, reasons, and player list.
@@ -74,9 +74,15 @@ The minimap button also responds directly to clicks (hover it in-game for the sa
 | Shift + Left-click | Manage reasons (categories) |
 | Ctrl + Left-click | Manage listed players |
 
-## Alert sounds
+## Player alerts
 
-Personal Player Notes can play a sound whenever you encounter a listed player. Alerts can either fire once per player for the rest of the session, or repeat after a configurable cooldown (in seconds), and the sound itself resolves in priority order:
+Alerts trigger when you hover over a listed player with alerts enabled on the player or their reason. The message shows their name in the raid-warning area, including both first and last names on WoW: Forever. In **Options > Alert** (`/ppno`), set the global defaults for **Alert message** and **Screen flash**, adjust the message's fade-in, hold, and fade-out times, and choose whether alerts repeat after a cooldown or fire once per session.
+
+Use **Message X**, **Message Y**, and **Preview** to adjust the position without moving Blizzard's raid warnings. Both values default to `0`. Where Blizzard Edit Mode can move the Raid Warning frame, the addon message follows it, plus any offsets you set.
+
+In **Listed Players**, select a player and set **Alert message** and **Screen flash** independently to **Use global setting**, **On**, or **Off**. An explicit choice overrides only that setting for the selected player. Sound and the main alert and cooldown rules are unchanged.
+
+Alert sounds resolve in priority order:
 
 ```
 Player's own sound override
@@ -92,7 +98,7 @@ Built-in sounds are intentionally hardcoded in the addon (starting with `default
 
 ## Reasons
 
-Reasons are reusable categories (e.g. "Met in a dungeon", "Helpful player", "Crafter", or "Alchemy") that make your private reminders easier to tell apart at a glance. Each reason has its own:
+Reasons are reusable categories (e.g. "Met in a dungeon", "Helpful player", "Crafter", or "Alchemy"). To create one, type a new name in the **Reason** field and confirm it. This works even when **None** is selected and does not change the **None** entry. Each reason has its own:
 
 - Name and tooltip color (optional)
 - Icon, shown next to the reason in the tooltip (optional)

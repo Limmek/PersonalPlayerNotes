@@ -47,7 +47,6 @@ L["PPN_INFO_COMMANDS_2"] = "|cFFD2B48C/ppno|cffffffff or |cFFD2B48C/ppnoptions|c
 L["PPN_INFO_COMMANDS_3"] = "|cFFD2B48C/ppnr|cffffffff or |cFFD2B48C/ppnreasons|cffffffff - 编辑分组分类."
 L["PPN_INFO_COMMANDS_4"] = "|cFFD2B48C/ppnp|cffffffff or |cFFD2B48C/ppnplayers|cffffffff - 编辑玩家信息."
 L["PPN_INFO_COMMANDS_5"] = "|cFFD2B48C/ppnm|cffffffff or |cFFD2B48C/ppnminimap|cffffffff - 小地图图标开关."
-L["PPN_INFO_COMMANDS_6"] = "|cFFD2B48C/ppnc|cffffffff or |cFFD2B48C/ppnchangelog|cffffffff - 显示更新日志."
 L["PPN_INFO_ABOUT_TITLE"] = "关于"
 L["PPN_INFO_ABOUT_VERSION"] = "版本"
 L["PPN_INFO_ABOUT_AUTHOR"] = "作者"
@@ -81,6 +80,16 @@ L["PPN_SETTINGS_ALERT_DESC"] = "配置当发现已关注的玩家时播放的提
 L["PPN_SETTINGS_ALERT_ENABLED"] = "启用提示音"
 L["PPN_SETTINGS_ALERT_ENABLED_DESC"] =
     "勾选此选项以启用提示音功能. 当发现已关注的玩家时, 将播放配置的提示音."
+L["PPN_SETTINGS_ALERT_MESSAGE"] = "提示消息"
+L["PPN_SETTINGS_ALERT_MESSAGE_X"] = "水平偏移"
+L["PPN_SETTINGS_ALERT_MESSAGE_X_DESC"] = "相对于默认位置的水平偏移。正值向右移动。"
+L["PPN_SETTINGS_ALERT_MESSAGE_Y"] = "垂直偏移"
+L["PPN_SETTINGS_ALERT_MESSAGE_Y_DESC"] = "相对于默认位置的垂直偏移。正值向上移动。"
+L["PPN_SETTINGS_ALERT_MESSAGE_PREVIEW"] = "预览"
+L["PPN_SETTINGS_ALERT_FLASH"] = "屏幕闪光"
+L["PPN_SETTINGS_ALERT_FADE_IN"] = "淡入（秒）"
+L["PPN_SETTINGS_ALERT_HOLD"] = "停留（秒）"
+L["PPN_SETTINGS_ALERT_FADE_OUT"] = "淡出（秒）"
 L["PPN_SETTINGS_ALERT_SESSION_ONLY"] = "每次会话仅一次"
 L["PPN_SETTINGS_ALERT_SESSION_ONLY_DESC"] =
     "每个已关注的玩家在本次会话中只提示一次, 而不是每隔提示间隔秒数重复提示. 在 /reload 或切换配置文件后重置."
@@ -143,6 +152,9 @@ L["PPN_LISTED_PLAYER_COLOR"] = "文字颜色(此附加描述在鼠标提示中�
 L["PPN_LISTED_PLAYER_ALERT_ENABLED"] = "启用玩家提示音"
 L["PPN_LISTED_PLAYER_ALERT_ENABLED_DESC"] =
     "为该玩家启用或禁用提示音, 与该玩家所在分组分类的提示音开关相互独立. 只要其中一个已启用, 该玩家就会触发提示音, 且玩家自身的设置优先."
+L["PPN_LISTED_PLAYER_CENTER_INHERIT"] = "使用全局设置"
+L["PPN_LISTED_PLAYER_CENTER_ON"] = "开启"
+L["PPN_LISTED_PLAYER_CENTER_OFF"] = "关闭"
 L["PPN_LISTED_PLAYER_SOUND"] = "声音"
 L["PPN_LISTED_PLAYER_SOUND_DESC"] =
     '为该玩家设置专属提示音, 覆盖分组分类(或全局)的声音, 优先级最高. 保持"使用默认"则不覆盖.'

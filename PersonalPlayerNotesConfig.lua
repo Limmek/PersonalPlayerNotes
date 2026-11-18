@@ -180,6 +180,13 @@ PersonalPlayerNotes.defaults = {
             chat = true, -- Chat player-name links and channel/guild rosters.
         },
         alert = {
+            centerScreen = true,
+            messageOffsetX = 0,
+            messageOffsetY = 0,
+            fadeIn = 0.2,
+            hold = 1.5,
+            fadeOut = 0.4,
+            screenFlash = false,
             delay = 10,
             enabled = true,
             -- true: alert plays once per player per session (cleared on
@@ -238,6 +245,12 @@ PersonalPlayerNotes.defaults = {
 }
 
 -- https://www.wowace.com/projects/ace3/pages/ace-config-3-0-options-tables
+local listedPlayerAlertChoices = {
+    L["PPN_LISTED_PLAYER_CENTER_INHERIT"],
+    L["PPN_LISTED_PLAYER_CENTER_ON"],
+    L["PPN_LISTED_PLAYER_CENTER_OFF"],
+}
+
 PersonalPlayerNotes.options = {
     Info = {
         type = "group",
@@ -288,12 +301,6 @@ PersonalPlayerNotes.options = {
                         type = "description",
                         fontSize = "medium",
                         name = L["PPN_INFO_COMMANDS_5"],
-                    },
-                    changelog = {
-                        order = 6,
-                        type = "description",
-                        fontSize = "medium",
-                        name = L["PPN_INFO_COMMANDS_6"],
                     },
                 },
             },
@@ -607,6 +614,103 @@ PersonalPlayerNotes.options = {
                             },
                         },
                     },
+                    row4 = {
+                        type = "group",
+                        inline = true,
+                        name = "",
+                        order = 4,
+                        args = {
+                            centerScreen = {
+                                type = "toggle",
+                                order = 1,
+                                name = L["PPN_SETTINGS_ALERT_MESSAGE"],
+                                width = 0.7,
+                            },
+                            screenFlash = {
+                                type = "toggle",
+                                order = 2,
+                                name = L["PPN_SETTINGS_ALERT_FLASH"],
+                                width = 0.6,
+                            },
+                        },
+                    },
+                    row6 = {
+                        type = "group",
+                        inline = true,
+                        name = "",
+                        order = 6,
+                        args = {
+                            fadeIn = {
+                                type = "range",
+                                order = 1,
+                                min = 0,
+                                max = 5,
+                                step = 0.1,
+                                name = L["PPN_SETTINGS_ALERT_FADE_IN"],
+                                width = 0.65,
+                            },
+                            hold = {
+                                type = "range",
+                                order = 2,
+                                min = 0,
+                                max = 10,
+                                step = 0.1,
+                                name = L["PPN_SETTINGS_ALERT_HOLD"],
+                                width = 0.65,
+                            },
+                            fadeOut = {
+                                type = "range",
+                                order = 3,
+                                min = 0,
+                                max = 5,
+                                step = 0.1,
+                                name = L["PPN_SETTINGS_ALERT_FADE_OUT"],
+                                width = 0.65,
+                            },
+                        },
+                    },
+                    row7 = {
+                        type = "group",
+                        inline = true,
+                        name = "",
+                        order = 7,
+                        args = {
+                            messageOffsetX = {
+                                type = "range",
+                                order = 1,
+                                min = -1000,
+                                max = 1000,
+                                step = 5,
+                                name = L["PPN_SETTINGS_ALERT_MESSAGE_X"],
+                                desc = L["PPN_SETTINGS_ALERT_MESSAGE_X_DESC"],
+                                width = 0.65,
+                            },
+                            messageOffsetY = {
+                                type = "range",
+                                order = 2,
+                                min = -1000,
+                                max = 1000,
+                                step = 5,
+                                name = L["PPN_SETTINGS_ALERT_MESSAGE_Y"],
+                                desc = L["PPN_SETTINGS_ALERT_MESSAGE_Y_DESC"],
+                                width = 0.65,
+                            },
+                            previewMessage = {
+                                type = "execute",
+                                order = 3,
+                                name = L["PPN_SETTINGS_ALERT_MESSAGE_PREVIEW"],
+                                width = 0.65,
+                                func = function()
+                                    PersonalPlayerNotes:ShowMouseoverAlert(
+                                        L["PPN_SETTINGS_ALERT_MESSAGE"],
+                                        true,
+                                        false,
+                                        true
+                                    )
+                                end,
+                            },
+                        },
+                    },
                 },
             },
             -- A dedicated panel for managing custom icons (add/remove),
@@ -748,9 +852,6 @@ PersonalPlayerNotes.options = {
                 width = 2.6,
                 get = "GetReason",
                 set = "SetReason",
-                disabled = function()
-                    return PersonalPlayerNotes.db.profile.reason.id <= #PersonalPlayerNotes.defaults.profile.reasons
-                end,
             },
             -- Nesting icon/color/alert in their own unnamed inline group
             -- (a borderless SimpleGroup) forces them onto one row regardless
@@ -973,6 +1074,34 @@ PersonalPlayerNotes.options = {
                 name = L["PPN_SOUND_TEST"],
                 desc = L["PPN_SOUND_TEST_DESC"],
                 func = "TestListedPlayerSound",
+            },
+            visualAlerts = {
+                type = "group",
+                inline = true,
+                order = 11,
+                name = "",
+                get = "GetListedPlayerVisualAlert",
+                set = "SetListedPlayerVisualAlert",
+                disabled = function()
+                    local profile = PersonalPlayerNotes.db.profile
+                    return not profile.listedPlayers[profile.listedPlayer.id]
+                end,
+                args = {
+                    centerScreen = {
+                        type = "select",
+                        order = 1,
+                        width = 1.3,
+                        name = L["PPN_SETTINGS_ALERT_MESSAGE"],
+                        values = listedPlayerAlertChoices,
+                    },
+                    screenFlash = {
+                        type = "select",
+                        order = 2,
+                        width = 1.3,
+                        name = L["PPN_SETTINGS_ALERT_FLASH"],
+                        values = listedPlayerAlertChoices,
+                    },
+                },
             },
         },
     },
@@ -1587,6 +1716,29 @@ end
 ]]
 function PersonalPlayerNotes:GetListedPlayerSound(info)
     return self.db.profile.listedPlayer.sound or "__inherit__"
+end
+
+function PersonalPlayerNotes:GetListedPlayerVisualAlert(info)
+    local profile = self.db.profile
+    local player = profile.listedPlayers[profile.listedPlayer.id]
+    local value = player and player[info[#info]]
+    if value == nil then
+        return 1
+    end
+    return value and 2 or 3
+end
+
+function PersonalPlayerNotes:SetListedPlayerVisualAlert(info, value)
+    local profile = self.db.profile
+    local player = profile.listedPlayers[profile.listedPlayer.id]
+    if player then
+        local field = info[#info]
+        if value == 1 then
+            player[field] = nil
+        else
+            player[field] = value == 2
+        end
+    end
 end
 
 --[[

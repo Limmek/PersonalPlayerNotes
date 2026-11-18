@@ -217,6 +217,7 @@ local function freshGameTooltipAddon()
     addon.db = {
         profile = {
             icon = "Interface\\AddOns\\PersonalPlayerNotes\\Images\\icon.png",
+            listedPlayer = {},
             reasons = { { id = 1, reason = "Ninja looter", color = { r = 1, g = 0, b = 0 }, alert = true } },
             listedPlayers = {
                 {
@@ -241,6 +242,234 @@ _G.time = function()
     return 1000
 end
 _G.PlaySoundFile = function() end
+
+do
+    local addon = freshGameTooltipAddon()
+    local alert = addon.db.profile.alert
+    alert.centerScreen = true
+    alert.sessionOnly = true
+    local shown, showLabel, showFlash
+    local soundCount = 0
+    addon.PlayAlertSoundEffect = function()
+        soundCount = soundCount + 1
+    end
+    addon.ShowMouseoverAlert = function(_, name, centerScreen, screenFlash)
+        shown, showLabel, showFlash = name, centerScreen, screenFlash
+    end
+    _G.UnitIsPlayer = function()
+        return true
+    end
+    _G.UnitFullName = function()
+        return "Thrall", "Frostmourne"
+    end
+    _G.UnitIsUnit = function(unit, other)
+        return unit == "target" and other == "mouseover"
+    end
+
+    local tooltip = newFakeTooltip("Thrall", "mouseover")
+    addon.GameTooltip(tooltip)
+    check("A listed mouseover dispatches the center alert with the player name", shown, "Thrall")
+    shown = nil
+    addon.GameTooltip(tooltip)
+    check("The alert cooldown suppresses the center alert", shown, nil)
+
+    alert.last = {}
+    addon.GameTooltip(newFakeTooltip("Thrall", "party1"))
+    check("A non-mouseover tooltip does not dispatch the visual alert", shown, nil)
+    local soundsBeforeHover = soundCount
+    addon.GameTooltip(tooltip)
+    check("A sound-only tooltip does not consume the visual alert", shown, "Thrall")
+    check("Mouseover does not repeat sound already played by a tooltip", soundCount, soundsBeforeHover)
+
+    alert.last = {}
+    addon.GameTooltip(newFakeTooltip("Thrall", "target"))
+    check("A different token for the mouseover unit still dispatches the visual alert", shown, "Thrall")
+
+    alert.last, addon.IsWoWForever = {}, true
+    addon.GameTooltip(tooltip)
+    check("WoW Forever alerts show both components of the player name", shown, "Thrall Frostmourne")
+    local secondPlayer = addon:NewListedPlayer("Thrall", "Stormwind", 1, "Another player")
+    _G.UnitFullName = function()
+        return secondPlayer.name, secondPlayer.realm
+    end
+    local soundsBeforeSecondPlayer = soundCount
+    addon.GameTooltip(tooltip)
+    check("Players sharing a first name have independent visual cooldowns", shown, "Thrall Stormwind")
+    check("Players sharing a first name have independent sound cooldowns", soundCount, soundsBeforeSecondPlayer + 1)
+    _G.UnitFullName = function()
+        return "Thrall", "Frostmourne"
+    end
+    addon.IsWoWForever = false
+
+    local player = addon.db.profile.listedPlayers[1]
+    alert.last, alert.centerScreen, shown = {}, false, nil
+    addon.GameTooltip(tooltip)
+    check("A player with no override follows the global Off setting", shown, nil)
+
+    alert.last, player.centerScreen = {}, true
+    addon.GameTooltip(tooltip)
+    check("Player On overrides global Off", showLabel, true)
+
+    alert.last, alert.centerScreen, player.centerScreen, shown = {}, true, false, nil
+    addon.GameTooltip(tooltip)
+    check("Player Off overrides global On", shown, nil)
+
+    alert.last, alert.screenFlash = {}, true
+    addon.GameTooltip(tooltip)
+    check(
+        "Player Off still dispatches the screen flash without a center label",
+        shown == "Thrall" and not showLabel and showFlash,
+        true
+    )
+
+    alert.last, player.centerScreen, player.screenFlash = {}, true, false
+    addon.GameTooltip(tooltip)
+    check("Player Flash Off overrides global On without hiding the message", showLabel and showFlash == false, true)
+
+    alert.last, alert.screenFlash, player.centerScreen, player.screenFlash = {}, false, false, true
+    addon.GameTooltip(tooltip)
+    check("Player Flash On overrides global Off without displaying a message", not showLabel and showFlash, true)
+    _G.UnitIsUnit = nil
+end
+
+do
+    local addon = freshGameTooltipAddon()
+    addon.db.profile.alert.centerScreen = true
+    local sounds, visuals, close = 0, 0, nil
+    _G.UnitIsPlayer = function()
+        return true
+    end
+    _G.UnitFullName = function()
+        return "Jaina", "Theramore"
+    end
+    local tooltip = newFakeTooltip("Jaina", "mouseover")
+    addon.PlayAlertSoundEffect = function()
+        sounds = sounds + 1
+    end
+    addon.ShowMouseoverAlert = function()
+        visuals = visuals + 1
+    end
+    local widget = {
+        SetCallback = function(_, _, callback)
+            close = callback
+        end,
+        Show = function()
+            addon.GameTooltip(tooltip)
+        end,
+        Release = function() end,
+    }
+    addon.AceGUIDefaults = function()
+        return widget
+    end
+    addon.EnforceDialogWidth = function() end
+    addon.ResizeDialogToContent = function() end
+
+    addon:SelectListedPlayerAndOpenDialog(addon:NewListedPlayer("Jaina", "Theramore"), true)
+    check("Opening the editor for a new player does not play an alert sound", sounds, 0)
+    check("Opening the editor for a new player does not show a visual alert", visuals, 0)
+    check("Opening the editor does not consume either alert cooldown", next(addon.db.profile.alert.last), nil)
+    close(widget)
+    addon.GameTooltip(tooltip)
+    check("The next hover after closing the editor plays sound", sounds, 1)
+    check("The next hover after closing the editor shows the visual alert", visuals, 1)
+end
+
+do
+    local addon = freshGameTooltipAddon()
+    local labelAlpha, flashAlpha, labelShown, flashShown, labelText, update, visible
+    local anchor
+    local frame = {
+        label = {
+            ClearAllPoints = function() end,
+            SetPoint = function(_, ...)
+                anchor = { ... }
+            end,
+            SetAlpha = function(_, value)
+                labelAlpha = value
+            end,
+            SetShown = function(_, value)
+                labelShown = value
+            end,
+            SetText = function(_, value)
+                labelText = value
+            end,
+        },
+        flash = {
+            SetAllPoints = function() end,
+            SetColorTexture = function() end,
+            SetAlpha = function(_, value)
+                flashAlpha = value
+            end,
+            SetShown = function(_, value)
+                flashShown = value
+            end,
+        },
+        SetScript = function(_, _, callback)
+            update = callback
+        end,
+        Show = function()
+            visible = true
+        end,
+        Hide = function()
+            visible = false
+        end,
+    }
+    local oldCreateFrame, oldRaidWarningFrame, oldUIParent = _G.CreateFrame, _G.RaidWarningFrame, _G.UIParent
+    _G.RaidWarningFrame, _G.UIParent = {}, {}
+    _G.CreateFrame = function()
+        frame.SetAllPoints = function() end
+        frame.SetFrameStrata = function() end
+        frame.CreateTexture = function()
+            return frame.flash
+        end
+        frame.CreateFontString = function()
+            return frame.label
+        end
+        return frame
+    end
+    local alert = addon.db.profile.alert
+    alert.centerScreen, alert.screenFlash = true, true
+    alert.fadeIn, alert.hold, alert.fadeOut = 1, 2, 1
+    addon:ShowMouseoverAlert("Thrall", true, true)
+    check("The alert aligns with the top of the raid warning frame", anchor[2], _G.RaidWarningFrame)
+    check("The raid warning anchor starts at its first message", anchor[1] .. anchor[3], "TOPTOP")
+    check("The default offsets leave the message at the raid warning position", anchor[4] == 0 and anchor[5] == 0, true)
+    check(
+        "The center alert starts transparent with the player's name",
+        labelShown and labelAlpha == 0 and labelText,
+        "Thrall"
+    )
+    check("The optional flash starts immediately", flashShown and flashAlpha, 0.2)
+    update(frame, 0.5)
+    check("The label fades in independently of the flash", labelAlpha, 0.5)
+    check("The flash ends before the label hold", flashAlpha, 0)
+    update(frame, 1.5)
+    check("The label stays fully visible during the hold", labelAlpha, 1)
+    update(frame, 1.5)
+    check("The label fades out after the hold", labelAlpha, 0.5)
+    update(frame, 0.5)
+    check("The completed alert hides and clears its update handler", not visible and update == nil, true)
+
+    alert.centerScreen, alert.screenFlash = false, false
+    alert.fadeIn, alert.fadeOut = 0, 0
+    alert.messageOffsetX, alert.messageOffsetY = 60, -35
+    addon:ShowMouseoverAlert("Thrall", true)
+    check("The next alert applies both saved offsets", anchor[4] == 60 and anchor[5] == -35, true)
+    check("The alert message displays the player name without a flash", labelShown and not flashShown and labelAlpha, 1)
+    check("The repositioned message still displays the player name", labelText, "Thrall")
+    update(frame, 2)
+    check("Zero fade durations still hide the alert after the hold", visible, false)
+
+    _G.RaidWarningFrame, addon.mouseoverAlertFrame = nil, nil
+    addon:ShowMouseoverAlert("Thrall", true)
+    check("Without a raid warning frame the alert anchors to the UI", anchor[2], _G.UIParent)
+    check("The upper-screen fallback also applies both offsets", anchor[4] == 60 and anchor[5] == -215, true)
+
+    alert.screenFlash = true
+    addon:ShowMouseoverAlert("Preview", true, true, true)
+    check("Preview shows the message immediately without a screen flash", labelAlpha == 1 and not flashShown, true)
+    _G.CreateFrame, _G.RaidWarningFrame, _G.UIParent = oldCreateFrame, oldRaidWarningFrame, oldUIParent
+end
 
 do
     local addon = freshGameTooltipAddon()
@@ -431,8 +660,8 @@ do
     end
 
     local scheduled
-    addon.ScheduleTimer = function(_, callbackName, delay, name)
-        scheduled = { callbackName = callbackName, delay = delay, name = name }
+    addon.ScheduleTimer = function(_, callbackName, delay, cooldown, effect)
+        scheduled = { callbackName = callbackName, delay = delay, cooldown = cooldown, effect = effect }
     end
     local played, playedSound
     addon.PlayAlertSoundEffect = function(_, sound)
@@ -448,7 +677,16 @@ do
     check("GameTooltip's alert timer uses the profile's alert delay", scheduled.delay, 10)
     check("GameTooltip plays the alert sound effect", played, true)
     check("GameTooltip falls back to the global sound when reason/player have none", playedSound, "default.mp3")
-    check("GameTooltip records the alert cooldown expiry", addon.db.profile.alert.last["Thrall"], 1010)
+    check(
+        "The timer belongs to the same full player identity",
+        scheduled.cooldown,
+        addon.db.profile.alert.last["Thrall:Frostmourne"]
+    )
+    check(
+        "GameTooltip records and schedules the sound cooldown",
+        scheduled.effect == "sound" and scheduled.cooldown.sound,
+        true
+    )
 end
 
 do
@@ -593,7 +831,7 @@ end
 
 do
     local addon = freshGameTooltipAddon()
-    addon.db.profile.alert.last["Thrall"] = 2000 -- still within cooldown
+    addon.db.profile.alert.last["Thrall:Frostmourne"] = { sound = true }
     _G.UnitIsPlayer = function()
         return true
     end
@@ -640,7 +878,11 @@ do
     addon.GameTooltip(tooltip)
     check("GameTooltip's sessionOnly alert does not schedule an AlertDelayTimer", scheduled, false)
     check("GameTooltip's sessionOnly alert still plays the sound the first time", played, true)
-    check("GameTooltip's sessionOnly alert marks the player as alerted", addon.db.profile.alert.last["Thrall"], true)
+    check(
+        "GameTooltip's sessionOnly alert records the sound cooldown",
+        addon.db.profile.alert.last["Thrall:Frostmourne"].sound,
+        true
+    )
 
     played = false
     addon.GameTooltip(tooltip)
@@ -1441,10 +1683,10 @@ end
 -- AlertDelayTimer
 do
     local addon = bootstrap.loadAddon()
-    addon.db = { profile = { alert = { last = { Thrall = 1234 } } } }
-
-    addon:AlertDelayTimer("Thrall")
-    check("AlertDelayTimer clears the named player's alert cooldown", addon.db.profile.alert.last["Thrall"], nil)
+    local cooldown = { sound = true, visual = true }
+    addon:AlertDelayTimer(cooldown, "sound")
+    check("AlertDelayTimer clears the effect that expired", cooldown.sound, nil)
+    check("AlertDelayTimer leaves the independent visual cooldown intact", cooldown.visual, true)
 end
 
 -- Client flavor detection: PersonalPlayerNotes.IsRetail is computed once, at

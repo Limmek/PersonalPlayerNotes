@@ -82,6 +82,7 @@ read_globals = {
 
     -- Unit/realm info
     "UnitIsPlayer",
+    "UnitIsUnit",
     "UnitName",
     "UnitFullName",
     "GetRealmName",

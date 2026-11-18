@@ -3,4 +3,5 @@
 -- changelog.txt, then commit the result.
 local personalPlayerNotes = ...
 
-PersonalPlayerNotes.Changelog = "Fixed WoW Forever player fields to display First Name and Last Name."
+PersonalPlayerNotes.Changelog = "Added raid warning-style messages and screen flashes with global and per-player settings.\
+Fixed an issue that prevented adding a new reason when None was selected."

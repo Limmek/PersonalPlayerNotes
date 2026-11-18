@@ -1,1 +1,2 @@
-Fixed WoW Forever player fields to display First Name and Last Name.
+Added raid warning-style messages and screen flashes with global and per-player settings.
+Fixed an issue that prevented adding a new reason when None was selected.

@@ -5,7 +5,7 @@ local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 -- Current SavedVariables schema version. Bump this and extend
 -- MigrateSavedVariablesSchema() whenever the profile table shape changes
 -- in a way that requires converting existing user data.
-PersonalPlayerNotes.SCHEMA_VERSION = 2
+PersonalPlayerNotes.SCHEMA_VERSION = 3
 
 --#region Client feature detection
 
@@ -110,6 +110,10 @@ function PersonalPlayerNotes:MigrateSavedVariablesSchema()
         profile.alert.customSoundFile = nil
         profile.alert.customSounds = profile.alert.customSounds or {}
         profile.alert.newCustomSound = profile.alert.newCustomSound or ""
+    end
+
+    if fromVersion < 3 or profile.alert.raidMarker ~= nil then
+        profile.alert.raidMarker = nil
     end
 
     profile.schemaVersion = PersonalPlayerNotes.SCHEMA_VERSION
@@ -335,10 +339,14 @@ function PersonalPlayerNotes:OpenDialog(appName)
     self.customDialogFrames = self.customDialogFrames or {}
     local frame = self.customDialogFrames[appName]
     if not frame then
+        local addedPlayer = appName == "PersonalPlayerNotesSettings Listed_Players" and self.playerBeingAdded
         frame = self:AceGUIDefaults()
         frame:SetCallback("OnClose", function(widget)
             if PersonalPlayerNotes.customDialogFrames[appName] == widget then
                 PersonalPlayerNotes.customDialogFrames[appName] = nil
+                if addedPlayer and PersonalPlayerNotes.playerBeingAdded == addedPlayer then
+                    PersonalPlayerNotes.playerBeingAdded = nil
+                end
             end
             widget:Release()
         end)

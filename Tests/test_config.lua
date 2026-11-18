@@ -40,6 +40,13 @@ do
     check("defaults.alert.delay starts at 10", profile.alert.delay, 10)
     check("defaults.alert.enabled starts true", profile.alert.enabled, true)
     check("defaults.alert.sessionOnly starts false", profile.alert.sessionOnly, false)
+    check("defaults.alert.centerScreen starts true", profile.alert.centerScreen, true)
+    check("The message has no horizontal offset by default", profile.alert.messageOffsetX, 0)
+    check("The message has no vertical offset by default", profile.alert.messageOffsetY, 0)
+    check("defaults.alert.fadeIn starts at 0.2 seconds", profile.alert.fadeIn, 0.2)
+    check("defaults.alert.hold starts at 1.5 seconds", profile.alert.hold, 1.5)
+    check("defaults.alert.fadeOut starts at 0.4 seconds", profile.alert.fadeOut, 0.4)
+    check("defaults.alert.screenFlash is opt-in", profile.alert.screenFlash, false)
     check("defaults.alert.sound starts at default.mp3", profile.alert.sound, "default.mp3")
     check("defaults.alert.customSounds starts empty", #profile.alert.customSounds, 0)
     check("defaults.alert.newCustomSound starts empty", profile.alert.newCustomSound, "")
@@ -75,6 +82,20 @@ do
     check("GetAlert reads the requested alert field", PersonalPlayerNotes:GetAlert({ "delay" }), 10)
     PersonalPlayerNotes:SetAlert({ "delay" }, 25)
     check("SetAlert writes the requested alert field", PersonalPlayerNotes:GetAlert({ "delay" }), 25)
+    PersonalPlayerNotes:SetAlert({ "alert", "row6", "fadeIn" }, 0.5)
+    check("Alert timing is set through its option path", PersonalPlayerNotes:GetAlert({ "fadeIn" }), 0.5)
+    PersonalPlayerNotes:SetAlert({ "alert", "row7", "messageOffsetX" }, 100)
+    PersonalPlayerNotes:SetAlert({ "alert", "row7", "messageOffsetY" }, -75)
+    check(
+        "The horizontal offset is saved through its option path",
+        PersonalPlayerNotes:GetAlert({ "messageOffsetX" }),
+        100
+    )
+    check(
+        "The vertical offset is saved through its option path",
+        PersonalPlayerNotes:GetAlert({ "messageOffsetY" }),
+        -75
+    )
 
     check(
         "GetAlertSoundEffect reads the current sound filename",
@@ -241,6 +262,9 @@ end
 do
     PersonalPlayerNotes.db = freshDb()
     local originalReasonText = PersonalPlayerNotes.db.profile.reason.reason
+    local reasonOptions = PersonalPlayerNotes.options.Reasons.args
+    check("The default reason does not disable the create-reason input", not reasonOptions.reason.disabled, true)
+    check("The default reason still cannot be removed", reasonOptions.remove.disabled(), true)
 
     check("GetReason reads the current reason field", PersonalPlayerNotes:GetReason({ "reason" }), originalReasonText)
 
@@ -656,6 +680,32 @@ do
     )
     PersonalPlayerNotes:SetListedPlayerSound({ "sound" }, "__inherit__")
     check("SetListedPlayerSound(__inherit__) stores nil", PersonalPlayerNotes:GetListedPlayers()[1].sound, nil)
+end
+
+do
+    PersonalPlayerNotes.db = freshDb()
+    local options = PersonalPlayerNotes.options.ListedPlayers.args.visualAlerts
+    local get, set = PersonalPlayerNotes[options.get], PersonalPlayerNotes[options.set]
+    local player = PersonalPlayerNotes:GetListedPlayers()[1]
+    for _, field in ipairs({ "centerScreen", "screenFlash" }) do
+        local path = { "visualAlerts", field }
+        check(field .. " exposes all three override choices", #options.args[field].values, 3)
+        check(field .. " follows the global setting by default", get(PersonalPlayerNotes, path), 1)
+        set(PersonalPlayerNotes, path, 2)
+        check(field .. " On stores a true override", player[field], true)
+        set(PersonalPlayerNotes, path, 3)
+        check(field .. " Off round-trips as an explicit override", get(PersonalPlayerNotes, path), 3)
+        set(PersonalPlayerNotes, path, 1)
+        check(field .. " inheritance removes the override", player[field], nil)
+    end
+    set(PersonalPlayerNotes, { "centerScreen" }, 2)
+    set(PersonalPlayerNotes, { "screenFlash" }, 3)
+    check("Saving per-player flash does not change the message override", player.centerScreen, true)
+    check(
+        "Saving per-player flash does not change the global flash setting",
+        PersonalPlayerNotes.db.profile.alert.screenFlash,
+        false
+    )
 end
 
 do

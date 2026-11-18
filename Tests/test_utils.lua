@@ -263,6 +263,22 @@ do
         ""
     )
 
+    local priorAlert = { raidMarker = 8, sound = "custom.ogg", messageOffsetY = -35 }
+    PersonalPlayerNotes.db = { profile = { schemaVersion = 2, alert = priorAlert } }
+    PersonalPlayerNotes:MigrateSavedVariablesSchema()
+    check("Version 3 removes the obsolete raid marker", priorAlert.raidMarker, nil)
+    check("Version 3 preserves the chosen sound", priorAlert.sound, "custom.ogg")
+    check("Version 3 preserves the message position", priorAlert.messageOffsetY, -35)
+    check("Version 3 stamps the migrated profile", PersonalPlayerNotes.db.profile.schemaVersion, 3)
+
+    priorAlert.raidMarker = 1
+    PersonalPlayerNotes:MigrateSavedVariablesSchema()
+    check(
+        "The obsolete marker is removed even when defaults already supply the new version",
+        priorAlert.raidMarker,
+        nil
+    )
+
     PersonalPlayerNotes.db = {
         profile = { schemaVersion = PersonalPlayerNotes.SCHEMA_VERSION, alert = { sound = "default.mp3" } },
     }

@@ -64,14 +64,14 @@ Defaults are `PersonalPlayerNotes.defaults.profile` in `PersonalPlayerNotesConfi
 
 | Field | Meaning |
 |-------|---------|
-| `schemaVersion` | Stored schema version (`PersonalPlayerNotes.SCHEMA_VERSION`, currently `2`) |
+| `schemaVersion` | Stored schema version (`PersonalPlayerNotes.SCHEMA_VERSION`, currently `3`) |
 | `icon`, `minimap` | Minimap button icon path and `{ hide, minimapPos }` |
 | `debug` | Debug output on or off |
 | `contextMenu` | `{ party, friends, chat }` — where the Add/Edit menu entry appears |
-| `alert` | `{ enabled, delay, sessionOnly, sound, customSounds, newCustomSound, last }` |
+| `alert` | `{ enabled, delay, sessionOnly, sound, customSounds, newCustomSound, last, centerScreen, fadeIn, hold, fadeOut, screenFlash, messageOffsetX, messageOffsetY }` |
 | `customIcons`, `newCustomIcon`, `customIconSelected` | User-added icon filenames and their input/selection state |
 | `reasons` | Array of `{ id, reason, color, alert, sound?, icon? }`; entry 1 is the protected default "None" |
-| `listedPlayers` | Array of `{ id, name, realm, reason, description, color, alert, sound?, icon? }` |
+| `listedPlayers` | Array of `{ id, name, realm, reason, description, color, alert, sound?, icon?, centerScreen?, screenFlash? }` |
 | `reason`, `listedPlayer` | Scratch "mirror" objects holding the entry currently selected in the options UI |
 
 Notes that are easy to get wrong:
@@ -82,11 +82,15 @@ Notes that are easy to get wrong:
 
 ### Alert behavior
 
-`GameTooltip` plays at most one sound per sighting. An alert fires when `alert.enabled` and (`reason.alert` or `listedPlayer.alert`) and the player has no active cooldown in `alert.last`. With `sessionOnly` the player alerts once until `LoadConfig` clears `alert.last`; otherwise a timer (`AlertDelayTimer`) clears the cooldown after `alert.delay` seconds. Sound priority: `listedPlayer.sound` > `reason.sound` > `alert.sound`; if the player's own alert is off, the player's sound is ignored. A sound value is a filename in `Sounds/`, `"__inherit__"` is the dropdown placeholder for `nil`, and shipped sounds are listed in `PersonalPlayerNotes.SoundManifest` (currently only `default.mp3`).
+`GameTooltip` can alert when `alert.enabled` and (`reason.alert` or `listedPlayer.alert`). `alert.last` tracks separate sound and visual cooldowns keyed by name and realm (first and last name on WoW: Forever). A tooltip that plays sound without showing a visual alert does not consume the visual cooldown. With `sessionOnly` each effect can trigger once until `LoadConfig` clears `alert.last`; otherwise `AlertDelayTimer` clears each effect's cooldown after `alert.delay` seconds. A player added from a context menu does not trigger alerts while their editor is opening or open, and no cooldown is consumed. Sound priority: `listedPlayer.sound` > `reason.sound` > `alert.sound`; if the player's own alert is off, the player's sound is ignored. A sound value is a filename in `Sounds/`, `"__inherit__"` is the dropdown placeholder for `nil`, and shipped sounds are listed in `PersonalPlayerNotes.SoundManifest` (currently only `default.mp3`).
+
+When the tooltip unit is the mouseover unit, the same alert can show the player's name with configurable fade-in, hold, and fade-out durations and an independent screen flash. A listed player's `centerScreen` and `screenFlash` each store `true` or `false` for an explicit override; `nil` inherits the matching global option under `alert`.
+
+The alert label uses the top of the Blizzard raid-warning frame when available, with an upper-screen fallback, and applies the profile's `messageOffsetX` and `messageOffsetY` to that anchor. If Edit Mode moves the raid-warning frame, the relative anchor follows it. Preview reuses the label without playing a sound or flashing. On WoW: Forever, the label combines the matched player's stored first and last names; the fields used for matching are unchanged.
 
 ### Schema migration
 
-`MigrateSavedVariablesSchema` runs once per login after the DB is created. Version 2 replaced the numeric `alert.sound` with a filename. See [ppn-schema-migration](../.github/skills/ppn-schema-migration/SKILL.md) before changing the stored shape. The migration code must not reference `PersonalPlayerNotes.defaults`, because `Tests/test_utils.lua` loads the Utils file alone.
+`MigrateSavedVariablesSchema` runs once per login after the DB is created. Version 2 replaced the numeric `alert.sound` with a filename. Version 3 removes the obsolete `alert.raidMarker` setting, including when AceDB already supplied the current schema version as a default. See [ppn-schema-migration](../.github/skills/ppn-schema-migration/SKILL.md) before changing the stored shape. The migration code must not reference `PersonalPlayerNotes.defaults`, because `Tests/test_utils.lua` loads the Utils file alone.
 
 ## Options and windows
 
